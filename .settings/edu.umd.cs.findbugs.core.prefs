@@ -1,5 +1,5 @@
 #FindBugs User Preferences
-#Mon Oct 20 12:37:59 CEST 2014
+#Wed Oct 22 13:18:41 CEST 2014
 detector_threshold=3
 effort=max
 excludefilter0=.fbExcludeFilterFile|true
