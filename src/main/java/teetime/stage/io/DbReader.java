@@ -23,6 +23,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import teetime.framework.ProducerStage;
+import teetime.framework.signal.OnStartingException;
 
 import kieker.common.exception.MonitoringRecordException;
 import kieker.common.record.AbstractMonitoringRecord;
@@ -56,11 +57,11 @@ public class DbReader extends ProducerStage<IMonitoringRecord> {
 	private volatile boolean running = true;
 
 	@Override
-	public void onStarting() {
+	public void onStarting() throws OnStartingException {
 		try {
 			Class.forName(this.driverClassname).newInstance();
 		} catch (final Exception ex) { // NOPMD NOCS (IllegalCatchCheck)
-			throw new RuntimeException("DB driver registration failed. Perhaps the driver jar is missing?", ex);
+			throw new OnStartingException("DB driver registration failed. Perhaps the driver jar is missing?", ex);
 		}
 	}
 

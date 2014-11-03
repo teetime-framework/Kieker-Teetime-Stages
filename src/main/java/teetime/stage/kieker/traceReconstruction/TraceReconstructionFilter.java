@@ -19,6 +19,7 @@ import java.util.concurrent.TimeUnit;
 
 import teetime.framework.ConsumerStage;
 import teetime.framework.OutputPort;
+import teetime.framework.signal.OnTerminatingException;
 import teetime.util.concurrent.hashmap.ConcurrentHashMapWithDefault;
 import teetime.util.concurrent.hashmap.TraceBuffer;
 
@@ -94,8 +95,7 @@ public class TraceReconstructionFilter extends ConsumerStage<IFlowRecord> {
 	}
 
 	@Override
-	public void onTerminating() {
-		super.onTerminating();
+	public void onTerminating() throws OnTerminatingException {
 		for (Long traceId : this.traceId2trace.keySet()) {
 			this.put(traceId, false);
 		}

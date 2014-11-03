@@ -24,6 +24,7 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 
 import teetime.framework.ProducerStage;
+import teetime.framework.signal.OnStartingException;
 
 import kieker.common.exception.MonitoringRecordException;
 import kieker.common.logging.Log;
@@ -76,13 +77,13 @@ public class TCPReader extends ProducerStage<IMonitoringRecord> {
 	}
 
 	@Override
-	public void onStarting() {
+	public void onStarting() throws OnStartingException {
+		super.onStarting();
 		this.recordFactory = new RecordFactory();
 		this.register();
 
 		this.tcpStringReader = new TCPStringReader(this.port2, this.stringRegistry);
 		this.tcpStringReader.start();
-		super.onStarting();
 	}
 
 	private void register() {

@@ -21,6 +21,7 @@ import java.io.IOException;
 
 import teetime.framework.ConsumerStage;
 import teetime.framework.OutputPort;
+import teetime.framework.signal.OnStartingException;
 import teetime.stage.kieker.className.ClassNameRegistryRepository;
 
 import kieker.common.exception.MonitoringRecordException;
@@ -29,7 +30,7 @@ import kieker.common.util.filesystem.BinaryCompressionMethod;
 
 /**
  * @author Christian Wulf
- * 
+ *
  * @since 1.10
  */
 public class BinaryFile2RecordFilter extends ConsumerStage<File> {
@@ -58,9 +59,9 @@ public class BinaryFile2RecordFilter extends ConsumerStage<File> {
 	}
 
 	@Override
-	public void onStarting() {
-		this.recordFromBinaryFileCreator = new RecordFromBinaryFileCreator(this.logger, this.classNameRegistryRepository);
+	public void onStarting() throws OnStartingException {
 		super.onStarting();
+		this.recordFromBinaryFileCreator = new RecordFromBinaryFileCreator(this.logger, this.classNameRegistryRepository);
 	}
 
 	public ClassNameRegistryRepository getClassNameRegistryRepository() {

@@ -27,6 +27,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import teetime.framework.ProducerStage;
+import teetime.framework.signal.OnStartingException;
+import teetime.framework.signal.OnTerminatingException;
 
 import kieker.common.exception.MonitoringRecordException;
 import kieker.common.logging.Log;
@@ -78,7 +80,7 @@ public class TCPReaderSink extends ProducerStage<IMonitoringRecord> {
 	}
 
 	@Override
-	public void onStarting() {
+	public void onStarting() throws OnStartingException {
 		this.executorService.scheduleAtFixedRate(new Runnable() {
 			@Override
 			public void run() {
@@ -149,8 +151,7 @@ public class TCPReaderSink extends ProducerStage<IMonitoringRecord> {
 	}
 
 	@Override
-	public void onTerminating() {
-		super.onTerminating();
+	public void onTerminating() throws OnTerminatingException {
 		this.executorService.shutdown();
 		this.tcpStringReader.interrupt();
 		super.onTerminating();
