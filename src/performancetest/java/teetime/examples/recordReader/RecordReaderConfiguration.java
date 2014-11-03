@@ -25,8 +25,8 @@ import teetime.framework.pipe.PipeFactoryRegistry.PipeOrdering;
 import teetime.framework.pipe.PipeFactoryRegistry.ThreadCommunication;
 import teetime.stage.CollectorSink;
 import teetime.stage.InitialElementProducer;
-import teetime.stage.kieker.Dir2RecordsFilter;
-import teetime.stage.kieker.className.ClassNameRegistryRepository;
+import teetime.stage.className.ClassNameRegistryRepository;
+import teetime.stage.io.filesystem.Dir2RecordsFilter;
 
 import kieker.common.record.IMonitoringRecord;
 

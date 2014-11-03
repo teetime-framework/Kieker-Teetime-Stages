@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ***************************************************************************/
-package teetime.stage.kieker.fileToRecord;
+package teetime.stage.io.filesystem.format.text.file;
 
 import java.io.File;
 
-import teetime.stage.kieker.className.ClassNameRegistry;
-import teetime.stage.kieker.className.ClassNameRegistryRepository;
+import teetime.stage.className.ClassNameRegistry;
+import teetime.stage.className.ClassNameRegistryRepository;
 import teetime.stage.util.MappingException;
 
 import kieker.common.exception.IllegalRecordFormatException;

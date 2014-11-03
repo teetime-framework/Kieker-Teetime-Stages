@@ -16,11 +16,11 @@ import teetime.stage.InstanceOfFilter;
 import teetime.stage.Relay;
 import teetime.stage.basic.Sink;
 import teetime.stage.basic.distributor.Distributor;
-import teetime.stage.io.TCPReader;
-import teetime.stage.kieker.traceReconstruction.TraceReconstructionFilter;
-import teetime.stage.kieker.traceReduction.TraceAggregationBuffer;
-import teetime.stage.kieker.traceReduction.TraceComperator;
-import teetime.stage.kieker.traceReduction.TraceReductionFilter;
+import teetime.stage.io.network.TCPReader;
+import teetime.stage.trace.traceReconstruction.TraceReconstructionFilter;
+import teetime.stage.trace.traceReduction.TraceAggregationBuffer;
+import teetime.stage.trace.traceReduction.TraceComperator;
+import teetime.stage.trace.traceReduction.TraceReductionFilter;
 import teetime.util.concurrent.hashmap.ConcurrentHashMapWithDefault;
 import teetime.util.concurrent.hashmap.TraceBuffer;
 

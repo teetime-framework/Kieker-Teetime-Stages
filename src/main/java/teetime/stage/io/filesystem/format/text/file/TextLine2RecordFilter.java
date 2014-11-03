@@ -14,15 +14,14 @@
  * limitations under the License.
  ***************************************************************************/
 
-package teetime.stage.kieker.fileToRecord.textLine;
+package teetime.stage.io.filesystem.format.text.file;
 
 import java.util.HashSet;
 import java.util.Set;
 
 import teetime.framework.ConsumerStage;
 import teetime.framework.OutputPort;
-import teetime.stage.kieker.className.ClassNameRegistryRepository;
-import teetime.stage.kieker.fileToRecord.RecordFromTextLineCreator;
+import teetime.stage.className.ClassNameRegistryRepository;
 import teetime.stage.util.MappingException;
 import teetime.stage.util.TextLine;
 

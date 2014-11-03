@@ -11,7 +11,7 @@ import teetime.stage.Counter;
 import teetime.stage.ElementThroughputMeasuringStage;
 import teetime.stage.basic.Sink;
 import teetime.stage.basic.distributor.Distributor;
-import teetime.stage.io.TCPReader;
+import teetime.stage.io.network.TCPReader;
 
 import kieker.common.record.IMonitoringRecord;
 

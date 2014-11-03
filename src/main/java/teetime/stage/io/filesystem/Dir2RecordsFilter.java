@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ***************************************************************************/
-package teetime.stage.kieker;
+package teetime.stage.io.filesystem;
 
 import java.io.File;
 
@@ -26,11 +26,11 @@ import teetime.framework.pipe.PipeFactoryRegistry.PipeOrdering;
 import teetime.framework.pipe.PipeFactoryRegistry.ThreadCommunication;
 import teetime.stage.FileExtensionSwitch;
 import teetime.stage.basic.merger.Merger;
+import teetime.stage.className.ClassNameRegistryCreationFilter;
+import teetime.stage.className.ClassNameRegistryRepository;
 import teetime.stage.io.Directory2FilesFilter;
-import teetime.stage.kieker.className.ClassNameRegistryCreationFilter;
-import teetime.stage.kieker.className.ClassNameRegistryRepository;
-import teetime.stage.kieker.fileToRecord.BinaryFile2RecordFilter;
-import teetime.stage.kieker.fileToRecord.DatFile2RecordFilter;
+import teetime.stage.io.filesystem.format.binary.file.BinaryFile2RecordFilter;
+import teetime.stage.io.filesystem.format.text.file.DatFile2RecordFilter;
 
 import kieker.common.record.IMonitoringRecord;
 import kieker.common.util.filesystem.BinaryCompressionMethod;

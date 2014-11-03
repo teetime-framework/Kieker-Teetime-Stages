@@ -16,12 +16,12 @@ import teetime.stage.ElementThroughputMeasuringStage;
 import teetime.stage.InitialElementProducer;
 import teetime.stage.InstanceOfFilter;
 import teetime.stage.basic.merger.Merger;
-import teetime.stage.kieker.Dir2RecordsFilter;
-import teetime.stage.kieker.className.ClassNameRegistryRepository;
-import teetime.stage.kieker.traceReconstruction.TraceReconstructionFilter;
+import teetime.stage.className.ClassNameRegistryRepository;
+import teetime.stage.io.filesystem.Dir2RecordsFilter;
 import teetime.stage.stringBuffer.StringBufferFilter;
 import teetime.stage.stringBuffer.handler.IMonitoringRecordHandler;
 import teetime.stage.stringBuffer.handler.StringHandler;
+import teetime.stage.trace.traceReconstruction.TraceReconstructionFilter;
 import teetime.util.concurrent.hashmap.ConcurrentHashMapWithDefault;
 import teetime.util.concurrent.hashmap.TraceBuffer;
 

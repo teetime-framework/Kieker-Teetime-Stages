@@ -13,8 +13,8 @@ import teetime.stage.ElementThroughputMeasuringStage;
 import teetime.stage.InstanceOfFilter;
 import teetime.stage.basic.Sink;
 import teetime.stage.basic.distributor.Distributor;
-import teetime.stage.io.TCPReader;
-import teetime.stage.kieker.traceReconstruction.TraceReconstructionFilter;
+import teetime.stage.io.network.TCPReader;
+import teetime.stage.trace.traceReconstruction.TraceReconstructionFilter;
 import teetime.util.concurrent.hashmap.ConcurrentHashMapWithDefault;
 import teetime.util.concurrent.hashmap.TraceBuffer;
 

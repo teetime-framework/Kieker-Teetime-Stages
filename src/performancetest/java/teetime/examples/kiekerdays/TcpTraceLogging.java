@@ -2,7 +2,7 @@ package teetime.examples.kiekerdays;
 
 import teetime.framework.HeadStage;
 import teetime.framework.RunnableStage;
-import teetime.stage.io.TCPReader;
+import teetime.stage.io.network.TCPReader;
 
 public class TcpTraceLogging {
 

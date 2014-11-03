@@ -1,4 +1,4 @@
-package teetime.stage.kieker.traceReduction;
+package teetime.stage.trace.traceReduction;
 
 import java.io.Serializable;
 import java.util.Comparator;

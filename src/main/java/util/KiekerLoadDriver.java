@@ -20,8 +20,8 @@ import teetime.framework.RunnableStage;
 import teetime.framework.pipe.SingleElementPipe;
 import teetime.stage.CollectorSink;
 import teetime.stage.InitialElementProducer;
-import teetime.stage.kieker.Dir2RecordsFilter;
-import teetime.stage.kieker.className.ClassNameRegistryRepository;
+import teetime.stage.className.ClassNameRegistryRepository;
+import teetime.stage.io.filesystem.Dir2RecordsFilter;
 
 import kieker.common.record.IMonitoringRecord;
 import kieker.common.record.flow.trace.TraceMetadata;

@@ -1,31 +1,31 @@
-package teetime.stage.kieker;
+package teetime.stage.io.filesystem.format.text;
 
 import java.io.File;
 
 import teetime.framework.InputPort;
 import teetime.framework.OldPipeline;
 import teetime.framework.OutputPort;
-import teetime.stage.kieker.className.ClassNameRegistryCreationFilter;
-import teetime.stage.kieker.className.ClassNameRegistryRepository;
-import teetime.stage.kieker.fileToRecord.BinaryFile2RecordFilter;
+import teetime.stage.className.ClassNameRegistryCreationFilter;
+import teetime.stage.className.ClassNameRegistryRepository;
+import teetime.stage.io.filesystem.format.text.file.DatFile2RecordFilter;
 
 import kieker.common.record.IMonitoringRecord;
 
-public class DirWithBin2RecordFilter extends OldPipeline<ClassNameRegistryCreationFilter, BinaryFile2RecordFilter> {
+public class DirWithDat2RecordFilter extends OldPipeline<ClassNameRegistryCreationFilter, DatFile2RecordFilter> {
 
 	private ClassNameRegistryRepository classNameRegistryRepository;
 
-	public DirWithBin2RecordFilter(final ClassNameRegistryRepository classNameRegistryRepository) {
+	public DirWithDat2RecordFilter(final ClassNameRegistryRepository classNameRegistryRepository) {
 		this.classNameRegistryRepository = classNameRegistryRepository;
 
 		final ClassNameRegistryCreationFilter classNameRegistryCreationFilter = new ClassNameRegistryCreationFilter(classNameRegistryRepository);
-		final BinaryFile2RecordFilter binaryFile2RecordFilter = new BinaryFile2RecordFilter(classNameRegistryRepository);
+		final DatFile2RecordFilter datFile2RecordFilter = new DatFile2RecordFilter(classNameRegistryRepository);
 
 		this.setFirstStage(classNameRegistryCreationFilter);
-		this.setLastStage(binaryFile2RecordFilter);
+		this.setLastStage(datFile2RecordFilter);
 	}
 
-	public DirWithBin2RecordFilter() {
+	public DirWithDat2RecordFilter() {
 		this(null);
 	}
 

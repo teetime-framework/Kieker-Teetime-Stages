@@ -1,4 +1,4 @@
-package teetime.stage.kieker.traceReduction;
+package teetime.stage.trace.traceReduction;
 
 import kieker.analysis.plugin.filter.flow.TraceEventRecords;
 

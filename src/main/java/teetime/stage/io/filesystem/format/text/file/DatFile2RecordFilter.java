@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ***************************************************************************/
-package teetime.stage.kieker.fileToRecord;
+package teetime.stage.io.filesystem.format.text.file;
 
 import java.io.File;
 
@@ -21,9 +21,8 @@ import teetime.framework.InputPort;
 import teetime.framework.OutputPort;
 import teetime.framework.OldPipeline;
 import teetime.framework.pipe.SingleElementPipe;
+import teetime.stage.className.ClassNameRegistryRepository;
 import teetime.stage.io.File2TextLinesFilter;
-import teetime.stage.kieker.className.ClassNameRegistryRepository;
-import teetime.stage.kieker.fileToRecord.textLine.TextLine2RecordFilter;
 
 import kieker.common.record.IMonitoringRecord;
 

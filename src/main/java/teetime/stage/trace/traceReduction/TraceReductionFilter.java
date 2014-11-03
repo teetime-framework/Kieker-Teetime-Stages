@@ -14,7 +14,7 @@
  * limitations under the License.
  ***************************************************************************/
 
-package teetime.stage.kieker.traceReduction;
+package teetime.stage.trace.traceReduction;
 
 import java.util.Iterator;
 import java.util.Map;

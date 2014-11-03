@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ***************************************************************************/
-package teetime.stage.kieker.traceReconstruction;
+package teetime.stage.trace.traceReconstruction;
 
 import java.util.concurrent.TimeUnit;
 

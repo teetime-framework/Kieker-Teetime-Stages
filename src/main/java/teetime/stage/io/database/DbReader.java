@@ -14,7 +14,7 @@
  * limitations under the License.
  ***************************************************************************/
 
-package teetime.stage.io;
+package teetime.stage.io.database;
 
 import java.sql.Connection;
 import java.sql.DriverManager;

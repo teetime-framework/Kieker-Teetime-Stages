@@ -14,7 +14,7 @@
  * limitations under the License.
  ***************************************************************************/
 
-package teetime.stage.kieker.fileToRecord.textLine;
+package teetime.stage.io.filesystem.format.text.file;
 
 import java.util.Map;
 

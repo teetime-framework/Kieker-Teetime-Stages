@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ***************************************************************************/
-package teetime.stage.kieker.fileToRecord;
+package teetime.stage.io.filesystem.format.binary.file;
 
 import java.io.DataInputStream;
 import java.io.File;
@@ -22,7 +22,7 @@ import java.io.IOException;
 import teetime.framework.ConsumerStage;
 import teetime.framework.OutputPort;
 import teetime.framework.signal.OnStartingException;
-import teetime.stage.kieker.className.ClassNameRegistryRepository;
+import teetime.stage.className.ClassNameRegistryRepository;
 
 import kieker.common.exception.MonitoringRecordException;
 import kieker.common.record.IMonitoringRecord;
