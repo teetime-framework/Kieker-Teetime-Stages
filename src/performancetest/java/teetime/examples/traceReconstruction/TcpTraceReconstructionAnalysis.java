@@ -13,7 +13,7 @@ import teetime.stage.ElementThroughputMeasuringStage;
 import teetime.stage.InstanceOfFilter;
 import teetime.stage.basic.Sink;
 import teetime.stage.basic.distributor.Distributor;
-import teetime.stage.io.network.TCPReader;
+import teetime.stage.io.network.TcpReader;
 import teetime.stage.trace.traceReconstruction.TraceReconstructionFilter;
 import teetime.util.concurrent.hashmap.ConcurrentHashMapWithDefault;
 import teetime.util.concurrent.hashmap.TraceBuffer;
@@ -65,9 +65,9 @@ public class TcpTraceReconstructionAnalysis {
 		return pipeline;
 	}
 
-	private HeadPipeline<TCPReader, Sink<TraceEventRecords>> buildPipeline(final Distributor<Long> clockStage, final Distributor<Long> clock2Stage) {
+	private HeadPipeline<TcpReader, Sink<TraceEventRecords>> buildPipeline(final Distributor<Long> clockStage, final Distributor<Long> clock2Stage) {
 		// create stages
-		TCPReader tcpReader = new TCPReader();
+		TcpReader tcpReader = new TcpReader();
 		this.recordCounter = new Counter<IMonitoringRecord>();
 		final InstanceOfFilter<IMonitoringRecord, IFlowRecord> instanceOfFilter = new InstanceOfFilter<IMonitoringRecord, IFlowRecord>(
 				IFlowRecord.class);
@@ -92,7 +92,7 @@ public class TcpTraceReconstructionAnalysis {
 		SpScPipe.connect(clock2Stage.getNewOutputPort(), this.traceThroughputFilter.getTriggerInputPort(), 10);
 
 		// create and configure pipeline
-		HeadPipeline<TCPReader, Sink<TraceEventRecords>> pipeline = new HeadPipeline<TCPReader, Sink<TraceEventRecords>>();
+		HeadPipeline<TcpReader, Sink<TraceEventRecords>> pipeline = new HeadPipeline<TcpReader, Sink<TraceEventRecords>>();
 		pipeline.setFirstStage(tcpReader);
 		pipeline.setLastStage(endStage);
 		return pipeline;

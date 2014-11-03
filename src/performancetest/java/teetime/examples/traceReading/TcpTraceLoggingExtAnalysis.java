@@ -11,7 +11,7 @@ import teetime.stage.Counter;
 import teetime.stage.ElementThroughputMeasuringStage;
 import teetime.stage.basic.Sink;
 import teetime.stage.basic.distributor.Distributor;
-import teetime.stage.io.network.TCPReader;
+import teetime.stage.io.network.TcpReader;
 
 import kieker.common.record.IMonitoringRecord;
 
@@ -39,7 +39,7 @@ public class TcpTraceLoggingExtAnalysis {
 	}
 
 	private HeadPipeline<?, ?> buildTcpPipeline(final Distributor<Long> previousClockStage) {
-		TCPReader tcpReader = new TCPReader();
+		TcpReader tcpReader = new TcpReader();
 		this.recordCounter = new Counter<IMonitoringRecord>();
 		this.recordThroughputStage = new ElementThroughputMeasuringStage<IMonitoringRecord>();
 		Sink<IMonitoringRecord> endStage = new Sink<IMonitoringRecord>();
@@ -52,7 +52,7 @@ public class TcpTraceLoggingExtAnalysis {
 		SpScPipe.connect(previousClockStage.getNewOutputPort(), this.recordThroughputStage.getTriggerInputPort(), 10);
 
 		// create and configure pipeline
-		HeadPipeline<TCPReader, Sink<IMonitoringRecord>> pipeline = new HeadPipeline<TCPReader, Sink<IMonitoringRecord>>();
+		HeadPipeline<TcpReader, Sink<IMonitoringRecord>> pipeline = new HeadPipeline<TcpReader, Sink<IMonitoringRecord>>();
 		pipeline.setFirstStage(tcpReader);
 		pipeline.setLastStage(endStage);
 		return pipeline;

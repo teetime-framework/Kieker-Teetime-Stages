@@ -2,7 +2,7 @@ package teetime.examples.kiekerdays;
 
 import teetime.framework.HeadStage;
 import teetime.framework.RunnableStage;
-import teetime.stage.io.network.TCPReader;
+import teetime.stage.io.network.TcpReader;
 
 public class TcpTraceLogging {
 
@@ -26,7 +26,7 @@ public class TcpTraceLogging {
 
 	private HeadStage buildTcpPipeline() {
 		// TCPReaderSink tcpReader = new TCPReaderSink();
-		TCPReader tcpReader = new TCPReader();
+		TcpReader tcpReader = new TcpReader();
 
 		return tcpReader;
 	}

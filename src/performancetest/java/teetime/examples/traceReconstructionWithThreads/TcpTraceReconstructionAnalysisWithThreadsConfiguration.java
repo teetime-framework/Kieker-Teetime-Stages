@@ -20,7 +20,7 @@ import teetime.stage.InstanceOfFilter;
 import teetime.stage.Relay;
 import teetime.stage.basic.Sink;
 import teetime.stage.basic.distributor.Distributor;
-import teetime.stage.io.network.TCPReader;
+import teetime.stage.io.network.TcpReader;
 import teetime.stage.trace.traceReconstruction.TraceReconstructionFilter;
 import teetime.util.concurrent.hashmap.ConcurrentHashMapWithDefault;
 import teetime.util.concurrent.hashmap.TraceBuffer;
@@ -72,7 +72,7 @@ public class TcpTraceReconstructionAnalysisWithThreadsConfiguration extends Anal
 	}
 
 	public void buildConfiguration() {
-		final HeadPipeline<TCPReader, Distributor<IMonitoringRecord>> tcpPipeline = this.buildTcpPipeline();
+		final HeadPipeline<TcpReader, Distributor<IMonitoringRecord>> tcpPipeline = this.buildTcpPipeline();
 		this.getFiniteProducerStages().add(tcpPipeline);
 
 		final HeadPipeline<Clock, Distributor<Long>> clockStage = this.buildClockPipeline(1000);
@@ -89,14 +89,14 @@ public class TcpTraceReconstructionAnalysisWithThreadsConfiguration extends Anal
 		}
 	}
 
-	private HeadPipeline<TCPReader, Distributor<IMonitoringRecord>> buildTcpPipeline() {
-		TCPReader tcpReader = new TCPReader();
+	private HeadPipeline<TcpReader, Distributor<IMonitoringRecord>> buildTcpPipeline() {
+		TcpReader tcpReader = new TcpReader();
 		Distributor<IMonitoringRecord> distributor = new Distributor<IMonitoringRecord>();
 
 		SingleElementPipe.connect(tcpReader.getOutputPort(), distributor.getInputPort());
 
 		// create and configure pipeline
-		HeadPipeline<TCPReader, Distributor<IMonitoringRecord>> pipeline = new HeadPipeline<TCPReader, Distributor<IMonitoringRecord>>("TCP reader pipeline");
+		HeadPipeline<TcpReader, Distributor<IMonitoringRecord>> pipeline = new HeadPipeline<TcpReader, Distributor<IMonitoringRecord>>("TCP reader pipeline");
 		pipeline.setFirstStage(tcpReader);
 		pipeline.setLastStage(distributor);
 		return pipeline;

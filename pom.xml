@@ -23,7 +23,7 @@
 
 	<repositories>
 		<repository>
-			<!-- kieker:1.10-SNAPSHOT -->
+			<!-- for SNAPSHOT versions-->
 			<id>sonatype.oss.snapshots</id>
 			<url>https://oss.sonatype.org/content/repositories/snapshots/</url>
 		</repository>
@@ -53,7 +53,7 @@
 		<dependency>
 			<groupId>net.kieker-monitoring</groupId>
 			<artifactId>kieker</artifactId>
-			<version>1.10-SNAPSHOT</version>
+			<version>1.11-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>

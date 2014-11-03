@@ -23,19 +23,13 @@ import java.nio.channels.ClosedByInterruptException;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 
-import teetime.framework.ProducerStage;
-import teetime.framework.signal.OnStartingException;
+import teetime.stage.io.AbstractTcpReader;
 
 import kieker.common.exception.MonitoringRecordException;
 import kieker.common.logging.Log;
 import kieker.common.logging.LogFactory;
-import kieker.common.record.AbstractMonitoringRecord;
 import kieker.common.record.IMonitoringRecord;
-import kieker.common.record.flow.trace.TraceMetadata;
-import kieker.common.record.flow.trace.operation.AfterOperationEvent;
-import kieker.common.record.flow.trace.operation.BeforeOperationEvent;
-import kieker.common.record.flow.trace.operation.CallOperationEvent;
-import kieker.common.record.misc.KiekerMetadataRecord;
+import kieker.common.record.factory.IRecordFactory;
 import kieker.common.record.misc.RegistryRecord;
 import kieker.common.util.registry.ILookup;
 import kieker.common.util.registry.Lookup;
@@ -43,145 +37,60 @@ import kieker.common.util.registry.Lookup;
 /**
  * This is a reader which reads the records from a TCP port.
  *
- * @author Jan Waller, Nils Christian Ehmke
+ * @author Jan Waller, Nils Christian Ehmke, Christian Wulf
  *
- * @since 1.10
  */
-public class TCPReader extends ProducerStage<IMonitoringRecord> {
+public class TcpReader extends AbstractTcpReader<IMonitoringRecord> {
 
-	private static final int MESSAGE_BUFFER_SIZE = 65535;
-
+	private final CachedRecordFactoryRepository recordFactories;
 	// BETTER use a non thread-safe implementation to increase performance. A thread-safe version is not necessary.
 	private final ILookup<String> stringRegistry = new Lookup<String>();
-	private int port1 = 10133;
 	private int port2 = 10134;
-
 	private TCPStringReader tcpStringReader;
 
-	private RecordFactory recordFactory;
-
-	public final int getPort1() {
-		return this.port1;
+	/**
+	 * Default constructor with <code>port=10133</code> and <code>bufferCapacity=65535</code>
+	 */
+	public TcpReader() {
+		this(10133, 65535);
 	}
 
-	public final void setPort1(final int port1) {
-		this.port1 = port1;
-	}
-
-	public final int getPort2() {
-		return this.port2;
-	}
-
-	public final void setPort2(final int port2) {
-		this.port2 = port2;
+	public TcpReader(final int port, final int bufferCapacity) {
+		super(port, bufferCapacity);
+		this.recordFactories = new CachedRecordFactoryRepository(new RecordFactoryRepository());
 	}
 
 	@Override
 	public void onStarting() throws OnStartingException {
 		super.onStarting();
-		this.recordFactory = new RecordFactory();
-		this.register();
-
 		this.tcpStringReader = new TCPStringReader(this.port2, this.stringRegistry);
 		this.tcpStringReader.start();
 	}
 
-	private void register() {
-		this.recordFactory.register(TraceMetadata.class.getCanonicalName(), new IRecordFactoryMethod() {
-			@Override
-			public IMonitoringRecord create(final ByteBuffer buffer, final ILookup<String> stringRegistry) {
-				return new TraceMetadata(buffer, stringRegistry);
-			}
-		});
-
-		this.recordFactory.register(KiekerMetadataRecord.class.getCanonicalName(), new IRecordFactoryMethod() {
-			@Override
-			public IMonitoringRecord create(final ByteBuffer buffer, final ILookup<String> stringRegistry) {
-				return new KiekerMetadataRecord(buffer, stringRegistry);
-			}
-		});
-
-		this.recordFactory.register(BeforeOperationEvent.class.getCanonicalName(), new IRecordFactoryMethod() {
-			@Override
-			public IMonitoringRecord create(final ByteBuffer buffer, final ILookup<String> stringRegistry) {
-				return new BeforeOperationEvent(buffer, stringRegistry);
-			}
-		});
-
-		this.recordFactory.register(AfterOperationEvent.class.getCanonicalName(), new IRecordFactoryMethod() {
-			@Override
-			public IMonitoringRecord create(final ByteBuffer buffer, final ILookup<String> stringRegistry) {
-				return new AfterOperationEvent(buffer, stringRegistry);
-			}
-		});
-
-		this.recordFactory.register(CallOperationEvent.class.getCanonicalName(), new IRecordFactoryMethod() {
-			@Override
-			public IMonitoringRecord create(final ByteBuffer buffer, final ILookup<String> stringRegistry) {
-				return new CallOperationEvent(buffer, stringRegistry);
-			}
-		});
-	}
-
 	@Override
-	protected void execute() {
-		ServerSocketChannel serversocket = null;
-		try {
-			serversocket = ServerSocketChannel.open();
-			serversocket.socket().bind(new InetSocketAddress(this.port1));
-			if (super.logger.isDebugEnabled()) {
-				super.logger.debug("Listening on port " + this.port1);
-			}
-			// BEGIN also loop this one?
-			final SocketChannel socketChannel = serversocket.accept();
-			final ByteBuffer buffer = ByteBuffer.allocateDirect(MESSAGE_BUFFER_SIZE);
-			while (socketChannel.read(buffer) != -1) {
-				buffer.flip();
-				// System.out.println("Reading, remaining:" + buffer.remaining());
-				try {
-					while (buffer.hasRemaining()) {
-						buffer.mark();
-						this.createAndSendRecord(buffer);
-					}
-					buffer.clear();
-				} catch (final BufferUnderflowException ex) {
-					buffer.reset();
-					// System.out.println("Underflow, remaining:" + buffer.remaining());
-					buffer.compact();
-				}
-			}
-			// System.out.println("Channel closing...");
-			socketChannel.close();
-			// END also loop this one?
-		} catch (final IOException ex) {
-			super.logger.error("Error while reading", ex);
-		} finally {
-			if (null != serversocket) {
-				try {
-					serversocket.close();
-				} catch (final IOException e) {
-					if (super.logger.isDebugEnabled()) {
-						super.logger.debug("Failed to close TCP connection!", e);
-					}
-				}
-			}
-
-			this.terminate();
-			this.tcpStringReader.terminate();
-		}
-	}
-
-	private final void createAndSendRecord(final ByteBuffer buffer) {
-		final int clazzid = buffer.getInt();
+	protected final void read(final ByteBuffer buffer) {
+		final int clazzId = buffer.getInt();
 		final long loggingTimestamp = buffer.getLong();
+
+		final String recordClassName = this.stringRegistry.get(clazzId);
 		try {
-			// record = this.recordFactory.create(clazzid, buffer, this.stringRegistry);
-			final IMonitoringRecord record = AbstractMonitoringRecord.createFromByteBuffer(clazzid, buffer, this.stringRegistry);
+			// final IMonitoringRecord record = AbstractMonitoringRecord.createFromByteBuffer(clazzId, buffer, this.stringRegistry);
+			// record.setLoggingTimestamp(loggingTimestamp);
+
+			final IRecordFactory<? extends IMonitoringRecord> recordFactory = this.recordFactories.get(recordClassName);
+			record = recordFactory.create(buffer, this.stringRegistry);
 			record.setLoggingTimestamp(loggingTimestamp);
+
 			this.send(this.outputPort, record);
 		} catch (final MonitoringRecordException ex) {
 			super.logger.error("Failed to create record.", ex);
 		}
+	}
+
+	@Override
+	public void onTerminating() {
+		super.onTerminating();
+		this.tcpStringReader.terminate();
 	}
 
 	/**
@@ -256,4 +165,13 @@ public class TCPReader extends ProducerStage<IMonitoringRecord> {
 			}
 		}
 	}
+
+	public int getPort2() {
+		return this.port2;
+	}
+
+	public void setPort2(final int port2) {
+		this.port2 = port2;
+	}
+
 }

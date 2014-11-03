@@ -22,7 +22,7 @@ import teetime.stage.InstanceOfFilter;
 import teetime.stage.Relay;
 import teetime.stage.basic.Sink;
 import teetime.stage.basic.distributor.Distributor;
-import teetime.stage.io.network.TCPReader;
+import teetime.stage.io.network.TcpReader;
 import teetime.stage.trace.traceReconstruction.TraceReconstructionFilter;
 import teetime.stage.trace.traceReduction.TraceAggregationBuffer;
 import teetime.stage.trace.traceReduction.TraceComperator;
@@ -52,7 +52,7 @@ public class TcpTraceReductionAnalysisWithThreads {
 	private int numWorkerThreads;
 
 	public void init() {
-		HeadPipeline<TCPReader, Distributor<IMonitoringRecord>> tcpPipeline = this.buildTcpPipeline();
+		HeadPipeline<TcpReader, Distributor<IMonitoringRecord>> tcpPipeline = this.buildTcpPipeline();
 		this.tcpThread = new Thread(new RunnableStage(tcpPipeline));
 
 		HeadPipeline<Clock, Distributor<Long>> clockStage = this.buildClockPipeline(1000);
@@ -70,14 +70,14 @@ public class TcpTraceReductionAnalysisWithThreads {
 		}
 	}
 
-	private HeadPipeline<TCPReader, Distributor<IMonitoringRecord>> buildTcpPipeline() {
-		TCPReader tcpReader = new TCPReader();
+	private HeadPipeline<TcpReader, Distributor<IMonitoringRecord>> buildTcpPipeline() {
+		TcpReader tcpReader = new TcpReader();
 		Distributor<IMonitoringRecord> distributor = new Distributor<IMonitoringRecord>();
 
 		SingleElementPipe.connect(tcpReader.getOutputPort(), distributor.getInputPort());
 
 		// create and configure pipeline
-		HeadPipeline<TCPReader, Distributor<IMonitoringRecord>> pipeline = new HeadPipeline<TCPReader, Distributor<IMonitoringRecord>>();
+		HeadPipeline<TcpReader, Distributor<IMonitoringRecord>> pipeline = new HeadPipeline<TcpReader, Distributor<IMonitoringRecord>>();
 		pipeline.setFirstStage(tcpReader);
 		pipeline.setLastStage(distributor);
 		return pipeline;
@@ -153,7 +153,7 @@ public class TcpTraceReductionAnalysisWithThreads {
 	}
 
 	private HeadPipeline<Relay<IMonitoringRecord>, Sink<TraceEventRecords>> buildPipeline(
-			final HeadPipeline<TCPReader, Distributor<IMonitoringRecord>> tcpReaderPipeline,
+			final HeadPipeline<TcpReader, Distributor<IMonitoringRecord>> tcpReaderPipeline,
 			final HeadPipeline<Clock, Distributor<Long>> clockStage,
 			final HeadPipeline<Clock, Distributor<Long>> clock2Stage) {
 		// create stages
