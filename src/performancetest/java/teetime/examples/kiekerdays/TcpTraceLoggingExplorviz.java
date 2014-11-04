@@ -1,6 +1,6 @@
 package teetime.examples.kiekerdays;
 
-import teetime.framework.HeadPipeline;
+import teetime.framework.OldHeadPipeline;
 import teetime.framework.HeadStage;
 import teetime.framework.RunnableStage;
 import teetime.framework.pipe.SingleElementPipe;
@@ -36,7 +36,7 @@ public class TcpTraceLoggingExplorviz {
 		SingleElementPipe.connect(tcpReader.getOutputPort(), endStage.getInputPort());
 
 		// create and configure pipeline
-		HeadPipeline<KiekerRecordTcpReader, Sink<IMonitoringRecord>> pipeline = new HeadPipeline<KiekerRecordTcpReader, Sink<IMonitoringRecord>>();
+		OldHeadPipeline<KiekerRecordTcpReader, Sink<IMonitoringRecord>> pipeline = new OldHeadPipeline<KiekerRecordTcpReader, Sink<IMonitoringRecord>>();
 		pipeline.setFirstStage(tcpReader);
 		pipeline.setLastStage(endStage);
 		return tcpReader;
