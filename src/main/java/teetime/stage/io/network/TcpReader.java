@@ -68,7 +68,7 @@ public class TcpReader extends AbstractTcpReader<IMonitoringRecord> {
 	}
 
 	@Override
-	public void onStarting() throws OnStartingException {
+	public void onStarting() throws Exception {
 		super.onStarting();
 		this.tcpStringReader = new TCPStringReader(this.port2, this.stringRegistry);
 		this.tcpStringReader.start();
@@ -94,9 +94,9 @@ public class TcpReader extends AbstractTcpReader<IMonitoringRecord> {
 	}
 
 	@Override
-	public void onTerminating() {
-		super.onTerminating();
+	public void onTerminating() throws Exception {
 		this.tcpStringReader.terminate();
+		super.onTerminating();
 	}
 
 	/**

@@ -23,7 +23,6 @@ import java.util.Map.Entry;
 import teetime.framework.ConsumerStage;
 import teetime.framework.InputPort;
 import teetime.framework.OutputPort;
-import teetime.framework.signal.OnTerminatingException;
 
 import kieker.analysis.plugin.filter.flow.TraceEventRecords;
 
@@ -74,7 +73,7 @@ public class TraceReductionFilter extends ConsumerStage<TraceEventRecords> {
 	}
 
 	@Override
-	public void onTerminating() throws OnTerminatingException {
+	public void onTerminating() throws Exception {
 		synchronized (this.trace2buffer) { // BETTER hide and improve synchronization in the buffer
 			for (final Entry<TraceEventRecords, TraceAggregationBuffer> entry : this.trace2buffer.entrySet()) {
 				final TraceAggregationBuffer buffer = entry.getValue();

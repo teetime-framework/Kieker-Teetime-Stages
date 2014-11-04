@@ -21,7 +21,6 @@ import java.io.IOException;
 
 import teetime.framework.ConsumerStage;
 import teetime.framework.OutputPort;
-import teetime.framework.signal.OnStartingException;
 import teetime.stage.className.ClassNameRegistryRepository;
 
 import kieker.common.exception.MonitoringRecordException;
@@ -59,7 +58,7 @@ public class BinaryFile2RecordFilter extends ConsumerStage<File> {
 	}
 
 	@Override
-	public void onStarting() throws OnStartingException {
+	public void onStarting() throws Exception {
 		super.onStarting();
 		this.recordFromBinaryFileCreator = new RecordFromBinaryFileCreator(this.logger, this.classNameRegistryRepository);
 	}

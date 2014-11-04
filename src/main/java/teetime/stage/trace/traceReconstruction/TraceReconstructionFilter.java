@@ -19,7 +19,6 @@ import java.util.concurrent.TimeUnit;
 
 import teetime.framework.ConsumerStage;
 import teetime.framework.OutputPort;
-import teetime.framework.signal.OnTerminatingException;
 import teetime.util.concurrent.hashmap.ConcurrentHashMapWithDefault;
 import teetime.util.concurrent.hashmap.TraceBuffer;
 
@@ -36,7 +35,7 @@ import kieker.common.record.flow.trace.TraceMetadata;
 public class TraceReconstructionFilter extends ConsumerStage<IFlowRecord> {
 
 	private final OutputPort<TraceEventRecords> traceValidOutputPort = this.createOutputPort();
-	private final OutputPort<TraceEventRecords> traceInvalidOutputPort = this.createOutputPort(); // TODO send output to this port
+	private final OutputPort<TraceEventRecords> traceInvalidOutputPort = this.createOutputPort();
 
 	private TimeUnit timeunit;
 	private long maxTraceDuration = Long.MAX_VALUE;
@@ -95,7 +94,7 @@ public class TraceReconstructionFilter extends ConsumerStage<IFlowRecord> {
 	}
 
 	@Override
-	public void onTerminating() throws OnTerminatingException {
+	public void onTerminating() throws Exception {
 		for (Long traceId : this.traceId2trace.keySet()) {
 			this.put(traceId, false);
 		}
