@@ -42,6 +42,7 @@ import kieker.analysis.plugin.filter.flow.TraceEventRecords;
  */
 public class ChwHomeTraceReconstructionAnalysisTest {
 
+	private static final String RESOURCE_DIR = "target/test-classes/";
 	private StopWatch stopWatch;
 
 	@Before
@@ -58,7 +59,7 @@ public class ChwHomeTraceReconstructionAnalysisTest {
 	@Test
 	public void performAnalysisWithEprintsLogs() {
 		final TraceReconstructionAnalysis analysis = new TraceReconstructionAnalysis();
-		analysis.setInputDir(new File("src/test/data/Eprints-logs"));
+		analysis.setInputDir(new File(RESOURCE_DIR + "data/Eprints-logs"));
 		analysis.init();
 
 		this.stopWatch.start();
@@ -87,7 +88,7 @@ public class ChwHomeTraceReconstructionAnalysisTest {
 	@Test
 	public void performAnalysisWithKiekerLogs() {
 		final TraceReconstructionAnalysis analysis = new TraceReconstructionAnalysis();
-		analysis.setInputDir(new File("src/test/data/kieker-logs"));
+		analysis.setInputDir(new File(RESOURCE_DIR + "data/kieker-logs"));
 		analysis.init();
 
 		this.stopWatch.start();
@@ -116,7 +117,7 @@ public class ChwHomeTraceReconstructionAnalysisTest {
 	@Test
 	public void performAnalysisWithKieker2Logs() {
 		final TraceReconstructionAnalysis analysis = new TraceReconstructionAnalysis();
-		analysis.setInputDir(new File("src/test/data/kieker2-logs"));
+		analysis.setInputDir(new File(RESOURCE_DIR + "data/kieker2-logs"));
 		analysis.init();
 
 		this.stopWatch.start();
