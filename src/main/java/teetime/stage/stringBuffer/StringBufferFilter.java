@@ -45,11 +45,11 @@ public class StringBufferFilter<T> extends ConsumerStage<T> {
 
 	@Override
 	public void onStarting() throws Exception {
+		super.onStarting();
 		for (final AbstractDataTypeHandler<?> handler : this.dataTypeHandlers) {
 			handler.setLogger(this.logger);
 			handler.setStringRepository(this.kiekerHashMap);
 		}
-		super.onStarting();
 	}
 
 	private T handle(final T object) {
