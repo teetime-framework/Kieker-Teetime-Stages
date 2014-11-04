@@ -29,6 +29,7 @@ import kieker.common.exception.MonitoringRecordException;
 import kieker.common.logging.Log;
 import kieker.common.logging.LogFactory;
 import kieker.common.record.IMonitoringRecord;
+import kieker.common.record.factory.CachedRecordFactoryCatalog;
 import kieker.common.record.factory.IRecordFactory;
 import kieker.common.record.misc.RegistryRecord;
 import kieker.common.util.registry.ILookup;
@@ -42,7 +43,7 @@ import kieker.common.util.registry.Lookup;
  */
 public class TcpReader extends AbstractTcpReader<IMonitoringRecord> {
 
-	private final CachedRecordFactoryRepository recordFactories;
+	private final CachedRecordFactoryCatalog recordFactories = CachedRecordFactoryCatalog.getInstance();
 	// BETTER use a non thread-safe implementation to increase performance. A thread-safe version is not necessary.
 	private final ILookup<String> stringRegistry = new Lookup<String>();
 	private int port2 = 10134;
@@ -55,9 +56,15 @@ public class TcpReader extends AbstractTcpReader<IMonitoringRecord> {
 		this(10133, 65535);
 	}
 
+	/**
+	 *
+	 * @param port
+	 *            accept connections on this port
+	 * @param bufferCapacity
+	 *            capacity of the receiving buffer
+	 */
 	public TcpReader(final int port, final int bufferCapacity) {
 		super(port, bufferCapacity);
-		this.recordFactories = new CachedRecordFactoryRepository(new RecordFactoryRepository());
 	}
 
 	@Override
