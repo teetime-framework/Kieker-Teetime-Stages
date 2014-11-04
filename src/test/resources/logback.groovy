@@ -21,8 +21,8 @@ appender("CONSOLE", ConsoleAppender) {
 
 root WARN, ["CONSOLE"]
 
-logger "teetime.framework", INFO
-logger "teetime.framework.signal", INFO
-logger "teetime.stage", INFO
+//logger "teetime.framework", INFO
+//logger "teetime.framework.signal", INFO
+//logger "teetime.stage", INFO
 
 logger "util", INFO
