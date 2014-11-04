@@ -19,7 +19,10 @@ appender("CONSOLE", ConsoleAppender) {
   }
 }
 
-root ERROR, ["CONSOLE"]
+root WARN, ["CONSOLE"]
 
-logger "teetime.variant.methodcallWithPorts.stage", INFO
+logger "teetime.framework", INFO
+logger "teetime.framework.signal", INFO
+logger "teetime.stage", INFO
+
 logger "util", INFO

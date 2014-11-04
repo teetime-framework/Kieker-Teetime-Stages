@@ -20,11 +20,3 @@ appender("CONSOLE", ConsoleAppender) {
 }
 
 root WARN, ["CONSOLE"]
-
-//logger "teetime.variant.methodcallWithPorts.stage", DEBUG, ["CONSOLE"]
-logger "teetime.variant.methodcallWithPorts.stage", INFO
-
-logger "teetime.variant.methodcallWithPorts.framework.core.pipe", INFO
-
-logger "util.TimingsReader", TRACE, ["FILE"]
-logger "util.BucketTimingsReader", TRACE, ["FILE"]
