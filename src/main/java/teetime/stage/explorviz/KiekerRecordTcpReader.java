@@ -9,7 +9,7 @@ import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
 import java.util.List;
 
-import teetime.framework.ProducerStage;
+import teetime.framework.AbstractProducerStage;
 
 import kieker.common.record.IMonitoringRecord;
 import kieker.common.record.flow.trace.operation.AfterOperationEvent;
@@ -17,7 +17,7 @@ import kieker.common.record.flow.trace.operation.BeforeOperationEvent;
 import kieker.common.util.registry.ILookup;
 import kieker.common.util.registry.Lookup;
 
-public class KiekerRecordTcpReader extends ProducerStage<IMonitoringRecord> {
+public class KiekerRecordTcpReader extends AbstractProducerStage<IMonitoringRecord> {
 
 	private static final int MESSAGE_BUFFER_SIZE = 65535;
 

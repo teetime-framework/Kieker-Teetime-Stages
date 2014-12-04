@@ -20,7 +20,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import teetime.framework.ConsumerStage;
+import teetime.framework.AbstractConsumerStage;
 import teetime.framework.InputPort;
 import teetime.framework.OutputPort;
 
@@ -37,7 +37,7 @@ import kieker.analysis.plugin.filter.flow.TraceEventRecords;
  *
  * @since
  */
-public class TraceReductionFilter extends ConsumerStage<TraceEventRecords> {
+public class TraceReductionFilter extends AbstractConsumerStage<TraceEventRecords> {
 
 	private final InputPort<Long> triggerInputPort = this.createInputPort();
 	private final OutputPort<TraceEventRecords> outputPort = this.createOutputPort();

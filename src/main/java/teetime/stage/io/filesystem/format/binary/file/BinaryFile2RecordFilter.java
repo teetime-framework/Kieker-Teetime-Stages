@@ -19,7 +19,7 @@ import java.io.DataInputStream;
 import java.io.File;
 import java.io.IOException;
 
-import teetime.framework.ConsumerStage;
+import teetime.framework.AbstractConsumerStage;
 import teetime.framework.OutputPort;
 import teetime.stage.className.ClassNameRegistryRepository;
 
@@ -32,7 +32,7 @@ import kieker.common.util.filesystem.BinaryCompressionMethod;
  *
  * @since 1.10
  */
-public class BinaryFile2RecordFilter extends ConsumerStage<File> {
+public class BinaryFile2RecordFilter extends AbstractConsumerStage<File> {
 
 	private final OutputPort<IMonitoringRecord> outputPort = this.createOutputPort();
 

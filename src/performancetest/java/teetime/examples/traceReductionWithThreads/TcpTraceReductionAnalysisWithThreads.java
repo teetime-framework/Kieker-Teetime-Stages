@@ -8,9 +8,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import teetime.framework.OldHeadPipeline;
+import teetime.framework.AbstractStage;
+import teetime.framework.IStage;
 import teetime.framework.RunnableStage;
-import teetime.framework.Stage;
 import teetime.framework.pipe.SingleElementPipe;
 import teetime.framework.pipe.SpScPipe;
 import teetime.stage.Clock;
@@ -52,38 +52,34 @@ public class TcpTraceReductionAnalysisWithThreads {
 	private int numWorkerThreads;
 
 	public void init() {
-		OldHeadPipeline<TcpReader, Distributor<IMonitoringRecord>> tcpPipeline = this.buildTcpPipeline();
+		IStage tcpPipeline = this.buildTcpPipeline();
 		this.tcpThread = new Thread(new RunnableStage(tcpPipeline));
 
-		OldHeadPipeline<Clock, Distributor<Long>> clockStage = this.buildClockPipeline(1000);
+		IStage clockStage = this.buildClockPipeline(1000);
 		this.clockThread = new Thread(new RunnableStage(clockStage));
 
-		OldHeadPipeline<Clock, Distributor<Long>> clock2Stage = this.buildClockPipeline(5000);
+		IStage clock2Stage = this.buildClockPipeline(5000);
 		this.clock2Thread = new Thread(new RunnableStage(clock2Stage));
 
 		this.numWorkerThreads = Math.min(NUM_VIRTUAL_CORES, this.numWorkerThreads);
 		this.workerThreads = new Thread[this.numWorkerThreads];
 
 		for (int i = 0; i < this.workerThreads.length; i++) {
-			OldHeadPipeline<Relay<IMonitoringRecord>, Sink<TraceEventRecords>> pipeline = this.buildPipeline(tcpPipeline, clockStage, clock2Stage);
+			IStage pipeline = this.buildPipeline(tcpPipeline, clockStage, clock2Stage);
 			this.workerThreads[i] = new Thread(new RunnableStage(pipeline));
 		}
 	}
 
-	private OldHeadPipeline<TcpReader, Distributor<IMonitoringRecord>> buildTcpPipeline() {
+	private IStage buildTcpPipeline() {
 		TcpReader tcpReader = new TcpReader();
 		Distributor<IMonitoringRecord> distributor = new Distributor<IMonitoringRecord>();
 
 		SingleElementPipe.connect(tcpReader.getOutputPort(), distributor.getInputPort());
 
-		// create and configure pipeline
-		OldHeadPipeline<TcpReader, Distributor<IMonitoringRecord>> pipeline = new OldHeadPipeline<TcpReader, Distributor<IMonitoringRecord>>();
-		pipeline.setFirstStage(tcpReader);
-		pipeline.setLastStage(distributor);
-		return pipeline;
+		return tcpReader;
 	}
 
-	private OldHeadPipeline<Clock, Distributor<Long>> buildClockPipeline(final long intervalDelayInMs) {
+	private IStage buildClockPipeline(final long intervalDelayInMs) {
 		Clock clock = new Clock();
 		clock.setInitialDelayInMs(intervalDelayInMs);
 		clock.setIntervalDelayInMs(intervalDelayInMs);
@@ -91,14 +87,10 @@ public class TcpTraceReductionAnalysisWithThreads {
 
 		SingleElementPipe.connect(clock.getOutputPort(), distributor.getInputPort());
 
-		// create and configure pipeline
-		OldHeadPipeline<Clock, Distributor<Long>> pipeline = new OldHeadPipeline<Clock, Distributor<Long>>();
-		pipeline.setFirstStage(clock);
-		pipeline.setLastStage(distributor);
-		return pipeline;
+		return clock;
 	}
 
-	private static class StageFactory<T extends Stage> {
+	private static class StageFactory<T extends AbstractStage> {
 
 		private final Constructor<T> constructor;
 		private final List<T> stages = new ArrayList<T>();
@@ -152,10 +144,7 @@ public class TcpTraceReductionAnalysisWithThreads {
 		}
 	}
 
-	private OldHeadPipeline<Relay<IMonitoringRecord>, Sink<TraceEventRecords>> buildPipeline(
-			final OldHeadPipeline<TcpReader, Distributor<IMonitoringRecord>> tcpReaderPipeline,
-			final OldHeadPipeline<Clock, Distributor<Long>> clockStage,
-			final OldHeadPipeline<Clock, Distributor<Long>> clock2Stage) {
+	private IStage buildPipeline(final IStage tcpReaderPipeline, final IStage clockStage, final IStage clock2Stage) {
 		// create stages
 		Relay<IMonitoringRecord> relay = new Relay<IMonitoringRecord>();
 		Counter<IMonitoringRecord> recordCounter = this.recordCounterFactory.create();
@@ -187,11 +176,7 @@ public class TcpTraceReductionAnalysisWithThreads {
 		SpScPipe.connect(clock2Stage.getLastStage().getNewOutputPort(), traceReductionFilter.getTriggerInputPort(), 10);
 		SpScPipe.connect(clockStage.getLastStage().getNewOutputPort(), traceThroughputFilter.getTriggerInputPort(), 10);
 
-		// create and configure pipeline
-		OldHeadPipeline<Relay<IMonitoringRecord>, Sink<TraceEventRecords>> pipeline = new OldHeadPipeline<Relay<IMonitoringRecord>, Sink<TraceEventRecords>>();
-		pipeline.setFirstStage(relay);
-		pipeline.setLastStage(endStage);
-		return pipeline;
+		return relay;
 	}
 
 	public void start() {

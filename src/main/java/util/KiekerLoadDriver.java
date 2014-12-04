@@ -14,8 +14,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-import teetime.framework.OldHeadPipeline;
-import teetime.framework.HeadStage;
+import teetime.framework.IStage;
 import teetime.framework.RunnableStage;
 import teetime.framework.pipe.SingleElementPipe;
 import teetime.stage.CollectorSink;
@@ -36,25 +35,21 @@ public class KiekerLoadDriver {
 	private long[] timings;
 
 	public KiekerLoadDriver(final File directory) {
-		HeadStage producerPipeline = this.buildProducerPipeline(directory);
+		IStage producerPipeline = this.buildProducerPipeline(directory);
 		this.runnableStage = new RunnableStage(producerPipeline);
 	}
 
-	private OldHeadPipeline<InitialElementProducer<File>, CollectorSink<IMonitoringRecord>> buildProducerPipeline(final File directory) {
+	private IStage buildProducerPipeline(final File directory) {
 		ClassNameRegistryRepository classNameRegistryRepository = new ClassNameRegistryRepository();
 		// create stages
 		InitialElementProducer<File> initialElementProducer = new InitialElementProducer<File>(directory);
 		Dir2RecordsFilter dir2RecordsFilter = new Dir2RecordsFilter(classNameRegistryRepository);
 		CollectorSink<IMonitoringRecord> collector = new CollectorSink<IMonitoringRecord>(this.elementCollection);
 
-		final OldHeadPipeline<InitialElementProducer<File>, CollectorSink<IMonitoringRecord>> pipeline = new OldHeadPipeline<InitialElementProducer<File>, CollectorSink<IMonitoringRecord>>();
-		pipeline.setFirstStage(initialElementProducer);
-		pipeline.setLastStage(collector);
-
 		SingleElementPipe.connect(initialElementProducer.getOutputPort(), dir2RecordsFilter.getInputPort());
 		SingleElementPipe.connect(dir2RecordsFilter.getOutputPort(), collector.getInputPort());
 
-		return pipeline;
+		return initialElementProducer;
 	}
 
 	public Collection<IMonitoringRecord> load() {

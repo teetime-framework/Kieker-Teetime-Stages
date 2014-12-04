@@ -4,8 +4,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import teetime.framework.OldHeadPipeline;
-import teetime.framework.HeadStage;
+import teetime.framework.IStage;
 import teetime.framework.RunnableStage;
 import teetime.framework.pipe.SingleElementPipe;
 import teetime.framework.pipe.SpScPipe;
@@ -38,32 +37,28 @@ public class TcpTraceReconstruction {
 	private int numWorkerThreads;
 
 	public void init() {
-		OldHeadPipeline<TcpReader, Distributor<IMonitoringRecord>> tcpPipeline = this.buildTcpPipeline();
+		IStage tcpPipeline = this.buildTcpPipeline();
 		this.tcpThread = new Thread(new RunnableStage(tcpPipeline));
 
 		this.numWorkerThreads = Math.min(NUM_VIRTUAL_CORES, this.numWorkerThreads);
 		this.workerThreads = new Thread[this.numWorkerThreads];
 
 		for (int i = 0; i < this.workerThreads.length; i++) {
-			HeadStage pipeline = this.buildPipeline(tcpPipeline.getLastStage());
+			IStage pipeline = this.buildPipeline(tcpPipeline.getLastStage());
 			this.workerThreads[i] = new Thread(new RunnableStage(pipeline));
 		}
 	}
 
-	private OldHeadPipeline<TcpReader, Distributor<IMonitoringRecord>> buildTcpPipeline() {
+	private IStage buildTcpPipeline() {
 		TcpReader tcpReader = new TcpReader();
 		Distributor<IMonitoringRecord> distributor = new Distributor<IMonitoringRecord>();
 
 		SingleElementPipe.connect(tcpReader.getOutputPort(), distributor.getInputPort());
 
-		// create and configure pipeline
-		OldHeadPipeline<TcpReader, Distributor<IMonitoringRecord>> pipeline = new OldHeadPipeline<TcpReader, Distributor<IMonitoringRecord>>();
-		pipeline.setFirstStage(tcpReader);
-		pipeline.setLastStage(distributor);
-		return pipeline;
+		return tcpReader;
 	}
 
-	private HeadStage buildPipeline(final Distributor<IMonitoringRecord> tcpReaderPipeline) {
+	private IStage buildPipeline(final Distributor<IMonitoringRecord> tcpReaderPipeline) {
 		// create stages
 		Relay<IMonitoringRecord> relay = new Relay<IMonitoringRecord>();
 		final InstanceOfFilter<IMonitoringRecord, IFlowRecord> instanceOfFilter = new InstanceOfFilter<IMonitoringRecord, IFlowRecord>(
@@ -79,11 +74,7 @@ public class TcpTraceReconstruction {
 		SingleElementPipe.connect(instanceOfFilter.getOutputPort(), traceReconstructionFilter.getInputPort());
 		SingleElementPipe.connect(traceReconstructionFilter.getTraceValidOutputPort(), endStage.getInputPort());
 
-		// create and configure pipeline
-		OldHeadPipeline<Relay<IMonitoringRecord>, Sink<TraceEventRecords>> pipeline = new OldHeadPipeline<Relay<IMonitoringRecord>, Sink<TraceEventRecords>>();
-		pipeline.setFirstStage(relay);
-		pipeline.setLastStage(endStage);
-		return pipeline;
+		return relay;
 	}
 
 	public void start() {

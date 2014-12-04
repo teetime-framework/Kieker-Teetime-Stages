@@ -17,9 +17,9 @@ package teetime.stage.io.filesystem.format.text.file;
 
 import java.io.File;
 
+import teetime.framework.AbstractStage;
 import teetime.framework.InputPort;
 import teetime.framework.OutputPort;
-import teetime.framework.OldPipeline;
 import teetime.framework.pipe.SingleElementPipe;
 import teetime.stage.className.ClassNameRegistryRepository;
 import teetime.stage.io.File2TextLinesFilter;
@@ -31,24 +31,30 @@ import kieker.common.record.IMonitoringRecord;
  *
  * @since 1.10
  */
-public class DatFile2RecordFilter extends OldPipeline<File2TextLinesFilter, TextLine2RecordFilter> {
+public class DatFile2RecordFilter extends AbstractStage {
+
+	private final File2TextLinesFilter file2TextLinesFilter;
+	private final TextLine2RecordFilter textLine2RecordFilter;
 
 	public DatFile2RecordFilter(final ClassNameRegistryRepository classNameRegistryRepository) {
-		File2TextLinesFilter file2TextLinesFilter = new File2TextLinesFilter();
-		TextLine2RecordFilter textLine2RecordFilter = new TextLine2RecordFilter(classNameRegistryRepository);
-
-		this.setFirstStage(file2TextLinesFilter);
-		this.setLastStage(textLine2RecordFilter);
+		file2TextLinesFilter = new File2TextLinesFilter();
+		textLine2RecordFilter = new TextLine2RecordFilter(classNameRegistryRepository);
 
 		// BETTER let the framework choose the optimal pipe implementation
 		SingleElementPipe.connect(file2TextLinesFilter.getOutputPort(), textLine2RecordFilter.getInputPort());
 	}
 
 	public InputPort<File> getInputPort() {
-		return this.getFirstStage().getInputPort();
+		return this.file2TextLinesFilter.getInputPort();
 	}
 
 	public OutputPort<IMonitoringRecord> getOutputPort() {
-		return this.getLastStage().getOutputPort();
+		return this.textLine2RecordFilter.getOutputPort();
 	}
+
+	@Override
+	public void executeWithPorts() {
+		file2TextLinesFilter.executeWithPorts();
+	}
+
 }

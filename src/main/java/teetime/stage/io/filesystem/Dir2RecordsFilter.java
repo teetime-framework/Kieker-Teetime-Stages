@@ -17,8 +17,8 @@ package teetime.stage.io.filesystem;
 
 import java.io.File;
 
+import teetime.framework.AbstractStage;
 import teetime.framework.InputPort;
-import teetime.framework.OldPipeline;
 import teetime.framework.OutputPort;
 import teetime.framework.pipe.IPipeFactory;
 import teetime.framework.pipe.PipeFactoryRegistry;
@@ -41,10 +41,12 @@ import kieker.common.util.filesystem.FSUtil;
  *
  * @since 1.10
  */
-public class Dir2RecordsFilter extends OldPipeline<ClassNameRegistryCreationFilter, Merger<IMonitoringRecord>> {
+public class Dir2RecordsFilter extends AbstractStage {
 
 	private final PipeFactoryRegistry pipeFactoryRegistry = PipeFactoryRegistry.INSTANCE;
 	private ClassNameRegistryRepository classNameRegistryRepository;
+	private final ClassNameRegistryCreationFilter classNameRegistryCreationFilter;
+	private final Merger<IMonitoringRecord> recordMerger;
 
 	/**
 	 * @since 1.10
@@ -80,8 +82,8 @@ public class Dir2RecordsFilter extends OldPipeline<ClassNameRegistryCreationFilt
 		pipeFactory.create(binaryFile2RecordFilter.getOutputPort(), recordMerger.getNewInputPort());
 
 		// prepare pipeline
-		this.setFirstStage(classNameRegistryCreationFilter);
-		this.setLastStage(recordMerger);
+		this.classNameRegistryCreationFilter = classNameRegistryCreationFilter;
+		this.recordMerger = recordMerger;
 	}
 
 	/**
@@ -100,11 +102,16 @@ public class Dir2RecordsFilter extends OldPipeline<ClassNameRegistryCreationFilt
 	}
 
 	public InputPort<File> getInputPort() {
-		return this.getFirstStage().getInputPort();
+		return classNameRegistryCreationFilter.getInputPort();
 	}
 
 	public OutputPort<IMonitoringRecord> getOutputPort() {
-		return this.getLastStage().getOutputPort();
+		return recordMerger.getOutputPort();
+	}
+
+	@Override
+	public void executeWithPorts() {
+		classNameRegistryCreationFilter.executeWithPorts();
 	}
 
 }

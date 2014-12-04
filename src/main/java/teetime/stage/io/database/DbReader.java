@@ -22,7 +22,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import teetime.framework.ProducerStage;
+import teetime.framework.AbstractProducerStage;
 
 import kieker.common.exception.MonitoringRecordException;
 import kieker.common.record.AbstractMonitoringRecord;
@@ -36,7 +36,7 @@ import kieker.common.record.IMonitoringRecord;
  * @since 1.10
  */
 // @Description("A reader which reads records from a database")
-public class DbReader extends ProducerStage<IMonitoringRecord> {
+public class DbReader extends AbstractProducerStage<IMonitoringRecord> {
 
 	/**
 	 * The classname of the driver used for the connection.

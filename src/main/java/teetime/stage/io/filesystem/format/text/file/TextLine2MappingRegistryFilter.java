@@ -18,16 +18,16 @@ package teetime.stage.io.filesystem.format.text.file;
 
 import java.util.Map;
 
-import teetime.framework.ConsumerStage;
+import teetime.framework.AbstractConsumerStage;
 
 import kieker.common.util.filesystem.FSUtil;
 
 /**
  * @author Christian Wulf
- * 
+ *
  * @since 1.10
  */
-public class TextLine2MappingRegistryFilter extends ConsumerStage<String> {
+public class TextLine2MappingRegistryFilter extends AbstractConsumerStage<String> {
 
 	private final Map<Integer, String> stringRegistry;
 

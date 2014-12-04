@@ -2,8 +2,8 @@ package teetime.stage.io.filesystem.format.text;
 
 import java.io.File;
 
+import teetime.framework.AbstractStage;
 import teetime.framework.InputPort;
-import teetime.framework.OldPipeline;
 import teetime.framework.OutputPort;
 import teetime.stage.className.ClassNameRegistryCreationFilter;
 import teetime.stage.className.ClassNameRegistryRepository;
@@ -11,18 +11,17 @@ import teetime.stage.io.filesystem.format.text.file.DatFile2RecordFilter;
 
 import kieker.common.record.IMonitoringRecord;
 
-public class DirWithDat2RecordFilter extends OldPipeline<ClassNameRegistryCreationFilter, DatFile2RecordFilter> {
+public class DirWithDat2RecordFilter extends AbstractStage {
 
 	private ClassNameRegistryRepository classNameRegistryRepository;
+	private final ClassNameRegistryCreationFilter classNameRegistryCreationFilter;
+	private final DatFile2RecordFilter datFile2RecordFilter;
 
 	public DirWithDat2RecordFilter(final ClassNameRegistryRepository classNameRegistryRepository) {
 		this.classNameRegistryRepository = classNameRegistryRepository;
 
-		final ClassNameRegistryCreationFilter classNameRegistryCreationFilter = new ClassNameRegistryCreationFilter(classNameRegistryRepository);
-		final DatFile2RecordFilter datFile2RecordFilter = new DatFile2RecordFilter(classNameRegistryRepository);
-
-		this.setFirstStage(classNameRegistryCreationFilter);
-		this.setLastStage(datFile2RecordFilter);
+		classNameRegistryCreationFilter = new ClassNameRegistryCreationFilter(classNameRegistryRepository);
+		datFile2RecordFilter = new DatFile2RecordFilter(classNameRegistryRepository);
 	}
 
 	public DirWithDat2RecordFilter() {
@@ -38,10 +37,16 @@ public class DirWithDat2RecordFilter extends OldPipeline<ClassNameRegistryCreati
 	}
 
 	public InputPort<File> getInputPort() {
-		return this.getFirstStage().getInputPort();
+		return this.classNameRegistryCreationFilter.getInputPort();
 	}
 
 	public OutputPort<IMonitoringRecord> getOutputPort() {
-		return this.getLastStage().getOutputPort();
+		return this.datFile2RecordFilter.getOutputPort();
 	}
+
+	@Override
+	public void executeWithPorts() {
+		this.classNameRegistryCreationFilter.executeWithPorts();
+	}
+
 }

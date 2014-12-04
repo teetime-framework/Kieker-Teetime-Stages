@@ -19,7 +19,7 @@ package teetime.stage.io.filesystem.format.text.file;
 import java.util.HashSet;
 import java.util.Set;
 
-import teetime.framework.ConsumerStage;
+import teetime.framework.AbstractConsumerStage;
 import teetime.framework.OutputPort;
 import teetime.stage.className.ClassNameRegistryRepository;
 import teetime.stage.util.MappingException;
@@ -35,7 +35,7 @@ import kieker.common.record.IMonitoringRecord;
  *
  * @since 1.10
  */
-public class TextLine2RecordFilter extends ConsumerStage<TextLine> {
+public class TextLine2RecordFilter extends AbstractConsumerStage<TextLine> {
 
 	private final OutputPort<IMonitoringRecord> outputPort = this.createOutputPort();
 

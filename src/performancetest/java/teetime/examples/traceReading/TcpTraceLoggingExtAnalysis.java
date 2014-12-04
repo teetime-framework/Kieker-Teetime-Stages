@@ -2,7 +2,7 @@ package teetime.examples.traceReading;
 
 import java.util.List;
 
-import teetime.framework.OldHeadPipeline;
+import teetime.framework.IStage;
 import teetime.framework.RunnableStage;
 import teetime.framework.pipe.SingleElementPipe;
 import teetime.framework.pipe.SpScPipe;
@@ -23,7 +23,7 @@ public class TcpTraceLoggingExtAnalysis {
 	private Counter<IMonitoringRecord> recordCounter;
 	private ElementThroughputMeasuringStage<IMonitoringRecord> recordThroughputStage;
 
-	private OldHeadPipeline<Clock, Distributor<Long>> buildClockPipeline(final long intervalDelayInMs) {
+	private IStage buildClockPipeline(final long intervalDelayInMs) {
 		Clock clockStage = new Clock();
 		clockStage.setInitialDelayInMs(intervalDelayInMs);
 		clockStage.setIntervalDelayInMs(intervalDelayInMs);
@@ -31,14 +31,10 @@ public class TcpTraceLoggingExtAnalysis {
 
 		SingleElementPipe.connect(clockStage.getOutputPort(), distributor.getInputPort());
 
-		// create and configure pipeline
-		OldHeadPipeline<Clock, Distributor<Long>> pipeline = new OldHeadPipeline<Clock, Distributor<Long>>();
-		pipeline.setFirstStage(clockStage);
-		pipeline.setLastStage(distributor);
-		return pipeline;
+		return clockStage;
 	}
 
-	private OldHeadPipeline<?, ?> buildTcpPipeline(final Distributor<Long> previousClockStage) {
+	private IStage buildTcpPipeline(final Distributor<Long> previousClockStage) {
 		TcpReader tcpReader = new TcpReader();
 		this.recordCounter = new Counter<IMonitoringRecord>();
 		this.recordThroughputStage = new ElementThroughputMeasuringStage<IMonitoringRecord>();
@@ -51,19 +47,14 @@ public class TcpTraceLoggingExtAnalysis {
 
 		SpScPipe.connect(previousClockStage.getNewOutputPort(), this.recordThroughputStage.getTriggerInputPort(), 10);
 
-		// create and configure pipeline
-		OldHeadPipeline<TcpReader, Sink<IMonitoringRecord>> pipeline = new OldHeadPipeline<TcpReader, Sink<IMonitoringRecord>>();
-		pipeline.setFirstStage(tcpReader);
-		pipeline.setLastStage(endStage);
-		return pipeline;
+		return tcpReader;
 	}
 
 	public void init() {
-
-		OldHeadPipeline<Clock, Distributor<Long>> clockPipeline = this.buildClockPipeline(1000);
+		IStage clockPipeline = this.buildClockPipeline(1000);
 		this.clockThread = new Thread(new RunnableStage(clockPipeline));
 
-		OldHeadPipeline<?, ?> tcpPipeline = this.buildTcpPipeline(clockPipeline.getLastStage());
+		IStage tcpPipeline = this.buildTcpPipeline(clockPipeline.getLastStage());
 		this.tcpThread = new Thread(new RunnableStage(tcpPipeline));
 	}
 

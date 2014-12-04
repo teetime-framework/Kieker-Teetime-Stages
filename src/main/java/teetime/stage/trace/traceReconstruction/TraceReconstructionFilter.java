@@ -17,7 +17,7 @@ package teetime.stage.trace.traceReconstruction;
 
 import java.util.concurrent.TimeUnit;
 
-import teetime.framework.ConsumerStage;
+import teetime.framework.AbstractConsumerStage;
 import teetime.framework.OutputPort;
 import teetime.util.concurrent.hashmap.ConcurrentHashMapWithDefault;
 import teetime.util.concurrent.hashmap.TraceBuffer;
@@ -32,7 +32,7 @@ import kieker.common.record.flow.trace.TraceMetadata;
  *
  * @since 1.10
  */
-public class TraceReconstructionFilter extends ConsumerStage<IFlowRecord> {
+public class TraceReconstructionFilter extends AbstractConsumerStage<IFlowRecord> {
 
 	private final OutputPort<TraceEventRecords> traceValidOutputPort = this.createOutputPort();
 	private final OutputPort<TraceEventRecords> traceInvalidOutputPort = this.createOutputPort();

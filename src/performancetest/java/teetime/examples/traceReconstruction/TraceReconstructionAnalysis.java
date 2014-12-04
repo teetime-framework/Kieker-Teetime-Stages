@@ -4,7 +4,7 @@ import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 
-import teetime.framework.OldHeadPipeline;
+import teetime.framework.IStage;
 import teetime.framework.RunnableStage;
 import teetime.framework.pipe.SingleElementPipe;
 import teetime.framework.pipe.SpScPipe;
@@ -49,7 +49,7 @@ public class TraceReconstructionAnalysis {
 		Clock clockStage = this.buildClockPipeline();
 		this.clockThread = new Thread(new RunnableStage(clockStage));
 
-		OldHeadPipeline<?, ?> pipeline = this.buildPipeline(clockStage);
+		IStage pipeline = this.buildPipeline(clockStage);
 		this.workerThread = new Thread(new RunnableStage(pipeline));
 	}
 
@@ -60,7 +60,7 @@ public class TraceReconstructionAnalysis {
 		return clock;
 	}
 
-	private OldHeadPipeline<?, ?> buildPipeline(final Clock clockStage) {
+	private IStage buildPipeline(final Clock clockStage) {
 		this.classNameRegistryRepository = new ClassNameRegistryRepository();
 
 		// create stages
@@ -98,11 +98,7 @@ public class TraceReconstructionAnalysis {
 
 		SpScPipe.connect(clockStage.getOutputPort(), this.throughputFilter.getTriggerInputPort(), 1);
 
-		// create and configure pipeline
-		OldHeadPipeline<InitialElementProducer<File>, CollectorSink<TraceEventRecords>> pipeline = new OldHeadPipeline<InitialElementProducer<File>, CollectorSink<TraceEventRecords>>();
-		pipeline.setFirstStage(initialElementProducer);
-		pipeline.setLastStage(collector);
-		return pipeline;
+		return initialElementProducer;
 	}
 
 	public void start() {

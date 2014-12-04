@@ -19,15 +19,15 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 
-import teetime.framework.ConsumerStage;
+import teetime.framework.AbstractConsumerStage;
 import teetime.framework.OutputPort;
 
 /**
  * @author Christian Wulf
- * 
+ *
  * @since 1.10
  */
-public class ClassNameRegistryCreationFilter extends ConsumerStage<File> {
+public class ClassNameRegistryCreationFilter extends AbstractConsumerStage<File> {
 
 	private final OutputPort<File> outputPort = this.createOutputPort();
 
