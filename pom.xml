@@ -237,7 +237,7 @@
 
 				<configuration>
 					<rulesets>
-						<ruleset>${project.basedir}/conf/quality-config/pmdrules.xml</ruleset>
+						<ruleset>${project.basedir}/conf/quality-config/pmd-ruleset.xml</ruleset>
 					</rulesets>
 					<includeTests>true</includeTests>
 					<targetJdk>${java.version}</targetJdk>
