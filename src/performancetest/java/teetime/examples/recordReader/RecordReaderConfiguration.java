@@ -34,7 +34,7 @@ import kieker.common.record.IMonitoringRecord;
 /**
  * @author Christian Wulf
  *
- * @since 1.10
+ * @since 1.0
  */
 public class RecordReaderConfiguration extends AnalysisConfiguration {
 
