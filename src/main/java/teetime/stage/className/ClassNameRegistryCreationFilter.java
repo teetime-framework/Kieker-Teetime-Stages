@@ -61,7 +61,7 @@ public class ClassNameRegistryCreationFilter extends AbstractConsumerStage<File>
 		try {
 			final ClassNameRegistry classNameRegistry = this.mappingFileParser.parseFromStream(new FileInputStream(mappingFile));
 			this.classNameRegistryRepository.put(inputDir, classNameRegistry);
-			this.send(this.outputPort, inputDir);
+			outputPort.send(inputDir);
 
 			// final String filePrefix = this.mappingFileParser.getFilePrefixFromMappingFile(mappingFile);
 			// context.put(this.filePrefixOutputPort, filePrefix); // TODO pass prefix

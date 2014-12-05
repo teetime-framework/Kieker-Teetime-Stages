@@ -105,7 +105,7 @@ public class TraceReconstructionFilter extends AbstractConsumerStage<IFlowRecord
 	private void sendTraceBuffer(final TraceBuffer traceBuffer) {
 		OutputPort<TraceEventRecords> outputPort = (traceBuffer.isInvalid()) ? this.traceInvalidOutputPort
 				: this.traceValidOutputPort;
-		this.send(outputPort, traceBuffer.toTraceEvents());
+		outputPort.send(traceBuffer.toTraceEvents());
 	}
 
 	public TimeUnit getTimeunit() {

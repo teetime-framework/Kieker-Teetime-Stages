@@ -79,7 +79,7 @@ public class BinaryFile2RecordFilter extends AbstractConsumerStage<File> {
 			try {
 				IMonitoringRecord record = this.recordFromBinaryFileCreator.createRecordFromBinaryFile(binaryFile, in);
 				while (record != null) {
-					this.send(this.outputPort, record);
+					outputPort.send(record);
 					record = this.recordFromBinaryFileCreator.createRecordFromBinaryFile(binaryFile, in);
 				}
 			} catch (final MonitoringRecordException e) {

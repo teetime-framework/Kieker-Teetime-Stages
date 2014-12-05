@@ -79,7 +79,7 @@ public class TraceReductionFilter extends AbstractConsumerStage<TraceEventRecord
 				final TraceAggregationBuffer buffer = entry.getValue();
 				final TraceEventRecords record = buffer.getTraceEventRecords();
 				record.setCount(buffer.getCount());
-				this.send(this.outputPort, record);
+				outputPort.send(record);
 			}
 			this.trace2buffer.clear();
 		}
@@ -97,7 +97,7 @@ public class TraceReductionFilter extends AbstractConsumerStage<TraceEventRecord
 				if (traceBuffer.getBufferCreatedTimestamp() <= bufferTimeoutInNs) {
 					final TraceEventRecords record = traceBuffer.getTraceEventRecords();
 					record.setCount(traceBuffer.getCount());
-					this.send(this.outputPort, record);
+					outputPort.send(record);
 				}
 				iterator.remove();
 			}

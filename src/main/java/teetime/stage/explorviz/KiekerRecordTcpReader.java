@@ -181,7 +181,7 @@ public class KiekerRecordTcpReader extends AbstractProducerStage<IMonitoringReco
 		}
 
 		final IMonitoringRecord record = new BeforeOperationEvent(timestamp, traceId, orderIndex, operation, clazz);
-		this.send(this.outputPort, record);
+		outputPort.send(record);
 	}
 
 	private final void readInAfterOperationEvent(final ByteBuffer buffer) {
@@ -190,7 +190,7 @@ public class KiekerRecordTcpReader extends AbstractProducerStage<IMonitoringReco
 		final int orderIndex = buffer.getInt();
 
 		final IMonitoringRecord record = new AfterOperationEvent(timestamp, traceId, orderIndex, null, null);
-		this.send(this.outputPort, record);
+		outputPort.send(record);
 	}
 
 	private final void putInWaitingMessages(final ByteBuffer buffer, final int length) {

@@ -173,7 +173,7 @@ public class DbReader extends AbstractProducerStage<IMonitoringRecord> {
 					}
 					final IMonitoringRecord record = AbstractMonitoringRecord.createFromArray(clazz, recordValues);
 					record.setLoggingTimestamp(records.getLong(2));
-					this.send(this.outputPort, record);
+					outputPort.send(record);
 				}
 			} finally {
 				if (records != null) {

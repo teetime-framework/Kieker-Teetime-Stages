@@ -81,7 +81,7 @@ public class TextLine2RecordFilter extends AbstractConsumerStage<TextLine> {
 	protected void execute(final TextLine textLine) {
 		try {
 			final IMonitoringRecord record = this.recordFromTextLineCreator.createRecordFromLine(textLine.getTextFile(), textLine.getTextLine());
-			this.send(this.outputPort, record);
+			outputPort.send(record);
 		} catch (final MonitoringRecordException e) {
 			this.logger.error("Could not create record from text line: '" + textLine + "'", e);
 		} catch (final IllegalRecordFormatException e) {
