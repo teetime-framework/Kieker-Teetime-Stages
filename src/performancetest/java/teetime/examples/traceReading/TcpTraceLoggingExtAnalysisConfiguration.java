@@ -4,7 +4,6 @@ import java.util.List;
 
 import teetime.framework.AnalysisConfiguration;
 import teetime.framework.IStage;
-import teetime.framework.RunnableStage;
 import teetime.framework.pipe.IPipeFactory;
 import teetime.framework.pipe.PipeFactoryRegistry;
 import teetime.framework.pipe.PipeFactoryRegistry.PipeOrdering;
@@ -21,9 +20,6 @@ import kieker.common.record.IMonitoringRecord;
 
 public class TcpTraceLoggingExtAnalysisConfiguration extends AnalysisConfiguration {
 
-	private Thread clockThread;
-	private Thread tcpThread;
-
 	private Counter<IMonitoringRecord> recordCounter;
 	private ElementThroughputMeasuringStage<IMonitoringRecord> recordThroughputStage;
 	private final IPipeFactory intraThreadPipeFactory;
@@ -32,6 +28,11 @@ public class TcpTraceLoggingExtAnalysisConfiguration extends AnalysisConfigurati
 	public TcpTraceLoggingExtAnalysisConfiguration() {
 		intraThreadPipeFactory = PipeFactoryRegistry.INSTANCE.getPipeFactory(ThreadCommunication.INTRA, PipeOrdering.ARBITRARY, false);
 		interThreadPipeFactory = PipeFactoryRegistry.INSTANCE.getPipeFactory(ThreadCommunication.INTER, PipeOrdering.QUEUE_BASED, false);
+
+		final Pipeline<Distributor<Long>> clockPipeline = this.buildClockPipeline(1000);
+		addThreadableStage(clockPipeline);
+		final IStage tcpPipeline = this.buildTcpPipeline(clockPipeline.getLastStage());
+		addThreadableStage(tcpPipeline);
 	}
 
 	private Pipeline<Distributor<Long>> buildClockPipeline(final long intervalDelayInMs) {
@@ -59,14 +60,6 @@ public class TcpTraceLoggingExtAnalysisConfiguration extends AnalysisConfigurati
 		interThreadPipeFactory.create(previousClockStage.getNewOutputPort(), this.recordThroughputStage.getTriggerInputPort(), 10);
 
 		return tcpReader;
-	}
-
-	public void init() {
-		Pipeline<Distributor<Long>> clockPipeline = this.buildClockPipeline(1000);
-		this.clockThread = new Thread(new RunnableStage(clockPipeline));
-
-		IStage tcpPipeline = this.buildTcpPipeline(clockPipeline.getLastStage());
-		this.tcpThread = new Thread(new RunnableStage(tcpPipeline));
 	}
 
 	public int getNumRecords() {
