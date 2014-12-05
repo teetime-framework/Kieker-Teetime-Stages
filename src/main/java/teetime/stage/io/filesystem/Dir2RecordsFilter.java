@@ -39,18 +39,15 @@ import kieker.common.util.filesystem.FSUtil;
 /**
  * @author Christian Wulf
  *
- * @since 1.10
+ * @since 1.0
  */
-public class Dir2RecordsFilter extends AbstractStage {
+public final class Dir2RecordsFilter extends AbstractStage {
 
 	private final PipeFactoryRegistry pipeFactoryRegistry = PipeFactoryRegistry.INSTANCE;
 	private ClassNameRegistryRepository classNameRegistryRepository;
 	private final ClassNameRegistryCreationFilter classNameRegistryCreationFilter;
 	private final Merger<IMonitoringRecord> recordMerger;
 
-	/**
-	 * @since 1.10
-	 */
 	public Dir2RecordsFilter(final ClassNameRegistryRepository classNameRegistryRepository) {
 		this.classNameRegistryRepository = classNameRegistryRepository;
 
@@ -84,13 +81,6 @@ public class Dir2RecordsFilter extends AbstractStage {
 		// prepare pipeline
 		this.classNameRegistryCreationFilter = classNameRegistryCreationFilter;
 		this.recordMerger = recordMerger;
-	}
-
-	/**
-	 * @since 1.10
-	 */
-	public Dir2RecordsFilter() {
-		this(null);
 	}
 
 	public ClassNameRegistryRepository getClassNameRegistryRepository() {
