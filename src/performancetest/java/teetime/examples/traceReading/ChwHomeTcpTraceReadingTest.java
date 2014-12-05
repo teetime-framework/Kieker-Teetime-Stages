@@ -32,6 +32,7 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
+import teetime.framework.Analysis;
 import teetime.util.ListUtil;
 import teetime.util.StopWatch;
 import util.test.StatisticsUtil;
@@ -63,7 +64,9 @@ public class ChwHomeTcpTraceReadingTest {
 
 	@Test
 	public void performAnalysis() {
-		final TcpTraceLoggingExtAnalysis analysis = new TcpTraceLoggingExtAnalysis();
+		final TcpTraceLoggingExtAnalysisConfiguration configuration = new TcpTraceLoggingExtAnalysisConfiguration();
+
+		final Analysis analysis = new Analysis(configuration);
 		analysis.init();
 
 		this.stopWatch.start();
@@ -73,11 +76,11 @@ public class ChwHomeTcpTraceReadingTest {
 			this.stopWatch.end();
 		}
 
-		List<Long> recordThroughputs = ListUtil.removeFirstHalfElements(analysis.getRecordThroughputs());
+		List<Long> recordThroughputs = ListUtil.removeFirstHalfElements(configuration.getRecordThroughputs());
 		Map<Double, Long> recordQuintiles = StatisticsUtil.calculateQuintiles(recordThroughputs);
 		System.out.println("Median record throughput: " + recordQuintiles.get(0.5) + " records/time unit");
 
-		assertEquals("#records", EXPECTED_NUM_RECORDS, analysis.getNumRecords());
+		assertEquals("#records", EXPECTED_NUM_RECORDS, configuration.getNumRecords());
 
 		// 08.07.2014 (incl.)
 		assertThat(recordQuintiles.get(0.5), is(both(greaterThan(3000L)).and(lessThan(3500L))));
