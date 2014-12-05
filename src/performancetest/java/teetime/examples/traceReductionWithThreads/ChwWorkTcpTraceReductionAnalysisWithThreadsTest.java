@@ -29,6 +29,7 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
+import teetime.framework.Analysis;
 import teetime.util.ListUtil;
 import teetime.util.StopWatch;
 import util.MooBenchStarter;
@@ -99,8 +100,9 @@ public class ChwWorkTcpTraceReductionAnalysisWithThreadsTest {
 	}
 
 	void performAnalysis(final int numWorkerThreads) {
-		final TcpTraceReductionAnalysisWithThreads analysis = new TcpTraceReductionAnalysisWithThreads();
-		analysis.setNumWorkerThreads(numWorkerThreads);
+		final TcpTraceReductionAnalysisWithThreadsConfiguration configuration = new TcpTraceReductionAnalysisWithThreadsConfiguration(numWorkerThreads);
+
+		Analysis analysis = new Analysis(configuration);
 		analysis.init();
 
 		this.stopWatch.start();
@@ -110,10 +112,10 @@ public class ChwWorkTcpTraceReductionAnalysisWithThreadsTest {
 			this.stopWatch.end();
 		}
 
-		System.out.println("#waits of tcp-relay pipe: " + analysis.getTcpRelayPipe().getNumWaits());
+		System.out.println("#waits of tcp-relay pipe: " + configuration.getMaxNumWaits());
 		// System.out.println("#traceMetadata read: " + analysis.getNumTraceMetadatas());
 		// System.out.println("Max #trace created: " + analysis.getMaxElementsCreated());
-		System.out.println("TraceThroughputs: " + analysis.getTraceThroughputs());
+		System.out.println("TraceThroughputs: " + configuration.getTraceThroughputs());
 
 		// Map<Double, Long> recordQuintiles = StatisticsUtil.calculateQuintiles(analysis.getRecordDelays());
 		// System.out.println("Median record delay: " + recordQuintiles.get(0.5) + " time units/record");
@@ -121,17 +123,17 @@ public class ChwWorkTcpTraceReductionAnalysisWithThreadsTest {
 		// Map<Double, Long> traceQuintiles = StatisticsUtil.calculateQuintiles(analysis.getTraceDelays());
 		// System.out.println("Median trace delay: " + traceQuintiles.get(0.5) + " time units/trace");
 
-		List<Long> traceThroughputs = ListUtil.removeFirstHalfElements(analysis.getTraceThroughputs());
+		List<Long> traceThroughputs = ListUtil.removeFirstHalfElements(configuration.getTraceThroughputs());
 		Map<Double, Long> traceQuintiles = StatisticsUtil.calculateQuintiles(traceThroughputs);
 		System.out.println("Median trace throughput: " + traceQuintiles.get(0.5) + " traces/time unit");
 
-		assertEquals("#records", 21000001, analysis.getNumRecords());
+		assertEquals("#records", 21000001, configuration.getNumRecords());
 
-		for (Integer count : analysis.getNumTraceMetadatas()) {
+		for (Integer count : configuration.getNumTraceMetadatas()) {
 			assertEquals("#traceMetadata per worker thread", EXPECTED_NUM_TRACES / numWorkerThreads, count.intValue()); // even distribution
 		}
 
-		assertEquals("#traces", EXPECTED_NUM_SAME_TRACES, analysis.getNumTraces());
+		assertEquals("#traces", EXPECTED_NUM_SAME_TRACES, configuration.getNumTraces());
 	}
 
 	private void startTest(final Runnable runnable) throws InterruptedException, IOException {
