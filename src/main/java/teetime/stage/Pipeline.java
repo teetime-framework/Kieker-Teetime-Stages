@@ -15,7 +15,7 @@ import teetime.framework.validation.InvalidPortConnection;
  * @param <L>
  *            the type of the last stage in this pipeline
  */
-public class Pipeline<L extends IStage> implements IStage {
+public final class Pipeline<L extends IStage> implements IStage {
 
 	private final IStage firstStage;
 	private final L lastStage;
