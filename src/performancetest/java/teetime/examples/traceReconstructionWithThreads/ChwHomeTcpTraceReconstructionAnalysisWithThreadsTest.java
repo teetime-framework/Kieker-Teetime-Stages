@@ -33,7 +33,6 @@ import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
 import teetime.framework.Analysis;
-import teetime.framework.pipe.SpScPipe;
 import teetime.util.ListUtil;
 import teetime.util.StopWatch;
 import util.test.StatisticsUtil;
@@ -79,9 +78,7 @@ public class ChwHomeTcpTraceReconstructionAnalysisWithThreadsTest {
 	}
 
 	void performAnalysis(final int numWorkerThreads) {
-		final TcpTraceReconstructionAnalysisWithThreadsConfiguration configuration = new TcpTraceReconstructionAnalysisWithThreadsConfiguration();
-		configuration.setNumWorkerThreads(numWorkerThreads);
-		configuration.buildConfiguration();
+		final TcpTraceReconstructionAnalysisWithThreadsConfiguration configuration = new TcpTraceReconstructionAnalysisWithThreadsConfiguration(numWorkerThreads);
 
 		Analysis analysis = new Analysis(configuration);
 		analysis.init();
@@ -93,11 +90,7 @@ public class ChwHomeTcpTraceReconstructionAnalysisWithThreadsTest {
 			this.stopWatch.end();
 		}
 
-		int maxNumWaits = 0;
-		for (SpScPipe pipe : configuration.getTcpRelayPipes()) {
-			maxNumWaits = Math.max(maxNumWaits, pipe.getNumWaits());
-		}
-		System.out.println("max #waits of TcpRelayPipes: " + maxNumWaits);
+		System.out.println("max #waits of TcpRelayPipes: " + configuration.getMaxNumWaits());
 
 		// System.out.println("#traceMetadata read: " + analysis.getNumTraceMetadatas());
 		// System.out.println("Max #trace created: " + analysis.getMaxElementsCreated());

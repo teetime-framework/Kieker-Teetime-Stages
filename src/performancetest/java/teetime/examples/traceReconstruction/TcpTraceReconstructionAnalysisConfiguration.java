@@ -5,7 +5,6 @@ import java.util.List;
 
 import teetime.framework.AnalysisConfiguration;
 import teetime.framework.IStage;
-import teetime.framework.RunnableStage;
 import teetime.framework.pipe.IPipeFactory;
 import teetime.framework.pipe.PipeFactoryRegistry.PipeOrdering;
 import teetime.framework.pipe.PipeFactoryRegistry.ThreadCommunication;
@@ -32,10 +31,6 @@ public class TcpTraceReconstructionAnalysisConfiguration extends AnalysisConfigu
 
 	private final List<TraceEventRecords> elementCollection = new LinkedList<TraceEventRecords>();
 
-	private Thread clockThread;
-	private Thread clock2Thread;
-	private Thread workerThread;
-
 	private final ConcurrentHashMapWithDefault<Long, TraceBuffer> traceId2trace = new ConcurrentHashMapWithDefault<Long, TraceBuffer>(new TraceBuffer());
 
 	private Counter<IMonitoringRecord> recordCounter;
@@ -54,13 +49,13 @@ public class TcpTraceReconstructionAnalysisConfiguration extends AnalysisConfigu
 
 	private void init() {
 		Pipeline<Distributor<Long>> clockStage = this.buildClockPipeline(1000);
-		this.clockThread = new Thread(new RunnableStage(clockStage));
+		addThreadableStage(clockStage);
 
 		Pipeline<Distributor<Long>> clock2Stage = this.buildClockPipeline(2000);
-		this.clock2Thread = new Thread(new RunnableStage(clock2Stage));
+		addThreadableStage(clock2Stage);
 
 		IStage pipeline = this.buildPipeline(clockStage.getLastStage(), clock2Stage.getLastStage());
-		this.workerThread = new Thread(new RunnableStage(pipeline));
+		addThreadableStage(pipeline);
 	}
 
 	private Pipeline<Distributor<Long>> buildClockPipeline(final long intervalDelayInMs) {
