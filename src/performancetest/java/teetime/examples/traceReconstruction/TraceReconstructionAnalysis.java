@@ -29,6 +29,7 @@ import kieker.analysis.plugin.filter.flow.TraceEventRecords;
 import kieker.common.record.IMonitoringRecord;
 import kieker.common.record.flow.IFlowRecord;
 
+// TODO extends AnalysisConfiguration
 public class TraceReconstructionAnalysis {
 
 	private final List<TraceEventRecords> elementCollection = new LinkedList<TraceEventRecords>();
