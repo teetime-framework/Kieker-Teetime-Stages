@@ -57,9 +57,7 @@ public class ChwWorkTraceReconstructionAnalysisTest {
 
 	@Test
 	public void performAnalysisWithEprintsLogs() {
-		final TraceReconstructionAnalysis analysis = new TraceReconstructionAnalysis();
-		analysis.setInputDir(new File("src/test/data/Eprints-logs"));
-		analysis.init();
+		final TraceReconstructionAnalysis analysis = new TraceReconstructionAnalysis(new File("src/test/data/Eprints-logs"));
 
 		this.stopWatch.start();
 		try {
@@ -84,9 +82,7 @@ public class ChwWorkTraceReconstructionAnalysisTest {
 
 	@Test
 	public void performAnalysisWithKiekerLogs() {
-		final TraceReconstructionAnalysis analysis = new TraceReconstructionAnalysis();
-		analysis.setInputDir(new File("src/test/data/kieker-logs"));
-		analysis.init();
+		final TraceReconstructionAnalysis analysis = new TraceReconstructionAnalysis(new File("src/test/data/kieker-logs"));
 
 		this.stopWatch.start();
 		try {
@@ -113,9 +109,7 @@ public class ChwWorkTraceReconstructionAnalysisTest {
 
 	@Test
 	public void performAnalysisWithKieker2Logs() {
-		final TraceReconstructionAnalysis analysis = new TraceReconstructionAnalysis();
-		analysis.setInputDir(new File("src/test/data/kieker2-logs"));
-		analysis.init();
+		final TraceReconstructionAnalysis analysis = new TraceReconstructionAnalysis(new File("src/test/data/kieker2-logs"));
 
 		this.stopWatch.start();
 		try {

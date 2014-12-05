@@ -4,10 +4,12 @@ import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 
-import teetime.framework.Stage;
+import teetime.framework.AnalysisConfiguration;
 import teetime.framework.RunnableStage;
-import teetime.framework.pipe.SingleElementPipe;
-import teetime.framework.pipe.SpScPipe;
+import teetime.framework.Stage;
+import teetime.framework.pipe.IPipeFactory;
+import teetime.framework.pipe.PipeFactoryRegistry.PipeOrdering;
+import teetime.framework.pipe.PipeFactoryRegistry.ThreadCommunication;
 import teetime.stage.Cache;
 import teetime.stage.Clock;
 import teetime.stage.CollectorSink;
@@ -18,9 +20,9 @@ import teetime.stage.InstanceOfFilter;
 import teetime.stage.basic.merger.Merger;
 import teetime.stage.className.ClassNameRegistryRepository;
 import teetime.stage.io.filesystem.Dir2RecordsFilter;
-import teetime.stage.stringBuffer.StringBufferFilter;
-import teetime.stage.stringBuffer.handler.IMonitoringRecordHandler;
-import teetime.stage.stringBuffer.handler.StringHandler;
+import teetime.stage.string.buffer.StringBufferFilter;
+import teetime.stage.string.buffer.handler.MonitoringRecordHandler;
+import teetime.stage.string.buffer.handler.StringHandler;
 import teetime.stage.trace.traceReconstruction.TraceReconstructionFilter;
 import teetime.util.concurrent.hashmap.ConcurrentHashMapWithDefault;
 import teetime.util.concurrent.hashmap.TraceBuffer;
@@ -30,23 +32,32 @@ import kieker.common.record.IMonitoringRecord;
 import kieker.common.record.flow.IFlowRecord;
 
 // TODO extends AnalysisConfiguration
-public class TraceReconstructionAnalysis {
+public class TraceReconstructionAnalysis extends AnalysisConfiguration {
 
 	private final List<TraceEventRecords> elementCollection = new LinkedList<TraceEventRecords>();
 
 	private Thread clockThread;
 	private Thread workerThread;
 
-	private ClassNameRegistryRepository classNameRegistryRepository;
-	private final ConcurrentHashMapWithDefault<Long, TraceBuffer> traceId2trace = new ConcurrentHashMapWithDefault<Long, TraceBuffer>(new TraceBuffer());
+	private final File inputDir;
+	private final ConcurrentHashMapWithDefault<Long, TraceBuffer> traceId2trace;
+	private final IPipeFactory intraThreadPipeFactory;
+	private final IPipeFactory interThreadPipeFactory;
 
+	private ClassNameRegistryRepository classNameRegistryRepository;
 	private Counter<IMonitoringRecord> recordCounter;
 	private Counter<TraceEventRecords> traceCounter;
 	private ElementThroughputMeasuringStage<IFlowRecord> throughputFilter;
 
-	private File inputDir;
+	public TraceReconstructionAnalysis(final File inputDir) {
+		this.inputDir = inputDir;
+		traceId2trace = new ConcurrentHashMapWithDefault<Long, TraceBuffer>(new TraceBuffer());
+		intraThreadPipeFactory = PIPE_FACTORY_REGISTRY.getPipeFactory(ThreadCommunication.INTRA, PipeOrdering.ARBITRARY, false);
+		interThreadPipeFactory = PIPE_FACTORY_REGISTRY.getPipeFactory(ThreadCommunication.INTER, PipeOrdering.QUEUE_BASED, false);
+		init();
+	}
 
-	public void init() {
+	private void init() {
 		Clock clockStage = this.buildClockPipeline();
 		this.clockThread = new Thread(new RunnableStage(clockStage));
 
@@ -80,24 +91,24 @@ public class TraceReconstructionAnalysis {
 		final CollectorSink<TraceEventRecords> collector = new CollectorSink<TraceEventRecords>(this.elementCollection);
 
 		// configure stages
-		stringBufferFilter.getDataTypeHandlers().add(new IMonitoringRecordHandler());
+		stringBufferFilter.getDataTypeHandlers().add(new MonitoringRecordHandler());
 		stringBufferFilter.getDataTypeHandlers().add(new StringHandler());
 
 		// connect stages
-		SingleElementPipe.connect(initialElementProducer.getOutputPort(), dir2RecordsFilter.getInputPort());
-		SingleElementPipe.connect(dir2RecordsFilter.getOutputPort(), this.recordCounter.getInputPort());
-		SingleElementPipe.connect(this.recordCounter.getOutputPort(), cache.getInputPort());
-		SingleElementPipe.connect(cache.getOutputPort(), stringBufferFilter.getInputPort());
-		SingleElementPipe.connect(stringBufferFilter.getOutputPort(), instanceOfFilter.getInputPort());
-		SingleElementPipe.connect(instanceOfFilter.getOutputPort(), this.throughputFilter.getInputPort());
-		SingleElementPipe.connect(this.throughputFilter.getOutputPort(), traceReconstructionFilter.getInputPort());
-		// SingleElementPipe.connect(instanceOfFilter.getOutputPort(), traceReconstructionFilter.getInputPort());
-		SingleElementPipe.connect(traceReconstructionFilter.getTraceValidOutputPort(), merger.getNewInputPort());
-		SingleElementPipe.connect(traceReconstructionFilter.getTraceInvalidOutputPort(), merger.getNewInputPort());
-		SingleElementPipe.connect(merger.getOutputPort(), this.traceCounter.getInputPort());
-		SingleElementPipe.connect(this.traceCounter.getOutputPort(), collector.getInputPort());
+		intraThreadPipeFactory.create(initialElementProducer.getOutputPort(), dir2RecordsFilter.getInputPort());
+		intraThreadPipeFactory.create(dir2RecordsFilter.getOutputPort(), this.recordCounter.getInputPort());
+		intraThreadPipeFactory.create(this.recordCounter.getOutputPort(), cache.getInputPort());
+		intraThreadPipeFactory.create(cache.getOutputPort(), stringBufferFilter.getInputPort());
+		intraThreadPipeFactory.create(stringBufferFilter.getOutputPort(), instanceOfFilter.getInputPort());
+		intraThreadPipeFactory.create(instanceOfFilter.getOutputPort(), this.throughputFilter.getInputPort());
+		intraThreadPipeFactory.create(this.throughputFilter.getOutputPort(), traceReconstructionFilter.getInputPort());
+		// intraThreadPipeFactory.create(instanceOfFilter.getOutputPort(), traceReconstructionFilter.getInputPort());
+		intraThreadPipeFactory.create(traceReconstructionFilter.getTraceValidOutputPort(), merger.getNewInputPort());
+		intraThreadPipeFactory.create(traceReconstructionFilter.getTraceInvalidOutputPort(), merger.getNewInputPort());
+		intraThreadPipeFactory.create(merger.getOutputPort(), this.traceCounter.getInputPort());
+		intraThreadPipeFactory.create(this.traceCounter.getOutputPort(), collector.getInputPort());
 
-		SpScPipe.connect(clockStage.getOutputPort(), this.throughputFilter.getTriggerInputPort(), 1);
+		interThreadPipeFactory.create(clockStage.getOutputPort(), this.throughputFilter.getTriggerInputPort(), 1);
 
 		return initialElementProducer;
 	}
@@ -141,7 +152,4 @@ public class TraceReconstructionAnalysis {
 		return this.inputDir;
 	}
 
-	public void setInputDir(final File inputDir) {
-		this.inputDir = inputDir;
-	}
 }

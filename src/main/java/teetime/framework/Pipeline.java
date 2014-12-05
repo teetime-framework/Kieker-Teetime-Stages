@@ -12,7 +12,7 @@ import teetime.framework.validation.InvalidPortConnection;
  * @param <L>
  *            the type of the last stage in this pipeline
  */
-// Consider to move it in the framework
+// TODO Consider to move it in the framework
 public final class Pipeline<L extends Stage> extends Stage {
 
 	private final Stage firstStage;
@@ -40,23 +40,8 @@ public final class Pipeline<L extends Stage> extends Stage {
 	}
 
 	@Override
-	public String getId() {
-		return firstStage.getId();
-	}
-
-	@Override
 	public void executeWithPorts() {
 		firstStage.executeWithPorts();
-	}
-
-	@Override
-	public Stage getParentStage() {
-		return firstStage.getParentStage();
-	}
-
-	@Override
-	public void setParentStage(final Stage parentStage, final int index) {
-		firstStage.setParentStage(parentStage, index);
 	}
 
 	@Override

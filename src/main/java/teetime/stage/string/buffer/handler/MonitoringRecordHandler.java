@@ -13,19 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ***************************************************************************/
-package teetime.stage.stringBuffer.handler;
+package teetime.stage.string.buffer.handler;
 
 import kieker.common.exception.MonitoringRecordException;
 import kieker.common.record.AbstractMonitoringRecord;
 import kieker.common.record.IMonitoringRecord;
 
-
 /**
  * @author Christian Wulf
  *
- * @since 1.10
+ * @since 1.0
  */
-public class IMonitoringRecordHandler extends AbstractDataTypeHandler<IMonitoringRecord> {
+public final class MonitoringRecordHandler extends AbstractDataTypeHandler<IMonitoringRecord> {
 
 	@Override
 	public boolean canHandle(final Object object) {
