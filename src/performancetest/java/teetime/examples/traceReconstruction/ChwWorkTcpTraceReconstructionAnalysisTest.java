@@ -24,6 +24,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import teetime.framework.Analysis;
 import teetime.util.StopWatch;
 import util.test.StatisticsUtil;
 
@@ -53,7 +54,9 @@ public class ChwWorkTcpTraceReconstructionAnalysisTest {
 
 	@Test
 	public void performAnalysis() {
-		final TcpTraceReconstructionAnalysis analysis = new TcpTraceReconstructionAnalysis();
+		final TcpTraceReconstructionAnalysisConfiguration configuration = new TcpTraceReconstructionAnalysisConfiguration();
+
+		Analysis analysis = new Analysis(configuration);
 		analysis.init();
 
 		this.stopWatch.start();
@@ -63,11 +66,11 @@ public class ChwWorkTcpTraceReconstructionAnalysisTest {
 			this.stopWatch.end();
 		}
 
-		Map<Double, Long> quintiles = StatisticsUtil.calculateQuintiles(analysis.getTraceThroughputs());
+		Map<Double, Long> quintiles = StatisticsUtil.calculateQuintiles(configuration.getTraceThroughputs());
 		System.out.println("Median throughput: " + quintiles.get(0.5) + " elements/time unit");
 
-		assertEquals(EXPECTED_NUM_RECORDS, analysis.getNumRecords());
-		assertEquals(EXPECTED_NUM_TRACES, analysis.getNumTraces());
+		assertEquals(EXPECTED_NUM_RECORDS, configuration.getNumRecords());
+		assertEquals(EXPECTED_NUM_TRACES, configuration.getNumTraces());
 
 		// TraceEventRecords trace6884 = analysis.getElementCollection().get(0);
 		// assertEquals(6884, trace6884.getTraceMetadata().getTraceId());

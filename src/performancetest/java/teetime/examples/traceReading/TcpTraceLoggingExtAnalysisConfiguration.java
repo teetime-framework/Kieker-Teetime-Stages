@@ -5,7 +5,6 @@ import java.util.List;
 import teetime.framework.AnalysisConfiguration;
 import teetime.framework.IStage;
 import teetime.framework.pipe.IPipeFactory;
-import teetime.framework.pipe.PipeFactoryRegistry;
 import teetime.framework.pipe.PipeFactoryRegistry.PipeOrdering;
 import teetime.framework.pipe.PipeFactoryRegistry.ThreadCommunication;
 import teetime.stage.Clock;
@@ -26,9 +25,12 @@ public class TcpTraceLoggingExtAnalysisConfiguration extends AnalysisConfigurati
 	private final IPipeFactory interThreadPipeFactory;
 
 	public TcpTraceLoggingExtAnalysisConfiguration() {
-		intraThreadPipeFactory = PipeFactoryRegistry.INSTANCE.getPipeFactory(ThreadCommunication.INTRA, PipeOrdering.ARBITRARY, false);
-		interThreadPipeFactory = PipeFactoryRegistry.INSTANCE.getPipeFactory(ThreadCommunication.INTER, PipeOrdering.QUEUE_BASED, false);
+		intraThreadPipeFactory = PIPE_FACTORY_REGISTRY.getPipeFactory(ThreadCommunication.INTRA, PipeOrdering.ARBITRARY, false);
+		interThreadPipeFactory = PIPE_FACTORY_REGISTRY.getPipeFactory(ThreadCommunication.INTER, PipeOrdering.QUEUE_BASED, false);
+		init();
+	}
 
+	private void init() {
 		final Pipeline<Distributor<Long>> clockPipeline = this.buildClockPipeline(1000);
 		addThreadableStage(clockPipeline);
 		final IStage tcpPipeline = this.buildTcpPipeline(clockPipeline.getLastStage());
