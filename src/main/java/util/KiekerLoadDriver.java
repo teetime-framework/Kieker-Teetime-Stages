@@ -14,7 +14,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-import teetime.framework.IStage;
+import teetime.framework.Stage;
 import teetime.framework.RunnableStage;
 import teetime.framework.pipe.SingleElementPipe;
 import teetime.stage.CollectorSink;
@@ -35,11 +35,11 @@ public class KiekerLoadDriver {
 	private long[] timings;
 
 	public KiekerLoadDriver(final File directory) {
-		IStage producerPipeline = this.buildProducerPipeline(directory);
+		Stage producerPipeline = this.buildProducerPipeline(directory);
 		this.runnableStage = new RunnableStage(producerPipeline);
 	}
 
-	private IStage buildProducerPipeline(final File directory) {
+	private Stage buildProducerPipeline(final File directory) {
 		ClassNameRegistryRepository classNameRegistryRepository = new ClassNameRegistryRepository();
 		// create stages
 		InitialElementProducer<File> initialElementProducer = new InitialElementProducer<File>(directory);

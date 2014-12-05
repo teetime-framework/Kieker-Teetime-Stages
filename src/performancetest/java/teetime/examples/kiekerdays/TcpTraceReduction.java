@@ -6,7 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import teetime.framework.IStage;
+import teetime.framework.Stage;
+import teetime.framework.Pipeline;
 import teetime.framework.RunnableStage;
 import teetime.framework.pipe.IPipe;
 import teetime.framework.pipe.IPipeFactory;
@@ -16,7 +17,6 @@ import teetime.framework.pipe.PipeFactoryRegistry.ThreadCommunication;
 import teetime.framework.pipe.SpScPipe;
 import teetime.stage.Clock;
 import teetime.stage.InstanceOfFilter;
-import teetime.stage.Pipeline;
 import teetime.stage.Relay;
 import teetime.stage.basic.Sink;
 import teetime.stage.basic.distributor.Distributor;
@@ -68,7 +68,7 @@ public class TcpTraceReduction {
 		this.workerThreads = new Thread[this.numWorkerThreads];
 
 		for (int i = 0; i < this.workerThreads.length; i++) {
-			IStage pipeline = this.buildPipeline(tcpPipeline.getLastStage(), clockStage.getLastStage());
+			Stage pipeline = this.buildPipeline(tcpPipeline.getLastStage(), clockStage.getLastStage());
 			this.workerThreads[i] = new Thread(new RunnableStage(pipeline));
 		}
 	}
@@ -93,7 +93,7 @@ public class TcpTraceReduction {
 		return new Pipeline<Distributor<Long>>(clock, distributor);
 	}
 
-	private IStage buildPipeline(final Distributor<IMonitoringRecord> tcpReaderPipeline, final Distributor<Long> clockStage) {
+	private Stage buildPipeline(final Distributor<IMonitoringRecord> tcpReaderPipeline, final Distributor<Long> clockStage) {
 		// create stages
 		Relay<IMonitoringRecord> relay = new Relay<IMonitoringRecord>();
 		final InstanceOfFilter<IMonitoringRecord, IFlowRecord> instanceOfFilter = new InstanceOfFilter<IMonitoringRecord, IFlowRecord>(

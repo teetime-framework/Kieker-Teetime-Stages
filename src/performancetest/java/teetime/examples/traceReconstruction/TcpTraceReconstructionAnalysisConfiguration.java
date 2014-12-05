@@ -3,8 +3,9 @@ package teetime.examples.traceReconstruction;
 import java.util.LinkedList;
 import java.util.List;
 
+import teetime.framework.Stage;
 import teetime.framework.AnalysisConfiguration;
-import teetime.framework.IStage;
+import teetime.framework.Pipeline;
 import teetime.framework.pipe.IPipeFactory;
 import teetime.framework.pipe.PipeFactoryRegistry.PipeOrdering;
 import teetime.framework.pipe.PipeFactoryRegistry.ThreadCommunication;
@@ -12,7 +13,6 @@ import teetime.stage.Clock;
 import teetime.stage.Counter;
 import teetime.stage.ElementThroughputMeasuringStage;
 import teetime.stage.InstanceOfFilter;
-import teetime.stage.Pipeline;
 import teetime.stage.basic.Sink;
 import teetime.stage.basic.distributor.Distributor;
 import teetime.stage.io.network.TcpReader;
@@ -54,7 +54,7 @@ public class TcpTraceReconstructionAnalysisConfiguration extends AnalysisConfigu
 		Pipeline<Distributor<Long>> clock2Stage = this.buildClockPipeline(2000);
 		addThreadableStage(clock2Stage);
 
-		IStage pipeline = this.buildPipeline(clockStage.getLastStage(), clock2Stage.getLastStage());
+		Stage pipeline = this.buildPipeline(clockStage.getLastStage(), clock2Stage.getLastStage());
 		addThreadableStage(pipeline);
 	}
 
@@ -68,7 +68,7 @@ public class TcpTraceReconstructionAnalysisConfiguration extends AnalysisConfigu
 		return new Pipeline<Distributor<Long>>(clock, distributor);
 	}
 
-	private IStage buildPipeline(final Distributor<Long> clockStage, final Distributor<Long> clock2Stage) {
+	private Stage buildPipeline(final Distributor<Long> clockStage, final Distributor<Long> clock2Stage) {
 		// create stages
 		TcpReader tcpReader = new TcpReader();
 		this.recordCounter = new Counter<IMonitoringRecord>();

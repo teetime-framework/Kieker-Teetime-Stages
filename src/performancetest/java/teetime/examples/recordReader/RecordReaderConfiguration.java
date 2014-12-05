@@ -19,8 +19,8 @@ import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 
+import teetime.framework.Stage;
 import teetime.framework.AnalysisConfiguration;
-import teetime.framework.IStage;
 import teetime.framework.pipe.IPipeFactory;
 import teetime.framework.pipe.PipeFactoryRegistry.PipeOrdering;
 import teetime.framework.pipe.PipeFactoryRegistry.ThreadCommunication;
@@ -47,11 +47,11 @@ public class RecordReaderConfiguration extends AnalysisConfiguration {
 	}
 
 	private void buildConfiguration() {
-		IStage producerPipeline = this.buildProducerPipeline();
+		final Stage producerPipeline = this.buildProducerPipeline();
 		addThreadableStage(producerPipeline);
 	}
 
-	private IStage buildProducerPipeline() {
+	private Stage buildProducerPipeline() {
 		ClassNameRegistryRepository classNameRegistryRepository = new ClassNameRegistryRepository();
 		File logDir = new File("src/test/data/bookstore-logs");
 		// create stages

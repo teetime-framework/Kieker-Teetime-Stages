@@ -1,6 +1,6 @@
 package teetime.examples.kiekerdays;
 
-import teetime.framework.IStage;
+import teetime.framework.Stage;
 import teetime.framework.RunnableStage;
 import teetime.framework.pipe.SingleElementPipe;
 import teetime.stage.basic.Sink;
@@ -13,7 +13,7 @@ public class TcpTraceLoggingExplorviz {
 	private Thread tcpThread;
 
 	public void init() {
-		IStage tcpPipeline = this.buildTcpPipeline();
+		Stage tcpPipeline = this.buildTcpPipeline();
 		this.tcpThread = new Thread(new RunnableStage(tcpPipeline));
 	}
 
@@ -28,7 +28,7 @@ public class TcpTraceLoggingExplorviz {
 		}
 	}
 
-	private IStage buildTcpPipeline() {
+	private Stage buildTcpPipeline() {
 		KiekerRecordTcpReader tcpReader = new KiekerRecordTcpReader();
 		Sink<IMonitoringRecord> endStage = new Sink<IMonitoringRecord>();
 

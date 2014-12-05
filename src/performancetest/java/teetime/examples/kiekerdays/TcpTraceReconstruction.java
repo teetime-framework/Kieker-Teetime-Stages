@@ -4,7 +4,8 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import teetime.framework.IStage;
+import teetime.framework.Stage;
+import teetime.framework.Pipeline;
 import teetime.framework.RunnableStage;
 import teetime.framework.pipe.IPipe;
 import teetime.framework.pipe.IPipeFactory;
@@ -13,7 +14,6 @@ import teetime.framework.pipe.PipeFactoryRegistry.PipeOrdering;
 import teetime.framework.pipe.PipeFactoryRegistry.ThreadCommunication;
 import teetime.framework.pipe.SpScPipe;
 import teetime.stage.InstanceOfFilter;
-import teetime.stage.Pipeline;
 import teetime.stage.Relay;
 import teetime.stage.basic.Sink;
 import teetime.stage.basic.distributor.Distributor;
@@ -57,7 +57,7 @@ public class TcpTraceReconstruction {
 		this.workerThreads = new Thread[this.numWorkerThreads];
 
 		for (int i = 0; i < this.workerThreads.length; i++) {
-			IStage pipeline = this.buildPipeline(tcpPipeline.getLastStage());
+			Stage pipeline = this.buildPipeline(tcpPipeline.getLastStage());
 			this.workerThreads[i] = new Thread(new RunnableStage(pipeline));
 		}
 	}
@@ -71,7 +71,7 @@ public class TcpTraceReconstruction {
 		return new Pipeline<Distributor<IMonitoringRecord>>(tcpReader, distributor);
 	}
 
-	private IStage buildPipeline(final Distributor<IMonitoringRecord> tcpReaderPipeline) {
+	private Stage buildPipeline(final Distributor<IMonitoringRecord> tcpReaderPipeline) {
 		// create stages
 		Relay<IMonitoringRecord> relay = new Relay<IMonitoringRecord>();
 		final InstanceOfFilter<IMonitoringRecord, IFlowRecord> instanceOfFilter = new InstanceOfFilter<IMonitoringRecord, IFlowRecord>(

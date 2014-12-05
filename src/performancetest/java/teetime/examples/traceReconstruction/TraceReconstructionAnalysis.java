@@ -4,7 +4,7 @@ import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 
-import teetime.framework.IStage;
+import teetime.framework.Stage;
 import teetime.framework.RunnableStage;
 import teetime.framework.pipe.SingleElementPipe;
 import teetime.framework.pipe.SpScPipe;
@@ -50,7 +50,7 @@ public class TraceReconstructionAnalysis {
 		Clock clockStage = this.buildClockPipeline();
 		this.clockThread = new Thread(new RunnableStage(clockStage));
 
-		IStage pipeline = this.buildPipeline(clockStage);
+		Stage pipeline = this.buildPipeline(clockStage);
 		this.workerThread = new Thread(new RunnableStage(pipeline));
 	}
 
@@ -61,7 +61,7 @@ public class TraceReconstructionAnalysis {
 		return clock;
 	}
 
-	private IStage buildPipeline(final Clock clockStage) {
+	private Stage buildPipeline(final Clock clockStage) {
 		this.classNameRegistryRepository = new ClassNameRegistryRepository();
 
 		// create stages

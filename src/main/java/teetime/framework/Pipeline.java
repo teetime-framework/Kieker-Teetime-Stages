@@ -1,10 +1,7 @@
-package teetime.stage;
+package teetime.framework;
 
 import java.util.List;
 
-import teetime.framework.IStage;
-import teetime.framework.InputPort;
-import teetime.framework.TerminationStrategy;
 import teetime.framework.signal.ISignal;
 import teetime.framework.validation.InvalidPortConnection;
 
@@ -15,12 +12,12 @@ import teetime.framework.validation.InvalidPortConnection;
  * @param <L>
  *            the type of the last stage in this pipeline
  */
-public final class Pipeline<L extends IStage> implements IStage {
+public final class Pipeline<L extends Stage> extends Stage {
 
-	private final IStage firstStage;
+	private final Stage firstStage;
 	private final L lastStage;
 
-	public Pipeline(final IStage firstStage, final L lastStage) {
+	public Pipeline(final Stage firstStage, final L lastStage) {
 		super();
 		this.firstStage = firstStage;
 		this.lastStage = lastStage;
@@ -52,12 +49,12 @@ public final class Pipeline<L extends IStage> implements IStage {
 	}
 
 	@Override
-	public IStage getParentStage() {
+	public Stage getParentStage() {
 		return firstStage.getParentStage();
 	}
 
 	@Override
-	public void setParentStage(final IStage parentStage, final int index) {
+	public void setParentStage(final Stage parentStage, final int index) {
 		firstStage.setParentStage(parentStage, index);
 	}
 

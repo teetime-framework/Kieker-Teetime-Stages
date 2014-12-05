@@ -8,9 +8,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import teetime.framework.Stage;
 import teetime.framework.AbstractStage;
 import teetime.framework.AnalysisConfiguration;
-import teetime.framework.IStage;
+import teetime.framework.Pipeline;
 import teetime.framework.pipe.IPipe;
 import teetime.framework.pipe.IPipeFactory;
 import teetime.framework.pipe.PipeFactoryRegistry.PipeOrdering;
@@ -22,7 +23,6 @@ import teetime.stage.ElementDelayMeasuringStage;
 import teetime.stage.ElementThroughputMeasuringStage;
 import teetime.stage.InstanceCounter;
 import teetime.stage.InstanceOfFilter;
-import teetime.stage.Pipeline;
 import teetime.stage.Relay;
 import teetime.stage.basic.Sink;
 import teetime.stage.basic.distributor.Distributor;
@@ -84,7 +84,7 @@ public class TcpTraceReductionAnalysisWithThreadsConfiguration extends AnalysisC
 		addThreadableStage(clock2Stage);
 
 		for (int i = 0; i < this.numWorkerThreads; i++) {
-			final IStage pipeline = this.buildPipeline(tcpPipeline, clockStage, clock2Stage);
+			final Stage pipeline = this.buildPipeline(tcpPipeline, clockStage, clock2Stage);
 			addThreadableStage(pipeline);
 		}
 	}
@@ -148,7 +148,7 @@ public class TcpTraceReductionAnalysisWithThreadsConfiguration extends AnalysisC
 	private final StageFactory<Counter<TraceEventRecords>> traceCounterFactory;
 	private final StageFactory<ElementThroughputMeasuringStage<TraceEventRecords>> traceThroughputFilterFactory;
 
-	private IStage buildPipeline(final Pipeline<Distributor<IMonitoringRecord>> tcpPipeline, final Pipeline<Distributor<Long>> clockStage,
+	private Stage buildPipeline(final Pipeline<Distributor<IMonitoringRecord>> tcpPipeline, final Pipeline<Distributor<Long>> clockStage,
 			final Pipeline<Distributor<Long>> clock2Stage) {
 		// create stages
 		Relay<IMonitoringRecord> relay = new Relay<IMonitoringRecord>();

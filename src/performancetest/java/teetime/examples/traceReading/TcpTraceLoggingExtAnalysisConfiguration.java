@@ -2,15 +2,15 @@ package teetime.examples.traceReading;
 
 import java.util.List;
 
+import teetime.framework.Stage;
 import teetime.framework.AnalysisConfiguration;
-import teetime.framework.IStage;
+import teetime.framework.Pipeline;
 import teetime.framework.pipe.IPipeFactory;
 import teetime.framework.pipe.PipeFactoryRegistry.PipeOrdering;
 import teetime.framework.pipe.PipeFactoryRegistry.ThreadCommunication;
 import teetime.stage.Clock;
 import teetime.stage.Counter;
 import teetime.stage.ElementThroughputMeasuringStage;
-import teetime.stage.Pipeline;
 import teetime.stage.basic.Sink;
 import teetime.stage.basic.distributor.Distributor;
 import teetime.stage.io.network.TcpReader;
@@ -33,7 +33,7 @@ public class TcpTraceLoggingExtAnalysisConfiguration extends AnalysisConfigurati
 	private void init() {
 		final Pipeline<Distributor<Long>> clockPipeline = this.buildClockPipeline(1000);
 		addThreadableStage(clockPipeline);
-		final IStage tcpPipeline = this.buildTcpPipeline(clockPipeline.getLastStage());
+		final Stage tcpPipeline = this.buildTcpPipeline(clockPipeline.getLastStage());
 		addThreadableStage(tcpPipeline);
 	}
 
@@ -48,7 +48,7 @@ public class TcpTraceLoggingExtAnalysisConfiguration extends AnalysisConfigurati
 		return new Pipeline<Distributor<Long>>(clockStage, distributor);
 	}
 
-	private IStage buildTcpPipeline(final Distributor<Long> previousClockStage) {
+	private Stage buildTcpPipeline(final Distributor<Long> previousClockStage) {
 		TcpReader tcpReader = new TcpReader();
 		this.recordCounter = new Counter<IMonitoringRecord>();
 		this.recordThroughputStage = new ElementThroughputMeasuringStage<IMonitoringRecord>();
