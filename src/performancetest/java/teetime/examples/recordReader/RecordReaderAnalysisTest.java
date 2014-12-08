@@ -16,7 +16,9 @@
 package teetime.examples.recordReader;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
+import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
@@ -24,6 +26,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import teetime.framework.Analysis;
+import teetime.util.Pair;
 import teetime.util.StopWatch;
 
 import kieker.common.record.IMonitoringRecord;
@@ -57,12 +60,17 @@ public class RecordReaderAnalysisTest {
 		Analysis analysis = new Analysis(configuration);
 		analysis.init();
 
+		Collection<Pair<Thread, Throwable>> exceptions;
+
 		this.stopWatch.start();
 		try {
-			analysis.start();
+			exceptions = analysis.start();
 		} finally {
 			this.stopWatch.end();
 		}
+
+		assertNotNull(exceptions);
+		assertEquals(0, exceptions.size());
 
 		assertEquals(6541, configuration.getElementCollection().size());
 
