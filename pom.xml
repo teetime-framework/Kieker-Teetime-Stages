@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>net.sourceforge.teetime-stages</groupId>
-	<artifactId>TeeTime-Stages</artifactId>
+	<artifactId>teetime-stages</artifactId>
 	<version>1.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
@@ -21,6 +21,14 @@
 		<java.version>1.6</java.version>
 	</properties>
 
+
+	<repositories>
+		<repository>
+			<!-- for SNAPSHOT versions -->
+			<id>sonatype.oss.snapshots</id>
+			<url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+		</repository>
+	</repositories>
 
 	<distributionManagement>
 		<snapshotRepository>
