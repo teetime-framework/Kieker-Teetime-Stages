@@ -21,14 +21,14 @@ public class KiekerRecordTcpReader extends AbstractProducerStage<IMonitoringReco
 
 	private static final int MESSAGE_BUFFER_SIZE = 65535;
 
-	private static final byte HostApplicationMetaDataRecord_CLAZZ_ID = 0;
-	private static final byte BeforeOperationEventRecord_CLAZZ_ID = 1;
-	private static final byte AfterOperationEventRecord_CLAZZ_ID = 3;
-	private static final byte StringRegistryRecord_CLAZZ_ID = 4;
+	private static final byte HOSTAPPLICATIONMETADATARECORD_CLAZZ_ID = 0;
+	private static final byte BEFOREOPERATIONEVENTRECORD_CLAZZ_ID = 1;
+	private static final byte AFTEROPERATIONEVENTRECORD_CLAZZ_ID = 3;
+	private static final byte STRINGREGISTRYRECORD_CLAZZ_ID = 4;
 
-	private static final int HostApplicationMetaDataRecord_BYTE_LENGTH = 16;
-	private static final int BeforeOperationEventRecord_COMPRESSED_BYTE_LENGTH = 36;
-	private static final int AfterOperationEventRecord_COMPRESSED_BYTE_LENGTH = 20;
+	private static final int HOSTAPPLICATIONMETADATARECORD_BYTE_LENGTH = 16;
+	private static final int BEFOREOPERATIONEVENTRECORD_COMPRESSED_BYTE_LENGTH = 36;
+	private static final int AFTEROPERATIONEVENTRECORD_COMPRESSED_BYTE_LENGTH = 20;
 
 	private final ILookup<String> stringRegistry = new Lookup<String>();
 
@@ -94,8 +94,8 @@ public class KiekerRecordTcpReader extends AbstractProducerStage<IMonitoringReco
 	private final void messagesfromByteArray(final ByteBuffer buffer) {
 		final byte clazzId = buffer.get();
 		switch (clazzId) {
-		case HostApplicationMetaDataRecord_CLAZZ_ID: {
-			if (buffer.remaining() >= HostApplicationMetaDataRecord_BYTE_LENGTH) {
+		case HOSTAPPLICATIONMETADATARECORD_CLAZZ_ID: {
+			if (buffer.remaining() >= HOSTAPPLICATIONMETADATARECORD_BYTE_LENGTH) {
 				this.readInHostApplicationMetaData(buffer);
 				break;
 			}
@@ -103,8 +103,8 @@ public class KiekerRecordTcpReader extends AbstractProducerStage<IMonitoringReco
 			buffer.compact();
 			return;
 		}
-		case BeforeOperationEventRecord_CLAZZ_ID: {
-			if (buffer.remaining() >= BeforeOperationEventRecord_COMPRESSED_BYTE_LENGTH) {
+		case BEFOREOPERATIONEVENTRECORD_CLAZZ_ID: {
+			if (buffer.remaining() >= BEFOREOPERATIONEVENTRECORD_COMPRESSED_BYTE_LENGTH) {
 				this.readInBeforeOperationEvent(buffer);
 				break;
 			}
@@ -112,8 +112,8 @@ public class KiekerRecordTcpReader extends AbstractProducerStage<IMonitoringReco
 			buffer.compact();
 			return;
 		}
-		case AfterOperationEventRecord_CLAZZ_ID: {
-			if (buffer.remaining() >= AfterOperationEventRecord_COMPRESSED_BYTE_LENGTH) {
+		case AFTEROPERATIONEVENTRECORD_CLAZZ_ID: {
+			if (buffer.remaining() >= AFTEROPERATIONEVENTRECORD_COMPRESSED_BYTE_LENGTH) {
 				this.readInAfterOperationEvent(buffer);
 				break;
 			}
@@ -121,7 +121,7 @@ public class KiekerRecordTcpReader extends AbstractProducerStage<IMonitoringReco
 			buffer.compact();
 			return;
 		}
-		case StringRegistryRecord_CLAZZ_ID: {
+		case STRINGREGISTRYRECORD_CLAZZ_ID: {
 			int mapId = 0;
 			int stringLength = 0;
 			if (buffer.remaining() >= 8) {
@@ -176,7 +176,7 @@ public class KiekerRecordTcpReader extends AbstractProducerStage<IMonitoringReco
 		final String operation = this.stringRegistry.get(operationId);
 		final String clazz = this.stringRegistry.get(clazzId);
 		if (operation == null || clazz == null) {
-			this.putInWaitingMessages(buffer, BeforeOperationEventRecord_COMPRESSED_BYTE_LENGTH + 1);
+			this.putInWaitingMessages(buffer, BEFOREOPERATIONEVENTRECORD_COMPRESSED_BYTE_LENGTH + 1);
 			return;
 		}
 
@@ -211,13 +211,13 @@ public class KiekerRecordTcpReader extends AbstractProducerStage<IMonitoringReco
 			final ByteBuffer buffer = ByteBuffer.wrap(waitingMessage);
 			final byte waitingMessageClazzId = buffer.get();
 			switch (waitingMessageClazzId) {
-			case HostApplicationMetaDataRecord_CLAZZ_ID:
+			case HOSTAPPLICATIONMETADATARECORD_CLAZZ_ID:
 				this.readInHostApplicationMetaData(buffer);
 				break;
-			case BeforeOperationEventRecord_CLAZZ_ID:
+			case BEFOREOPERATIONEVENTRECORD_CLAZZ_ID:
 				this.readInBeforeOperationEvent(buffer);
 				break;
-			case AfterOperationEventRecord_CLAZZ_ID:
+			case AFTEROPERATIONEVENTRECORD_CLAZZ_ID:
 				this.readInAfterOperationEvent(buffer);
 				break;
 			default:
