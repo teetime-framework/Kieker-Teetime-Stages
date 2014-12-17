@@ -5,7 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import teetime.framework.AnalysisConfiguration;
-import teetime.framework.RunnableProducerStage;
+import teetime.framework.RunnableStage;
 import teetime.framework.Stage;
 import teetime.framework.pipe.IPipeFactory;
 import teetime.framework.pipe.PipeFactoryRegistry.PipeOrdering;
@@ -59,10 +59,10 @@ public class TraceReconstructionAnalysis extends AnalysisConfiguration {
 
 	private void init() {
 		Clock clockStage = this.buildClockPipeline();
-		this.clockThread = new Thread(new RunnableProducerStage(clockStage));
+		this.clockThread = new Thread(new RunnableStage(clockStage));
 
 		Stage pipeline = this.buildPipeline(clockStage);
-		this.workerThread = new Thread(new RunnableProducerStage(pipeline));
+		this.workerThread = new Thread(new RunnableStage(pipeline));
 	}
 
 	private Clock buildClockPipeline() {

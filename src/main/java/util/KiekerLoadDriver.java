@@ -14,7 +14,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-import teetime.framework.RunnableProducerStage;
+import teetime.framework.RunnableStage;
 import teetime.framework.Stage;
 import teetime.framework.pipe.IPipeFactory;
 import teetime.framework.pipe.PipeFactoryRegistry;
@@ -34,13 +34,13 @@ import kieker.common.util.registry.Registry;
 public class KiekerLoadDriver {
 
 	private final List<IMonitoringRecord> elementCollection = new LinkedList<IMonitoringRecord>();
-	private final RunnableProducerStage runnableStage;
+	private final RunnableStage runnableStage;
 	private long[] timings;
 	private final IPipeFactory intraThreadPipeFactory;
 
 	public KiekerLoadDriver(final File directory) {
 		Stage producerPipeline = this.buildProducerPipeline(directory);
-		runnableStage = new RunnableProducerStage(producerPipeline);
+		runnableStage = new RunnableStage(producerPipeline);
 		intraThreadPipeFactory = PipeFactoryRegistry.INSTANCE.getPipeFactory(ThreadCommunication.INTRA, PipeOrdering.ARBITRARY, false);
 	}
 

@@ -6,7 +6,7 @@ import java.util.List;
 
 import teetime.framework.Stage;
 import teetime.framework.Pipeline;
-import teetime.framework.RunnableProducerStage;
+import teetime.framework.RunnableStage;
 import teetime.framework.pipe.IPipe;
 import teetime.framework.pipe.IPipeFactory;
 import teetime.framework.pipe.PipeFactoryRegistry;
@@ -51,14 +51,14 @@ public class TcpTraceReconstruction {
 
 	public void init() {
 		Pipeline<Distributor<IMonitoringRecord>> tcpPipeline = this.buildTcpPipeline();
-		this.tcpThread = new Thread(new RunnableProducerStage(tcpPipeline));
+		this.tcpThread = new Thread(new RunnableStage(tcpPipeline));
 
 		this.numWorkerThreads = Math.min(NUM_VIRTUAL_CORES, this.numWorkerThreads);
 		this.workerThreads = new Thread[this.numWorkerThreads];
 
 		for (int i = 0; i < this.workerThreads.length; i++) {
 			Stage pipeline = this.buildPipeline(tcpPipeline.getLastStage());
-			this.workerThreads[i] = new Thread(new RunnableProducerStage(pipeline));
+			this.workerThreads[i] = new Thread(new RunnableStage(pipeline));
 		}
 	}
 
