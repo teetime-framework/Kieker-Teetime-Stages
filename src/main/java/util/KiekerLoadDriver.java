@@ -14,9 +14,12 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-import teetime.framework.Stage;
 import teetime.framework.RunnableStage;
-import teetime.framework.pipe.SingleElementPipe;
+import teetime.framework.Stage;
+import teetime.framework.pipe.IPipeFactory;
+import teetime.framework.pipe.PipeFactoryRegistry;
+import teetime.framework.pipe.PipeFactoryRegistry.PipeOrdering;
+import teetime.framework.pipe.PipeFactoryRegistry.ThreadCommunication;
 import teetime.stage.CollectorSink;
 import teetime.stage.InitialElementProducer;
 import teetime.stage.className.ClassNameRegistryRepository;
@@ -33,10 +36,12 @@ public class KiekerLoadDriver {
 	private final List<IMonitoringRecord> elementCollection = new LinkedList<IMonitoringRecord>();
 	private final RunnableStage runnableStage;
 	private long[] timings;
+	private final IPipeFactory intraThreadPipeFactory;
 
 	public KiekerLoadDriver(final File directory) {
 		Stage producerPipeline = this.buildProducerPipeline(directory);
-		this.runnableStage = new RunnableStage(producerPipeline);
+		runnableStage = new RunnableStage(producerPipeline);
+		intraThreadPipeFactory = PipeFactoryRegistry.INSTANCE.getPipeFactory(ThreadCommunication.INTRA, PipeOrdering.ARBITRARY, false);
 	}
 
 	private Stage buildProducerPipeline(final File directory) {
@@ -46,8 +51,8 @@ public class KiekerLoadDriver {
 		Dir2RecordsFilter dir2RecordsFilter = new Dir2RecordsFilter(classNameRegistryRepository);
 		CollectorSink<IMonitoringRecord> collector = new CollectorSink<IMonitoringRecord>(this.elementCollection);
 
-		SingleElementPipe.connect(initialElementProducer.getOutputPort(), dir2RecordsFilter.getInputPort());
-		SingleElementPipe.connect(dir2RecordsFilter.getOutputPort(), collector.getInputPort());
+		intraThreadPipeFactory.create(initialElementProducer.getOutputPort(), dir2RecordsFilter.getInputPort());
+		intraThreadPipeFactory.create(dir2RecordsFilter.getOutputPort(), collector.getInputPort());
 
 		return initialElementProducer;
 	}
@@ -163,10 +168,12 @@ public class KiekerLoadDriver {
 					recordBuffer.flip();
 					// System.out.println("position: " + recordBuffer.position());
 					// System.out.println("limit: " + recordBuffer.limit());
-					long start_ns = System.nanoTime();
-					int writtenBytes = socketChannel.write(recordBuffer);
-					long stop_ns = System.nanoTime();
-					this.timings[i] = stop_ns - start_ns;
+					long startTimestampInNs = System.nanoTime();
+
+					socketChannel.write(recordBuffer);
+
+					long stopTimestampInNs = System.nanoTime();
+					this.timings[i] = stopTimestampInNs - startTimestampInNs;
 					if ((i % 100000) == 0) {
 						System.out.println(i); // NOPMD (System.out)
 					}

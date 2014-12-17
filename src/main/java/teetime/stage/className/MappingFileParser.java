@@ -34,13 +34,14 @@ import kieker.common.util.filesystem.FSUtil;
  */
 public class MappingFileParser {
 
+	@SuppressWarnings("PMD.LoggerIsNotStaticFinal")
 	protected Logger logger;
 
-	private static final Map<String, String> filePrefixRegistry = new HashMap<String, String>();
+	private static final Map<String, String> FILE_PREFIX_REGISTRY = new HashMap<String, String>();
 
 	static {
-		filePrefixRegistry.put(FSUtil.MAP_FILENAME, FSUtil.FILE_PREFIX);
-		filePrefixRegistry.put(FSUtil.LEGACY_MAP_FILENAME, FSUtil.LEGACY_FILE_PREFIX);
+		FILE_PREFIX_REGISTRY.put(FSUtil.MAP_FILENAME, FSUtil.FILE_PREFIX);
+		FILE_PREFIX_REGISTRY.put(FSUtil.LEGACY_MAP_FILENAME, FSUtil.LEGACY_FILE_PREFIX);
 	}
 
 	public MappingFileParser(final Logger logger) {
@@ -123,6 +124,6 @@ public class MappingFileParser {
 	 * @since 1.10
 	 */
 	public String getFilePrefixFromMappingFile(final File mappingFile) {
-		return MappingFileParser.filePrefixRegistry.get(mappingFile.getName());
+		return MappingFileParser.FILE_PREFIX_REGISTRY.get(mappingFile.getName());
 	}
 }

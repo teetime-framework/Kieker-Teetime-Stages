@@ -4,6 +4,10 @@
   <local-check-config name="TeeTime" location="conf/quality-config/cs-conf.xml" type="project" description="">
     <additional-data name="protect-config-file" value="false"/>
   </local-check-config>
+  <local-check-config name="maven-checkstyle-plugin default" location="file:/C:/Users/chw/Repositories/kieker-teetime-stages/conf/quality-config/cs-conf.xml" type="remote" description="maven-checkstyle-plugin configuration default">
+    <property name="checkstyle.cache.file" value="${project_loc}/target/checkstyle-cachefile"/>
+    <property name="checkstyle.header.file" value="C:\Users\chw\Repositories\kieker-teetime-stages\target\checkstyle-header-default.txt"/>
+  </local-check-config>
   <fileset name="all" enabled="true" check-config-name="TeeTime" local="true">
     <file-match-pattern match-pattern="." include-pattern="true"/>
   </fileset>

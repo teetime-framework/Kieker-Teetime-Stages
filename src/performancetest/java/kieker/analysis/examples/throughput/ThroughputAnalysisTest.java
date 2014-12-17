@@ -33,7 +33,7 @@ import teetime.util.StopWatch;
  */
 public class ThroughputAnalysisTest {
 
-	private static final int numRuns = 1000;
+	private static final int NUM_RUNS = 1000;
 
 	@Before
 	public void before() {
@@ -43,9 +43,9 @@ public class ThroughputAnalysisTest {
 	@Test
 	public void testWithMultipleRuns() throws IllegalStateException, AnalysisConfigurationException {
 		final StopWatch stopWatch = new StopWatch();
-		final long[] durations = new long[numRuns];
+		final long[] durations = new long[NUM_RUNS];
 
-		for (int i = 0; i < numRuns; i++) {
+		for (int i = 0; i < NUM_RUNS; i++) {
 			final ThroughputAnalysis<Object> analysis = new ThroughputAnalysis<Object>();
 			analysis.setNumNoopFilters(100);
 			analysis.setInput(100, new Callable<Object>() {
@@ -74,7 +74,7 @@ public class ThroughputAnalysisTest {
 			sum += durations[i];
 		}
 
-		final long avgDur = sum / (numRuns / 2);
+		final long avgDur = sum / (NUM_RUNS / 2);
 		System.out.println("avg duration: " + (avgDur / 1000) + " �s");
 	}
 
