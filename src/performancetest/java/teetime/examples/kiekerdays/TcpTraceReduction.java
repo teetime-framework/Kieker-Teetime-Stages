@@ -8,7 +8,7 @@ import java.util.TreeMap;
 
 import teetime.framework.Stage;
 import teetime.framework.Pipeline;
-import teetime.framework.RunnableStage;
+import teetime.framework.RunnableProducerStage;
 import teetime.framework.pipe.IPipe;
 import teetime.framework.pipe.IPipeFactory;
 import teetime.framework.pipe.PipeFactoryRegistry;
@@ -59,17 +59,17 @@ public class TcpTraceReduction {
 
 	public void init() {
 		Pipeline<Distributor<IMonitoringRecord>> tcpPipeline = this.buildTcpPipeline();
-		this.tcpThread = new Thread(new RunnableStage(tcpPipeline));
+		this.tcpThread = new Thread(new RunnableProducerStage(tcpPipeline));
 
 		Pipeline<Distributor<Long>> clockStage = this.buildClockPipeline(5000);
-		this.clockThread = new Thread(new RunnableStage(clockStage));
+		this.clockThread = new Thread(new RunnableProducerStage(clockStage));
 
 		this.numWorkerThreads = Math.min(NUM_VIRTUAL_CORES, this.numWorkerThreads);
 		this.workerThreads = new Thread[this.numWorkerThreads];
 
 		for (int i = 0; i < this.workerThreads.length; i++) {
 			Stage pipeline = this.buildPipeline(tcpPipeline.getLastStage(), clockStage.getLastStage());
-			this.workerThreads[i] = new Thread(new RunnableStage(pipeline));
+			this.workerThreads[i] = new Thread(new RunnableProducerStage(pipeline));
 		}
 	}
 

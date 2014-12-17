@@ -1,7 +1,7 @@
 package teetime.examples.kiekerdays;
 
 import teetime.framework.Stage;
-import teetime.framework.RunnableStage;
+import teetime.framework.RunnableProducerStage;
 import teetime.stage.io.network.TcpReader;
 
 public class TcpTraceLogging {
@@ -10,7 +10,7 @@ public class TcpTraceLogging {
 
 	public void init() {
 		Stage tcpPipeline = this.buildTcpPipeline();
-		this.tcpThread = new Thread(new RunnableStage(tcpPipeline));
+		this.tcpThread = new Thread(new RunnableProducerStage(tcpPipeline));
 	}
 
 	public void start() {
