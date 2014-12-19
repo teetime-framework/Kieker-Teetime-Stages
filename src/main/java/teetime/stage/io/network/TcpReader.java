@@ -25,6 +25,8 @@ import java.nio.channels.SocketChannel;
 
 import teetime.stage.io.AbstractTcpReader;
 
+import com.google.common.base.Joiner;
+
 import kieker.common.exception.RecordInstantiationException;
 import kieker.common.logging.Log;
 import kieker.common.logging.LogFactory;
@@ -87,9 +89,9 @@ public class TcpReader extends AbstractTcpReader<IMonitoringRecord> {
 
 			outputPort.send(record);
 		} catch (final BufferUnderflowException ex) {
-			super.logger.error("Failed to create record.", ex);
+			super.logger.error("Failed to create: " + recordClassName, ex);
 		} catch (final RecordInstantiationException ex) {
-			super.logger.error("Failed to create record.", ex);
+			super.logger.error("Failed to create: " + recordClassName, ex);
 		}
 	}
 
@@ -145,6 +147,7 @@ public class TcpReader extends AbstractTcpReader<IMonitoringRecord> {
 						while (buffer.hasRemaining()) {
 							buffer.mark();
 							RegistryRecord.registerRecordInRegistry(buffer, this.stringRegistry);
+							System.out.println("NEW: " + Joiner.on("\n").join(stringRegistry.getAll()));
 						}
 						buffer.clear();
 					} catch (final BufferUnderflowException ex) {
