@@ -34,14 +34,15 @@ import kieker.common.util.registry.Registry;
 public class KiekerLoadDriver {
 
 	private final List<IMonitoringRecord> elementCollection = new LinkedList<IMonitoringRecord>();
-	private final RunnableStage runnableStage;
-	private long[] timings;
 	private final IPipeFactory intraThreadPipeFactory;
+	private final RunnableStage runnableStage;
+
+	private long[] timings;
 
 	public KiekerLoadDriver(final File directory) {
+		intraThreadPipeFactory = PipeFactoryRegistry.INSTANCE.getPipeFactory(ThreadCommunication.INTRA, PipeOrdering.ARBITRARY, false);
 		Stage producerPipeline = this.buildProducerPipeline(directory);
 		runnableStage = new RunnableStage(producerPipeline);
-		intraThreadPipeFactory = PipeFactoryRegistry.INSTANCE.getPipeFactory(ThreadCommunication.INTRA, PipeOrdering.ARBITRARY, false);
 	}
 
 	private Stage buildProducerPipeline(final File directory) {

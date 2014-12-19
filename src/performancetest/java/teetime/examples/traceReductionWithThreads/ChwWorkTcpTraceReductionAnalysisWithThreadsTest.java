@@ -148,30 +148,30 @@ public class ChwWorkTcpTraceReductionAnalysisWithThreadsTest {
 	}
 
 	public static void main(final String[] args) {
-		ChwWorkTcpTraceReductionAnalysisWithThreadsTest analysis = new ChwWorkTcpTraceReductionAnalysisWithThreadsTest();
-		analysis.before();
+		ChwWorkTcpTraceReductionAnalysisWithThreadsTest analysisTest = new ChwWorkTcpTraceReductionAnalysisWithThreadsTest();
+		analysisTest.before();
 		try {
-			analysis.performAnalysisWith1Thread();
+			analysisTest.performAnalysisWith1Thread();
 		} catch (Exception e) {
 			System.err.println(e);
 		}
-		analysis.after();
+		analysisTest.after();
 
-		analysis.before();
+		analysisTest.before();
 		try {
-			analysis.performAnalysisWith2Threads();
+			analysisTest.performAnalysisWith2Threads();
 		} catch (Exception e) {
 			System.err.println(e);
 		}
-		analysis.after();
+		analysisTest.after();
 
-		analysis.before();
+		analysisTest.before();
 		try {
-			analysis.performAnalysisWith4Threads();
+			analysisTest.performAnalysisWith4Threads();
 		} catch (Exception e) {
 			System.err.println(e);
 		}
-		analysis.after();
+		analysisTest.after();
 	}
 
 }
