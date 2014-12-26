@@ -24,7 +24,7 @@ import kieker.analysis.plugin.filter.flow.TraceEventRecords;
 import kieker.common.record.IMonitoringRecord;
 import kieker.common.record.flow.IFlowRecord;
 
-public class TcpTraceReconstructionAnalysisConfiguration extends AnalysisConfiguration {
+public class TcpTraceReconstructionConf extends AnalysisConfiguration {
 
 	private static final int MIO = 1000000;
 	private static final int TCP_RELAY_MAX_SIZE = 2 * MIO;
@@ -41,7 +41,7 @@ public class TcpTraceReconstructionAnalysisConfiguration extends AnalysisConfigu
 	private final IPipeFactory intraThreadPipeFactory;
 	private final IPipeFactory interThreadPipeFactory;
 
-	public TcpTraceReconstructionAnalysisConfiguration() {
+	public TcpTraceReconstructionConf() {
 		intraThreadPipeFactory = PIPE_FACTORY_REGISTRY.getPipeFactory(ThreadCommunication.INTRA, PipeOrdering.ARBITRARY, false);
 		interThreadPipeFactory = PIPE_FACTORY_REGISTRY.getPipeFactory(ThreadCommunication.INTER, PipeOrdering.QUEUE_BASED, false);
 		init();

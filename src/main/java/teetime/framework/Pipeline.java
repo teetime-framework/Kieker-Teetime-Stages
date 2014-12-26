@@ -58,4 +58,14 @@ public final class Pipeline<L extends Stage> extends Stage {
 		return lastStage;
 	}
 
+	@Override
+	protected InputPort<?>[] getInputPorts() {
+		return firstStage.getInputPorts();
+	}
+
+	@Override
+	protected boolean isStarted() {
+		return firstStage.isStarted();
+	}
+
 }

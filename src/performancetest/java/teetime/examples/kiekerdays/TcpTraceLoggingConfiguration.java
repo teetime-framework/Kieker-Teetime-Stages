@@ -8,7 +8,7 @@ import teetime.framework.Stage;
 import teetime.stage.io.network.TcpReader;
 import teetime.util.Pair;
 
-public class TcpTraceLoggingConfiguration extends AnalysisConfiguration {
+class TcpTraceLoggingConfiguration extends AnalysisConfiguration {
 
 	public TcpTraceLoggingConfiguration() {
 		Stage tcpPipeline = this.buildTcpPipeline();

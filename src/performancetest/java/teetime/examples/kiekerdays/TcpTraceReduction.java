@@ -1,17 +1,18 @@
 package teetime.examples.kiekerdays;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import teetime.framework.Stage;
+import teetime.framework.Analysis;
+import teetime.framework.AnalysisConfiguration;
 import teetime.framework.Pipeline;
-import teetime.framework.RunnableStage;
+import teetime.framework.Stage;
 import teetime.framework.pipe.IPipe;
 import teetime.framework.pipe.IPipeFactory;
-import teetime.framework.pipe.PipeFactoryRegistry;
 import teetime.framework.pipe.PipeFactoryRegistry.PipeOrdering;
 import teetime.framework.pipe.PipeFactoryRegistry.ThreadCommunication;
 import teetime.framework.pipe.SpScPipe;
@@ -25,6 +26,7 @@ import teetime.stage.trace.traceReconstruction.TraceReconstructionFilter;
 import teetime.stage.trace.traceReduction.TraceAggregationBuffer;
 import teetime.stage.trace.traceReduction.TraceComperator;
 import teetime.stage.trace.traceReduction.TraceReductionFilter;
+import teetime.util.Pair;
 import teetime.util.concurrent.hashmap.ConcurrentHashMapWithDefault;
 import teetime.util.concurrent.hashmap.TraceBuffer;
 
@@ -32,7 +34,7 @@ import kieker.analysis.plugin.filter.flow.TraceEventRecords;
 import kieker.common.record.IMonitoringRecord;
 import kieker.common.record.flow.IFlowRecord;
 
-public class TcpTraceReduction {
+class TcpTraceReduction extends AnalysisConfiguration {
 
 	private static final int NUM_VIRTUAL_CORES = Runtime.getRuntime().availableProcessors();
 	private static final int MIO = 1000000;
@@ -43,33 +45,28 @@ public class TcpTraceReduction {
 	private final Map<TraceEventRecords, TraceAggregationBuffer> trace2buffer = new TreeMap<TraceEventRecords, TraceAggregationBuffer>(new TraceComperator());
 	private final List<IPipe> tcpRelayPipes = new ArrayList<IPipe>();
 
-	private Thread tcpThread;
-	private Thread clockThread;
-	private Thread[] workerThreads;
-
-	private int numWorkerThreads;
+	private final int numWorkerThreads;
 
 	private final IPipeFactory intraThreadPipeFactory;
 	private final IPipeFactory interThreadPipeFactory;
 
-	public TcpTraceReduction() {
-		intraThreadPipeFactory = PipeFactoryRegistry.INSTANCE.getPipeFactory(ThreadCommunication.INTRA, PipeOrdering.ARBITRARY, false);
-		interThreadPipeFactory = PipeFactoryRegistry.INSTANCE.getPipeFactory(ThreadCommunication.INTER, PipeOrdering.QUEUE_BASED, false);
+	public TcpTraceReduction(final int numWorkerThreads) {
+		this.numWorkerThreads = Math.min(numWorkerThreads, NUM_VIRTUAL_CORES);
+		intraThreadPipeFactory = PIPE_FACTORY_REGISTRY.getPipeFactory(ThreadCommunication.INTRA, PipeOrdering.ARBITRARY, false);
+		interThreadPipeFactory = PIPE_FACTORY_REGISTRY.getPipeFactory(ThreadCommunication.INTER, PipeOrdering.QUEUE_BASED, false);
+		init();
 	}
 
-	public void init() {
+	private void init() {
 		Pipeline<Distributor<IMonitoringRecord>> tcpPipeline = this.buildTcpPipeline();
-		this.tcpThread = new Thread(new RunnableStage(tcpPipeline));
+		addThreadableStage(tcpPipeline);
 
 		Pipeline<Distributor<Long>> clockStage = this.buildClockPipeline(5000);
-		this.clockThread = new Thread(new RunnableStage(clockStage));
+		addThreadableStage(clockStage);
 
-		this.numWorkerThreads = Math.min(NUM_VIRTUAL_CORES, this.numWorkerThreads);
-		this.workerThreads = new Thread[this.numWorkerThreads];
-
-		for (int i = 0; i < this.workerThreads.length; i++) {
+		for (int i = 0; i < this.numWorkerThreads; i++) {
 			Stage pipeline = this.buildPipeline(tcpPipeline.getLastStage(), clockStage.getLastStage());
-			this.workerThreads[i] = new Thread(new RunnableStage(pipeline));
+			addThreadableStage(pipeline);
 		}
 	}
 
@@ -116,28 +113,7 @@ public class TcpTraceReduction {
 		return relay;
 	}
 
-	public void start() {
-
-		this.tcpThread.start();
-		this.clockThread.start();
-
-		for (Thread workerThread : this.workerThreads) {
-			workerThread.start();
-		}
-
-		try {
-			this.tcpThread.join();
-
-			for (Thread workerThread : this.workerThreads) {
-				workerThread.join();
-			}
-		} catch (InterruptedException e) {
-			throw new IllegalStateException(e);
-		}
-		this.clockThread.interrupt();
-	}
-
-	public void onTerminate() {
+	public void printNumWaits() {
 		int maxNumWaits = 0;
 		for (IPipe pipe : this.tcpRelayPipes) {
 			SpScPipe interThreadPipe = (SpScPipe) pipe;
@@ -155,22 +131,18 @@ public class TcpTraceReduction {
 		return this.numWorkerThreads;
 	}
 
-	public void setNumWorkerThreads(final int numWorkerThreads) {
-		this.numWorkerThreads = numWorkerThreads;
-	}
-
 	public static void main(final String[] args) {
 		int numWorkerThreads = Integer.valueOf(args[0]);
 
-		final TcpTraceReduction analysis = new TcpTraceReduction();
-		analysis.setNumWorkerThreads(numWorkerThreads);
+		final TcpTraceReduction configuration = new TcpTraceReduction(numWorkerThreads);
 
+		Analysis analysis = new Analysis(configuration);
 		analysis.init();
-		try {
-			analysis.start();
-		} finally {
-			analysis.onTerminate();
-		}
+
+		Collection<Pair<Thread, Throwable>> exceptions = analysis.start();
+
+		System.out.println("Exceptions: " + exceptions.size());
+		configuration.printNumWaits();
 	}
 
 }

@@ -1,15 +1,16 @@
 package teetime.examples.kiekerdays;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-import teetime.framework.Stage;
+import teetime.framework.Analysis;
+import teetime.framework.AnalysisConfiguration;
 import teetime.framework.Pipeline;
-import teetime.framework.RunnableStage;
+import teetime.framework.Stage;
 import teetime.framework.pipe.IPipe;
 import teetime.framework.pipe.IPipeFactory;
-import teetime.framework.pipe.PipeFactoryRegistry;
 import teetime.framework.pipe.PipeFactoryRegistry.PipeOrdering;
 import teetime.framework.pipe.PipeFactoryRegistry.ThreadCommunication;
 import teetime.framework.pipe.SpScPipe;
@@ -19,6 +20,7 @@ import teetime.stage.basic.Sink;
 import teetime.stage.basic.distributor.Distributor;
 import teetime.stage.io.network.TcpReader;
 import teetime.stage.trace.traceReconstruction.TraceReconstructionFilter;
+import teetime.util.Pair;
 import teetime.util.concurrent.hashmap.ConcurrentHashMapWithDefault;
 import teetime.util.concurrent.hashmap.TraceBuffer;
 
@@ -26,7 +28,7 @@ import kieker.analysis.plugin.filter.flow.TraceEventRecords;
 import kieker.common.record.IMonitoringRecord;
 import kieker.common.record.flow.IFlowRecord;
 
-public class TcpTraceReconstruction {
+class TcpTraceReconstruction extends AnalysisConfiguration {
 
 	private static final int NUM_VIRTUAL_CORES = Runtime.getRuntime().availableProcessors();
 	private static final int MIO = 1000000;
@@ -39,26 +41,22 @@ public class TcpTraceReconstruction {
 	private final IPipeFactory intraThreadPipeFactory;
 	private final IPipeFactory interThreadPipeFactory;
 
-	private Thread tcpThread;
-	private Thread[] workerThreads;
+	private final int numWorkerThreads;
 
-	private int numWorkerThreads;
-
-	public TcpTraceReconstruction() {
-		intraThreadPipeFactory = PipeFactoryRegistry.INSTANCE.getPipeFactory(ThreadCommunication.INTRA, PipeOrdering.ARBITRARY, false);
-		interThreadPipeFactory = PipeFactoryRegistry.INSTANCE.getPipeFactory(ThreadCommunication.INTER, PipeOrdering.QUEUE_BASED, false);
+	public TcpTraceReconstruction(final int numWorkerThreads) {
+		intraThreadPipeFactory = PIPE_FACTORY_REGISTRY.getPipeFactory(ThreadCommunication.INTRA, PipeOrdering.ARBITRARY, false);
+		interThreadPipeFactory = PIPE_FACTORY_REGISTRY.getPipeFactory(ThreadCommunication.INTER, PipeOrdering.QUEUE_BASED, false);
+		this.numWorkerThreads = Math.min(NUM_VIRTUAL_CORES, numWorkerThreads);
+		init();
 	}
 
-	public void init() {
+	private void init() {
 		Pipeline<Distributor<IMonitoringRecord>> tcpPipeline = this.buildTcpPipeline();
-		this.tcpThread = new Thread(new RunnableStage(tcpPipeline));
+		addThreadableStage(tcpPipeline);
 
-		this.numWorkerThreads = Math.min(NUM_VIRTUAL_CORES, this.numWorkerThreads);
-		this.workerThreads = new Thread[this.numWorkerThreads];
-
-		for (int i = 0; i < this.workerThreads.length; i++) {
+		for (int i = 0; i < this.numWorkerThreads; i++) {
 			Stage pipeline = this.buildPipeline(tcpPipeline.getLastStage());
-			this.workerThreads[i] = new Thread(new RunnableStage(pipeline));
+			addThreadableStage(pipeline);
 		}
 	}
 
@@ -90,26 +88,7 @@ public class TcpTraceReconstruction {
 		return relay;
 	}
 
-	public void start() {
-
-		this.tcpThread.start();
-
-		for (Thread workerThread : this.workerThreads) {
-			workerThread.start();
-		}
-
-		try {
-			this.tcpThread.join();
-
-			for (Thread workerThread : this.workerThreads) {
-				workerThread.join();
-			}
-		} catch (InterruptedException e) {
-			throw new IllegalStateException(e);
-		}
-	}
-
-	public void onTerminate() {
+	public void printNumWaits() {
 		int maxNumWaits = 0;
 		for (IPipe pipe : this.tcpRelayPipes) {
 			SpScPipe interThreadPipe = (SpScPipe) pipe;
@@ -126,22 +105,17 @@ public class TcpTraceReconstruction {
 		return this.numWorkerThreads;
 	}
 
-	public void setNumWorkerThreads(final int numWorkerThreads) {
-		this.numWorkerThreads = numWorkerThreads;
-	}
-
 	public static void main(final String[] args) {
 		int numWorkerThreads = Integer.valueOf(args[0]);
 
-		final TcpTraceReconstruction analysis = new TcpTraceReconstruction();
-		analysis.setNumWorkerThreads(numWorkerThreads);
+		final TcpTraceReconstruction configuration = new TcpTraceReconstruction(numWorkerThreads);
 
+		Analysis analysis = new Analysis(configuration);
 		analysis.init();
-		try {
-			analysis.start();
-		} finally {
-			analysis.onTerminate();
-		}
+		Collection<Pair<Thread, Throwable>> exceptions = analysis.start();
+
+		System.out.println("Exceptions: " + exceptions.size());
+		configuration.printNumWaits();
 	}
 
 }

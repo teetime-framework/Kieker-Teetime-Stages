@@ -5,7 +5,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import teetime.framework.AnalysisConfiguration;
-import teetime.framework.RunnableStage;
 import teetime.framework.Stage;
 import teetime.framework.pipe.IPipeFactory;
 import teetime.framework.pipe.PipeFactoryRegistry.PipeOrdering;
@@ -31,13 +30,9 @@ import kieker.analysis.plugin.filter.flow.TraceEventRecords;
 import kieker.common.record.IMonitoringRecord;
 import kieker.common.record.flow.IFlowRecord;
 
-// TODO extends AnalysisConfiguration
-public class TraceReconstructionAnalysis extends AnalysisConfiguration {
+public class TraceReconstructionConf extends AnalysisConfiguration {
 
 	private final List<TraceEventRecords> elementCollection = new LinkedList<TraceEventRecords>();
-
-	private Thread clockThread;
-	private Thread workerThread;
 
 	private final File inputDir;
 	private final ConcurrentHashMapWithDefault<Long, TraceBuffer> traceId2trace;
@@ -49,7 +44,7 @@ public class TraceReconstructionAnalysis extends AnalysisConfiguration {
 	private Counter<TraceEventRecords> traceCounter;
 	private ElementThroughputMeasuringStage<IFlowRecord> throughputFilter;
 
-	public TraceReconstructionAnalysis(final File inputDir) {
+	public TraceReconstructionConf(final File inputDir) {
 		this.inputDir = inputDir;
 		traceId2trace = new ConcurrentHashMapWithDefault<Long, TraceBuffer>(new TraceBuffer());
 		intraThreadPipeFactory = PIPE_FACTORY_REGISTRY.getPipeFactory(ThreadCommunication.INTRA, PipeOrdering.ARBITRARY, false);
@@ -59,10 +54,10 @@ public class TraceReconstructionAnalysis extends AnalysisConfiguration {
 
 	private void init() {
 		Clock clockStage = this.buildClockPipeline();
-		this.clockThread = new Thread(new RunnableStage(clockStage));
+		addThreadableStage(clockStage);
 
 		Stage pipeline = this.buildPipeline(clockStage);
-		this.workerThread = new Thread(new RunnableStage(pipeline));
+		addThreadableStage(pipeline);
 	}
 
 	private Clock buildClockPipeline() {
@@ -111,25 +106,6 @@ public class TraceReconstructionAnalysis extends AnalysisConfiguration {
 		interThreadPipeFactory.create(clockStage.getOutputPort(), this.throughputFilter.getTriggerInputPort(), 1);
 
 		return initialElementProducer;
-	}
-
-	public void start() {
-
-		this.clockThread.start();
-		this.workerThread.start();
-
-		try {
-			this.workerThread.join();
-		} catch (InterruptedException e) {
-			throw new IllegalStateException(e);
-		}
-
-		this.clockThread.interrupt();
-		try {
-			this.clockThread.join();
-		} catch (InterruptedException e) {
-			throw new IllegalStateException(e);
-		}
 	}
 
 	public List<TraceEventRecords> getElementCollection() {

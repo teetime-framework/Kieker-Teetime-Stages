@@ -54,7 +54,7 @@ public class ChwWorkTcpTraceReconstructionAnalysisTest {
 
 	@Test
 	public void performAnalysis() {
-		final TcpTraceReconstructionAnalysisConfiguration configuration = new TcpTraceReconstructionAnalysisConfiguration();
+		final TcpTraceReconstructionConf configuration = new TcpTraceReconstructionConf();
 
 		Analysis analysis = new Analysis(configuration);
 		analysis.init();

@@ -1,24 +1,33 @@
 package teetime.examples.kiekerdays;
 
+import teetime.framework.AnalysisConfiguration;
+import teetime.framework.RunnableProducerStage;
 import teetime.framework.Stage;
-import teetime.framework.RunnableStage;
-import teetime.framework.pipe.SingleElementPipe;
+import teetime.framework.pipe.IPipeFactory;
+import teetime.framework.pipe.PipeFactoryRegistry.PipeOrdering;
+import teetime.framework.pipe.PipeFactoryRegistry.ThreadCommunication;
 import teetime.stage.basic.Sink;
 import teetime.stage.explorviz.KiekerRecordTcpReader;
 
 import kieker.common.record.IMonitoringRecord;
 
-public class TcpTraceLoggingExplorviz {
+class TcpTraceLoggingExplorviz extends AnalysisConfiguration {
 
 	private Thread tcpThread;
+	private final IPipeFactory intraThreadPipeFactory;
 
-	public void init() {
+	public TcpTraceLoggingExplorviz() {
+		intraThreadPipeFactory = PIPE_FACTORY_REGISTRY.getPipeFactory(ThreadCommunication.INTRA, PipeOrdering.ARBITRARY, false);
+		// interThreadPipeFactory = PIPE_FACTORY_REGISTRY.getPipeFactory(ThreadCommunication.INTER, PipeOrdering.QUEUE_BASED, false);
+		init();
+	}
+
+	private void init() {
 		Stage tcpPipeline = this.buildTcpPipeline();
-		this.tcpThread = new Thread(new RunnableStage(tcpPipeline));
+		this.tcpThread = new Thread(new RunnableProducerStage(tcpPipeline));
 	}
 
 	public void start() {
-
 		this.tcpThread.start();
 
 		try {
@@ -32,7 +41,7 @@ public class TcpTraceLoggingExplorviz {
 		KiekerRecordTcpReader tcpReader = new KiekerRecordTcpReader();
 		Sink<IMonitoringRecord> endStage = new Sink<IMonitoringRecord>();
 
-		SingleElementPipe.connect(tcpReader.getOutputPort(), endStage.getInputPort());
+		intraThreadPipeFactory.create(tcpReader.getOutputPort(), endStage.getInputPort());
 
 		return tcpReader;
 	}

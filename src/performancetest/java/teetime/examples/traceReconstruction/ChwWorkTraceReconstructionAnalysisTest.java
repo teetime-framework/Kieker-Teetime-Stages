@@ -30,6 +30,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import teetime.framework.Analysis;
 import teetime.util.StopWatch;
 import util.test.StatisticsUtil;
 
@@ -38,9 +39,9 @@ import kieker.analysis.plugin.filter.flow.TraceEventRecords;
 /**
  * @author Christian Wulf
  *
- * @since 1.10
+ * @since 1.0
  */
-public class ChwWorkTraceReconstructionAnalysisTest {
+class ChwWorkTraceReconstructionAnalysisTest {
 
 	private StopWatch stopWatch;
 
@@ -57,7 +58,10 @@ public class ChwWorkTraceReconstructionAnalysisTest {
 
 	@Test
 	public void performAnalysisWithEprintsLogs() {
-		final TraceReconstructionAnalysis analysis = new TraceReconstructionAnalysis(new File("src/test/data/Eprints-logs"));
+		final TraceReconstructionConf configuration = new TraceReconstructionConf(new File("src/test/data/Eprints-logs"));
+
+		Analysis analysis = new Analysis(configuration);
+		analysis.init();
 
 		this.stopWatch.start();
 		try {
@@ -66,23 +70,26 @@ public class ChwWorkTraceReconstructionAnalysisTest {
 			this.stopWatch.end();
 		}
 
-		assertEquals(50002, analysis.getNumRecords());
-		assertEquals(2, analysis.getNumTraces());
+		assertEquals(50002, configuration.getNumRecords());
+		assertEquals(2, configuration.getNumTraces());
 
-		TraceEventRecords trace6884 = analysis.getElementCollection().get(0);
+		TraceEventRecords trace6884 = configuration.getElementCollection().get(0);
 		assertEquals(6884, trace6884.getTraceMetadata().getTraceId());
 
-		TraceEventRecords trace6886 = analysis.getElementCollection().get(1);
+		TraceEventRecords trace6886 = configuration.getElementCollection().get(1);
 		assertEquals(6886, trace6886.getTraceMetadata().getTraceId());
 
-		StatisticsUtil.removeLeadingZeroThroughputs(analysis.getThroughputs());
-		Map<Double, Long> quintiles = StatisticsUtil.calculateQuintiles(analysis.getThroughputs());
+		StatisticsUtil.removeLeadingZeroThroughputs(configuration.getThroughputs());
+		Map<Double, Long> quintiles = StatisticsUtil.calculateQuintiles(configuration.getThroughputs());
 		System.out.println("Median throughput: " + quintiles.get(0.5) + " elements/time unit");
 	}
 
 	@Test
 	public void performAnalysisWithKiekerLogs() {
-		final TraceReconstructionAnalysis analysis = new TraceReconstructionAnalysis(new File("src/test/data/kieker-logs"));
+		final TraceReconstructionConf configuration = new TraceReconstructionConf(new File("src/test/data/kieker-logs"));
+
+		Analysis analysis = new Analysis(configuration);
+		analysis.init();
 
 		this.stopWatch.start();
 		try {
@@ -91,17 +98,17 @@ public class ChwWorkTraceReconstructionAnalysisTest {
 			this.stopWatch.end();
 		}
 
-		assertEquals(1489902, analysis.getNumRecords());
-		assertEquals(24013, analysis.getNumTraces());
+		assertEquals(1489902, configuration.getNumRecords());
+		assertEquals(24013, configuration.getNumTraces());
 
-		TraceEventRecords trace0 = analysis.getElementCollection().get(0);
+		TraceEventRecords trace0 = configuration.getElementCollection().get(0);
 		assertEquals(8974347286117089280l, trace0.getTraceMetadata().getTraceId());
 
-		TraceEventRecords trace1 = analysis.getElementCollection().get(1);
+		TraceEventRecords trace1 = configuration.getElementCollection().get(1);
 		assertEquals(8974347286117089281l, trace1.getTraceMetadata().getTraceId());
 
-		StatisticsUtil.removeLeadingZeroThroughputs(analysis.getThroughputs());
-		Map<Double, Long> quintiles = StatisticsUtil.calculateQuintiles(analysis.getThroughputs());
+		StatisticsUtil.removeLeadingZeroThroughputs(configuration.getThroughputs());
+		Map<Double, Long> quintiles = StatisticsUtil.calculateQuintiles(configuration.getThroughputs());
 		System.out.println("Median throughput: " + quintiles.get(0.5) + " elements/time unit");
 
 		assertThat(quintiles.get(0.5), is(both(greaterThan(1100l)).and(lessThan(1400l))));
@@ -109,7 +116,10 @@ public class ChwWorkTraceReconstructionAnalysisTest {
 
 	@Test
 	public void performAnalysisWithKieker2Logs() {
-		final TraceReconstructionAnalysis analysis = new TraceReconstructionAnalysis(new File("src/test/data/kieker2-logs"));
+		final TraceReconstructionConf configuration = new TraceReconstructionConf(new File("src/test/data/kieker2-logs"));
+
+		Analysis analysis = new Analysis(configuration);
+		analysis.init();
 
 		this.stopWatch.start();
 		try {
@@ -118,17 +128,17 @@ public class ChwWorkTraceReconstructionAnalysisTest {
 			this.stopWatch.end();
 		}
 
-		assertEquals(17371, analysis.getNumRecords());
-		assertEquals(22, analysis.getNumTraces());
+		assertEquals(17371, configuration.getNumRecords());
+		assertEquals(22, configuration.getNumTraces());
 
-		TraceEventRecords trace0 = analysis.getElementCollection().get(0);
+		TraceEventRecords trace0 = configuration.getElementCollection().get(0);
 		assertEquals(0, trace0.getTraceMetadata().getTraceId());
 
-		TraceEventRecords trace1 = analysis.getElementCollection().get(1);
+		TraceEventRecords trace1 = configuration.getElementCollection().get(1);
 		assertEquals(1, trace1.getTraceMetadata().getTraceId());
 
-		StatisticsUtil.removeLeadingZeroThroughputs(analysis.getThroughputs());
-		Map<Double, Long> quintiles = StatisticsUtil.calculateQuintiles(analysis.getThroughputs());
+		StatisticsUtil.removeLeadingZeroThroughputs(configuration.getThroughputs());
+		Map<Double, Long> quintiles = StatisticsUtil.calculateQuintiles(configuration.getThroughputs());
 		System.out.println("Median throughput: " + quintiles.get(0.5) + " elements/time unit");
 	}
 
