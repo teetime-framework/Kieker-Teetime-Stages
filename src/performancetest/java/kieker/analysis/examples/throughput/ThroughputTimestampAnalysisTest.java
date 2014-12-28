@@ -24,7 +24,7 @@ import org.junit.Test;
 import teetime.util.StopWatch;
 import teetime.util.TimestampObject;
 import util.test.PerformanceTest;
-import util.test.StatisticsUtil;
+import util.test.eval.StatisticsUtil;
 
 import kieker.analysis.examples.ThroughputTimestampAnalysis;
 import kieker.analysis.exception.AnalysisConfigurationException;

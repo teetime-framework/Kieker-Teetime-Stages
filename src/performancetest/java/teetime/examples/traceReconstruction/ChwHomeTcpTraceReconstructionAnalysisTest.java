@@ -33,7 +33,7 @@ import org.junit.Test;
 import teetime.framework.Analysis;
 import teetime.util.ListUtil;
 import teetime.util.StopWatch;
-import util.test.StatisticsUtil;
+import util.test.eval.StatisticsUtil;
 
 /**
  * @author Christian Wulf
