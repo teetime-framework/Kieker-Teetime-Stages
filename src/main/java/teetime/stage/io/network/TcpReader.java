@@ -77,7 +77,7 @@ public class TcpReader extends AbstractTcpReader<IMonitoringRecord> {
 	}
 
 	@Override
-	protected final void read(final ByteBuffer buffer) {
+	protected final boolean read(final ByteBuffer buffer) {
 		final int clazzId = buffer.getInt();
 		final long loggingTimestamp = buffer.getLong();
 
@@ -91,6 +91,8 @@ public class TcpReader extends AbstractTcpReader<IMonitoringRecord> {
 		} catch (final RecordInstantiationException ex) {
 			super.logger.error("Failed to create: " + recordClassName, ex);
 		}
+
+		return true;
 	}
 
 	@Override
