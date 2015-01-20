@@ -161,7 +161,7 @@ public class TcpReader extends AbstractTcpReader<IMonitoringRecord> {
 						while (buffer.hasRemaining()) {
 							buffer.mark();
 							RegistryRecord.registerRecordInRegistry(buffer, this.stringRegistry);
-							System.out.println("NEW: " + Joiner.on("\n").join(stringRegistry.getAll()));
+							LOG.debug("NEW: " + Joiner.on("\n").join(stringRegistry.getAll()));
 						}
 						buffer.clear();
 					} catch (final BufferUnderflowException ex) {
