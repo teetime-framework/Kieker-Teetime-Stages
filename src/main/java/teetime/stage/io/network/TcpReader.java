@@ -30,9 +30,11 @@ import com.google.common.base.Joiner;
 import kieker.common.exception.RecordInstantiationException;
 import kieker.common.logging.Log;
 import kieker.common.logging.LogFactory;
+import kieker.common.record.AbstractMonitoringRecord;
 import kieker.common.record.IMonitoringRecord;
 import kieker.common.record.factory.CachedRecordFactoryCatalog;
 import kieker.common.record.factory.IRecordFactory;
+import kieker.common.record.factory.old.RecordFactoryWrapper;
 import kieker.common.record.misc.RegistryRecord;
 import kieker.common.util.registry.ILookup;
 import kieker.common.util.registry.Lookup;
@@ -44,6 +46,10 @@ import kieker.common.util.registry.Lookup;
  *
  */
 public class TcpReader extends AbstractTcpReader<IMonitoringRecord> {
+
+	private static final int INT_BYTES = AbstractMonitoringRecord.TYPE_SIZE_INT;
+	private static final int LONG_BYTES = AbstractMonitoringRecord.TYPE_SIZE_LONG;
+	private static final int UNKNOWN_SIZE = RecordFactoryWrapper.UNKNOWN_SIZE;
 
 	private final CachedRecordFactoryCatalog recordFactories = CachedRecordFactoryCatalog.getInstance();
 	// BETTER use a non thread-safe implementation to increase performance. A thread-safe version is not necessary.
@@ -77,13 +83,21 @@ public class TcpReader extends AbstractTcpReader<IMonitoringRecord> {
 	}
 
 	@Override
-	protected final void read(final ByteBuffer buffer) {
+	protected final boolean read(final ByteBuffer buffer) {
+		if (buffer.remaining() < INT_BYTES) {
+			return false;
+		}
 		final int clazzId = buffer.getInt();
+		final String recordClassName = this.stringRegistry.get(clazzId);
+		final IRecordFactory<? extends IMonitoringRecord> recordFactory = this.recordFactories.get(recordClassName);
+		int recordSizeInBytes = recordFactory.getRecordSizeInBytes();
+
+		if (recordSizeInBytes != UNKNOWN_SIZE && buffer.remaining() < LONG_BYTES + recordSizeInBytes) {
+			return false;
+		}
 		final long loggingTimestamp = buffer.getLong();
 
-		final String recordClassName = this.stringRegistry.get(clazzId);
 		try {
-			final IRecordFactory<? extends IMonitoringRecord> recordFactory = this.recordFactories.get(recordClassName);
 			IMonitoringRecord record = recordFactory.create(buffer, this.stringRegistry);
 			record.setLoggingTimestamp(loggingTimestamp);
 
@@ -91,6 +105,8 @@ public class TcpReader extends AbstractTcpReader<IMonitoringRecord> {
 		} catch (final RecordInstantiationException ex) {
 			super.logger.error("Failed to create: " + recordClassName, ex);
 		}
+
+		return true;
 	}
 
 	@Override
