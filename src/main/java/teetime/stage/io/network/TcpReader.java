@@ -88,8 +88,6 @@ public class TcpReader extends AbstractTcpReader<IMonitoringRecord> {
 			record.setLoggingTimestamp(loggingTimestamp);
 
 			outputPort.send(record);
-		} catch (final BufferUnderflowException ex) {
-			super.logger.error("Failed to create: " + recordClassName, ex);
 		} catch (final RecordInstantiationException ex) {
 			super.logger.error("Failed to create: " + recordClassName, ex);
 		}
