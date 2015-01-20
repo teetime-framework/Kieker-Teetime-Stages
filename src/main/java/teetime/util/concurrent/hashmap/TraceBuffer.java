@@ -16,7 +16,7 @@ import kieker.common.record.flow.trace.operation.BeforeOperationEvent;
 
 /**
  * The TraceBuffer is synchronized to prevent problems with concurrent access.
- * 
+ *
  * @author Jan Waller
  */
 public final class TraceBuffer implements ValueFactory<TraceBuffer> {
@@ -112,7 +112,9 @@ public final class TraceBuffer implements ValueFactory<TraceBuffer> {
 
 	public TraceEventRecords toTraceEvents() {
 		synchronized (this) {
-			return new TraceEventRecords(this.trace, this.events.toArray(new AbstractTraceEvent[this.events.size()]));
+			// BETTER do not create a new array but use the events directly. Perhaps, we should refactor the sorted set to an array.
+			final AbstractTraceEvent[] traceEvents = this.events.toArray(new AbstractTraceEvent[this.events.size()]);
+			return new TraceEventRecords(this.trace, traceEvents);
 		}
 	}
 
@@ -141,11 +143,13 @@ public final class TraceBuffer implements ValueFactory<TraceBuffer> {
 			// default empty constructor
 		}
 
+		@Override
 		public int compare(final AbstractTraceEvent o1, final AbstractTraceEvent o2) {
 			return o1.getOrderIndex() - o2.getOrderIndex();
 		}
 	}
 
+	@Override
 	public TraceBuffer create() {
 		return new TraceBuffer();
 	}
