@@ -1,19 +1,4 @@
-/***************************************************************************
- * Copyright 2014 Kieker Project (http://kieker-monitoring.net)
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- ***************************************************************************/
-package teetime.stage.io.network;
+package teetime.util.network;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -23,9 +8,7 @@ import java.nio.channels.ClosedByInterruptException;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 
-import teetime.stage.io.AbstractTcpReader;
-
-import com.google.common.base.Joiner;
+import org.slf4j.Logger;
 
 import kieker.common.exception.RecordInstantiationException;
 import kieker.common.logging.Log;
@@ -34,22 +17,14 @@ import kieker.common.record.AbstractMonitoringRecord;
 import kieker.common.record.IMonitoringRecord;
 import kieker.common.record.factory.CachedRecordFactoryCatalog;
 import kieker.common.record.factory.IRecordFactory;
-import kieker.common.record.factory.old.RecordFactoryWrapper;
 import kieker.common.record.misc.RegistryRecord;
 import kieker.common.util.registry.ILookup;
 import kieker.common.util.registry.Lookup;
 
-/**
- * This is a reader which reads the records from a TCP port.
- *
- * @author Jan Waller, Nils Christian Ehmke, Christian Wulf
- *
- */
-public class TcpReader extends AbstractTcpReader<IMonitoringRecord> {
+public abstract class AbstractRecordTcpReader extends AbstractTcpReader {
 
 	private static final int INT_BYTES = AbstractMonitoringRecord.TYPE_SIZE_INT;
 	private static final int LONG_BYTES = AbstractMonitoringRecord.TYPE_SIZE_LONG;
-	private static final int UNKNOWN_SIZE = RecordFactoryWrapper.UNKNOWN_SIZE;
 
 	private final CachedRecordFactoryCatalog recordFactories = CachedRecordFactoryCatalog.getInstance();
 	// BETTER use a non thread-safe implementation to increase performance. A thread-safe version is not necessary.
@@ -60,8 +35,8 @@ public class TcpReader extends AbstractTcpReader<IMonitoringRecord> {
 	/**
 	 * Default constructor with <code>port=10133</code> and <code>bufferCapacity=65535</code>
 	 */
-	public TcpReader() {
-		this(10133, 65535);
+	public AbstractRecordTcpReader(final Logger logger) {
+		this(10133, 65535, logger);
 	}
 
 	/**
@@ -71,37 +46,41 @@ public class TcpReader extends AbstractTcpReader<IMonitoringRecord> {
 	 * @param bufferCapacity
 	 *            capacity of the receiving buffer
 	 */
-	public TcpReader(final int port, final int bufferCapacity) {
-		super(port, bufferCapacity);
+	public AbstractRecordTcpReader(final int port, final int bufferCapacity, final Logger logger) {
+		super(port, bufferCapacity, logger);
 	}
 
-	@Override
-	public void onStarting() throws Exception {
-		super.onStarting();
+	public void initialize() {
 		this.tcpStringReader = new TCPStringReader(this.port2, this.stringRegistry);
 		this.tcpStringReader.start();
 	}
 
 	@Override
 	protected final boolean read(final ByteBuffer buffer) {
+		// identify record class
 		if (buffer.remaining() < INT_BYTES) {
 			return false;
 		}
 		final int clazzId = buffer.getInt();
 		final String recordClassName = this.stringRegistry.get(clazzId);
-		final IRecordFactory<? extends IMonitoringRecord> recordFactory = this.recordFactories.get(recordClassName);
-		int recordSizeInBytes = recordFactory.getRecordSizeInBytes();
 
-		if (recordSizeInBytes != UNKNOWN_SIZE && buffer.remaining() < LONG_BYTES + recordSizeInBytes) {
+		// identify logging timestamp
+		if (buffer.remaining() < LONG_BYTES) {
 			return false;
 		}
 		final long loggingTimestamp = buffer.getLong();
 
+		// identify record data
+		final IRecordFactory<? extends IMonitoringRecord> recordFactory = this.recordFactories.get(recordClassName);
+		if (buffer.remaining() < recordFactory.getRecordSizeInBytes()) {
+			return false;
+		}
+
 		try {
-			IMonitoringRecord record = recordFactory.create(buffer, this.stringRegistry);
+			final IMonitoringRecord record = recordFactory.create(buffer, this.stringRegistry);
 			record.setLoggingTimestamp(loggingTimestamp);
 
-			outputPort.send(record);
+			send(record);
 		} catch (final RecordInstantiationException ex) {
 			super.logger.error("Failed to create: " + recordClassName, ex);
 		}
@@ -109,10 +88,10 @@ public class TcpReader extends AbstractTcpReader<IMonitoringRecord> {
 		return true;
 	}
 
-	@Override
-	public void onTerminating() throws Exception {
+	protected abstract void send(IMonitoringRecord record);
+
+	public void terminate() {
 		this.tcpStringReader.terminate();
-		super.onTerminating();
 	}
 
 	/**
@@ -121,7 +100,7 @@ public class TcpReader extends AbstractTcpReader<IMonitoringRecord> {
 	 *
 	 * @since 1.8
 	 */
-	private static class TCPStringReader extends Thread {
+	protected static class TCPStringReader extends Thread {
 
 		private static final int MESSAGE_BUFFER_SIZE = 65535;
 
@@ -161,7 +140,6 @@ public class TcpReader extends AbstractTcpReader<IMonitoringRecord> {
 						while (buffer.hasRemaining()) {
 							buffer.mark();
 							RegistryRecord.registerRecordInRegistry(buffer, this.stringRegistry);
-							LOG.debug("NEW: " + Joiner.on("\n").join(stringRegistry.getAll()));
 						}
 						buffer.clear();
 					} catch (final BufferUnderflowException ex) {

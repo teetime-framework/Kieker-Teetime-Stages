@@ -13,7 +13,7 @@ import teetime.stage.Counter;
 import teetime.stage.ElementThroughputMeasuringStage;
 import teetime.stage.basic.Sink;
 import teetime.stage.basic.distributor.Distributor;
-import teetime.stage.io.network.TcpReader;
+import teetime.stage.io.network.TcpReaderStage;
 
 import kieker.common.record.IMonitoringRecord;
 
@@ -49,7 +49,7 @@ public class TcpTraceLoggingExtAnalysisConfiguration extends AnalysisConfigurati
 	}
 
 	private Stage buildTcpPipeline(final Distributor<Long> previousClockStage) {
-		TcpReader tcpReader = new TcpReader();
+		TcpReaderStage tcpReader = new TcpReaderStage();
 		this.recordCounter = new Counter<IMonitoringRecord>();
 		this.recordThroughputStage = new ElementThroughputMeasuringStage<IMonitoringRecord>();
 		Sink<IMonitoringRecord> endStage = new Sink<IMonitoringRecord>();

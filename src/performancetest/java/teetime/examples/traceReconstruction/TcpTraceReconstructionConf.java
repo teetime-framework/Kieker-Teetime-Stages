@@ -15,7 +15,7 @@ import teetime.stage.ElementThroughputMeasuringStage;
 import teetime.stage.InstanceOfFilter;
 import teetime.stage.basic.Sink;
 import teetime.stage.basic.distributor.Distributor;
-import teetime.stage.io.network.TcpReader;
+import teetime.stage.io.network.TcpReaderStage;
 import teetime.stage.trace.traceReconstruction.TraceReconstructionFilter;
 import teetime.util.concurrent.hashmap.ConcurrentHashMapWithDefault;
 import teetime.util.concurrent.hashmap.TraceBuffer;
@@ -70,7 +70,7 @@ public class TcpTraceReconstructionConf extends AnalysisConfiguration {
 
 	private Stage buildPipeline(final Distributor<Long> clockStage, final Distributor<Long> clock2Stage) {
 		// create stages
-		TcpReader tcpReader = new TcpReader();
+		TcpReaderStage tcpReader = new TcpReaderStage();
 		this.recordCounter = new Counter<IMonitoringRecord>();
 		final InstanceOfFilter<IMonitoringRecord, IFlowRecord> instanceOfFilter = new InstanceOfFilter<IMonitoringRecord, IFlowRecord>(
 				IFlowRecord.class);

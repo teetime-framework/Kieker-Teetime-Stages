@@ -26,7 +26,7 @@ import teetime.stage.InstanceOfFilter;
 import teetime.stage.Relay;
 import teetime.stage.basic.Sink;
 import teetime.stage.basic.distributor.Distributor;
-import teetime.stage.io.network.TcpReader;
+import teetime.stage.io.network.TcpReaderStage;
 import teetime.stage.trace.traceReconstruction.TraceReconstructionFilter;
 import teetime.stage.trace.traceReduction.TraceAggregationBuffer;
 import teetime.stage.trace.traceReduction.TraceComperator;
@@ -90,7 +90,7 @@ public class TcpTraceReductionAnalysisWithThreadsConfiguration extends AnalysisC
 	}
 
 	private Pipeline<Distributor<IMonitoringRecord>> buildTcpPipeline() {
-		final TcpReader tcpReader = new TcpReader();
+		final TcpReaderStage tcpReader = new TcpReaderStage();
 		final Distributor<IMonitoringRecord> distributor = new Distributor<IMonitoringRecord>();
 
 		intraThreadPipeFactory.create(tcpReader.getOutputPort(), distributor.getInputPort());

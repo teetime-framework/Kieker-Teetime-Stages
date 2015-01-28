@@ -5,7 +5,7 @@ import java.util.Collection;
 import teetime.framework.Analysis;
 import teetime.framework.AnalysisConfiguration;
 import teetime.framework.Stage;
-import teetime.stage.io.network.TcpReader;
+import teetime.stage.io.network.TcpReaderStage;
 import teetime.util.Pair;
 
 class TcpTraceLoggingConfiguration extends AnalysisConfiguration {
@@ -17,7 +17,7 @@ class TcpTraceLoggingConfiguration extends AnalysisConfiguration {
 
 	private Stage buildTcpPipeline() {
 		// TCPReaderSink tcpReader = new TCPReaderSink();
-		TcpReader tcpReader = new TcpReader();
+		TcpReaderStage tcpReader = new TcpReaderStage();
 
 		return tcpReader;
 	}
