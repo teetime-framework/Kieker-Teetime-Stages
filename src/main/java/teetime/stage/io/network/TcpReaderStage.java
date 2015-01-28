@@ -15,10 +15,16 @@
  ***************************************************************************/
 package teetime.stage.io.network;
 
+import java.nio.ByteBuffer;
+
 import teetime.framework.AbstractProducerStage;
 import teetime.util.network.AbstractRecordTcpReader;
+import teetime.util.network.AbstractTcpReader;
 
 import kieker.common.record.IMonitoringRecord;
+import kieker.common.record.misc.RegistryRecord;
+import kieker.common.util.registry.ILookup;
+import kieker.common.util.registry.Lookup;
 
 /**
  * This is a reader which reads the records from a TCP port.
@@ -26,30 +32,45 @@ import kieker.common.record.IMonitoringRecord;
  * @author Jan Waller, Nils Christian Ehmke, Christian Wulf
  *
  */
-public class TcpReaderStage extends AbstractProducerStage<IMonitoringRecord> {
+public final class TcpReaderStage extends AbstractProducerStage<IMonitoringRecord> {
 
-	private final AbstractRecordTcpReader recordTcpReader;
+	private final ILookup<String> stringRegistry = new Lookup<String>();
+	private final AbstractRecordTcpReader tcpMonitoringRecordReader;
+	private final AbstractTcpReader tcpStringRecordReader;
+
+	private Thread tcpStringRecordReaderThread;
 
 	/**
-	 * Default constructor with <code>port=10133</code> and <code>bufferCapacity=65535</code>
+	 * Default constructor with <code>port1=10133</code>, <code>bufferCapacity=65535</code>, and <code>port2=10134</code>
 	 */
 	public TcpReaderStage() {
-		this(10133, 65535);
+		this(10133, 65535, 10134);
 	}
 
 	/**
 	 *
-	 * @param port
-	 *            accept connections on this port
+	 * @param port1
+	 *            used to accept <code>IMonitoringRecord</code>s
+	 * @param port2
+	 *            used to accept <code>StringRecord</code>s
 	 * @param bufferCapacity
 	 *            capacity of the receiving buffer
 	 */
-	public TcpReaderStage(final int port, final int bufferCapacity) {
+	public TcpReaderStage(final int port1, final int bufferCapacity, final int port2) {
 		super();
-		this.recordTcpReader = new AbstractRecordTcpReader(port, bufferCapacity, logger) {
+
+		this.tcpMonitoringRecordReader = new AbstractRecordTcpReader(port1, bufferCapacity, logger, stringRegistry) {
 			@Override
-			protected void send(final IMonitoringRecord record) {
+			protected void onRecordReceived(final IMonitoringRecord record) {
 				outputPort.send(record);
+			}
+		};
+
+		this.tcpStringRecordReader = new AbstractTcpReader(port2, bufferCapacity, logger) {
+			@Override
+			protected boolean onBufferReceived(final ByteBuffer buffer) {
+				RegistryRecord.registerRecordInRegistry(buffer, stringRegistry);
+				return true;
 			}
 		};
 	}
@@ -57,27 +78,29 @@ public class TcpReaderStage extends AbstractProducerStage<IMonitoringRecord> {
 	@Override
 	public void onStarting() throws Exception {
 		super.onStarting();
-		recordTcpReader.initialize();
+		this.tcpStringRecordReaderThread = new Thread(tcpStringRecordReader);
+		this.tcpStringRecordReaderThread.start();
 	}
 
 	@Override
 	protected void execute() {
-		recordTcpReader.execute();
+		tcpMonitoringRecordReader.run();
 		terminate();
 	}
 
 	@Override
 	public void onTerminating() throws Exception {
-		this.recordTcpReader.terminate();
+		this.tcpStringRecordReader.terminate();
+		this.tcpStringRecordReaderThread.interrupt();
 		super.onTerminating();
 	}
 
 	public int getPort1() {
-		return recordTcpReader.getPort();
+		return tcpMonitoringRecordReader.getPort();
 	}
 
 	public int getPort2() {
-		return recordTcpReader.getPort2();
+		return tcpStringRecordReader.getPort();
 	}
 
 }

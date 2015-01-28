@@ -9,12 +9,21 @@ import java.nio.channels.SocketChannel;
 
 import org.slf4j.Logger;
 
-public abstract class AbstractTcpReader {
+/**
+ *
+ * @author Christian Wulf
+ * @deprecated use AbstractTcpReader from teetime instead
+ *
+ */
+@Deprecated
+public abstract class AbstractTcpReader implements Runnable {
 
 	private final int port;
 	private final int bufferCapacity;
 	@SuppressWarnings("PMD.LoggerIsNotStaticFinal")
 	protected final Logger logger;
+
+	private volatile boolean terminated;
 
 	public AbstractTcpReader(final int port, final int bufferCapacity, final Logger logger) {
 		super();
@@ -23,7 +32,8 @@ public abstract class AbstractTcpReader {
 		this.logger = logger;
 	}
 
-	public final void execute() {
+	@Override
+	public final void run() {
 		ServerSocketChannel serversocket = null;
 		try {
 			serversocket = ServerSocketChannel.open();
@@ -35,7 +45,7 @@ public abstract class AbstractTcpReader {
 			final SocketChannel socketChannel = serversocket.accept();
 			try {
 				final ByteBuffer buffer = ByteBuffer.allocateDirect(bufferCapacity);
-				while (socketChannel.read(buffer) != -1) {
+				while (socketChannel.read(buffer) != -1 && !terminated) {
 					process(buffer);
 				}
 			} finally {
@@ -59,7 +69,7 @@ public abstract class AbstractTcpReader {
 		try {
 			while (buffer.hasRemaining()) {
 				buffer.mark();
-				boolean success = this.read(buffer);
+				boolean success = this.onBufferReceived(buffer);
 				if (!success) {
 					buffer.reset();
 					buffer.compact();
@@ -81,7 +91,11 @@ public abstract class AbstractTcpReader {
 	 *         <li><code>true</code> when there were enough bytes to perform the read operation
 	 *         <li><code>false</code> otherwise. In this case, the buffer is reset, compacted, and filled with new content.
 	 */
-	protected abstract boolean read(final ByteBuffer buffer);
+	protected abstract boolean onBufferReceived(final ByteBuffer buffer);
+
+	public void terminate() {
+		this.terminated = true;
+	}
 
 	public int getPort() {
 		return port;
