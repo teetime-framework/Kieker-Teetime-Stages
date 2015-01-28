@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
+import java.util.NavigableMap;
 import java.util.TreeMap;
 
 import teetime.framework.Analysis;
@@ -21,7 +21,7 @@ import teetime.stage.InstanceOfFilter;
 import teetime.stage.Relay;
 import teetime.stage.basic.Sink;
 import teetime.stage.basic.distributor.Distributor;
-import teetime.stage.io.network.TcpReader;
+import teetime.stage.io.network.TcpReaderStage;
 import teetime.stage.trace.traceReconstruction.TraceReconstructionFilter;
 import teetime.stage.trace.traceReduction.TraceAggregationBuffer;
 import teetime.stage.trace.traceReduction.TraceComperator;
@@ -42,7 +42,7 @@ class TcpTraceReduction extends AnalysisConfiguration {
 
 	private final List<TraceEventRecords> elementCollection = new LinkedList<TraceEventRecords>();
 	private final ConcurrentHashMapWithDefault<Long, TraceBuffer> traceId2trace = new ConcurrentHashMapWithDefault<Long, TraceBuffer>(new TraceBuffer());
-	private final Map<TraceEventRecords, TraceAggregationBuffer> trace2buffer = new TreeMap<TraceEventRecords, TraceAggregationBuffer>(new TraceComperator());
+	private final NavigableMap<TraceEventRecords, TraceAggregationBuffer> trace2buffer;
 	private final List<IPipe> tcpRelayPipes = new ArrayList<IPipe>();
 
 	private final int numWorkerThreads;
@@ -52,6 +52,7 @@ class TcpTraceReduction extends AnalysisConfiguration {
 
 	public TcpTraceReduction(final int numWorkerThreads) {
 		this.numWorkerThreads = Math.min(numWorkerThreads, NUM_VIRTUAL_CORES);
+		trace2buffer = new TreeMap<TraceEventRecords, TraceAggregationBuffer>(new TraceComperator());
 		intraThreadPipeFactory = PIPE_FACTORY_REGISTRY.getPipeFactory(ThreadCommunication.INTRA, PipeOrdering.ARBITRARY, false);
 		interThreadPipeFactory = PIPE_FACTORY_REGISTRY.getPipeFactory(ThreadCommunication.INTER, PipeOrdering.QUEUE_BASED, false);
 		init();
@@ -71,7 +72,7 @@ class TcpTraceReduction extends AnalysisConfiguration {
 	}
 
 	private Pipeline<Distributor<IMonitoringRecord>> buildTcpPipeline() {
-		TcpReader tcpReader = new TcpReader();
+		TcpReaderStage tcpReader = new TcpReaderStage();
 		Distributor<IMonitoringRecord> distributor = new Distributor<IMonitoringRecord>();
 
 		intraThreadPipeFactory.create(tcpReader.getOutputPort(), distributor.getInputPort());

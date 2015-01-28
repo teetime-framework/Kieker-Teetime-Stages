@@ -18,7 +18,7 @@ import teetime.stage.InstanceOfFilter;
 import teetime.stage.Relay;
 import teetime.stage.basic.Sink;
 import teetime.stage.basic.distributor.Distributor;
-import teetime.stage.io.network.TcpReader;
+import teetime.stage.io.network.TcpReaderStage;
 import teetime.stage.trace.traceReconstruction.TraceReconstructionFilter;
 import teetime.util.Pair;
 import teetime.util.concurrent.hashmap.ConcurrentHashMapWithDefault;
@@ -61,7 +61,7 @@ class TcpTraceReconstruction extends AnalysisConfiguration {
 	}
 
 	private Pipeline<Distributor<IMonitoringRecord>> buildTcpPipeline() {
-		TcpReader tcpReader = new TcpReader();
+		TcpReaderStage tcpReader = new TcpReaderStage();
 		Distributor<IMonitoringRecord> distributor = new Distributor<IMonitoringRecord>();
 
 		intraThreadPipeFactory.create(tcpReader.getOutputPort(), distributor.getInputPort());
