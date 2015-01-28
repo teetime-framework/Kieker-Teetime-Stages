@@ -4,6 +4,8 @@ import java.nio.ByteBuffer;
 
 import org.slf4j.Logger;
 
+import teetime.util.io.network.AbstractTcpReader;
+
 import kieker.common.exception.RecordInstantiationException;
 import kieker.common.record.AbstractMonitoringRecord;
 import kieker.common.record.IMonitoringRecord;

@@ -18,8 +18,8 @@ package teetime.stage.io.network;
 import java.nio.ByteBuffer;
 
 import teetime.framework.AbstractProducerStage;
+import teetime.util.io.network.AbstractTcpReader;
 import teetime.util.network.AbstractRecordTcpReader;
-import teetime.util.network.AbstractTcpReader;
 
 import kieker.common.record.IMonitoringRecord;
 import kieker.common.record.misc.RegistryRecord;
