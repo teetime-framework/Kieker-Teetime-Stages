@@ -76,13 +76,15 @@ public class TraceReductionFilter extends AbstractConsumerStage<TraceEventRecord
 	public void onTerminating() throws Exception {
 		synchronized (this.trace2buffer) { // BETTER hide and improve synchronization in the buffer
 			for (final Entry<TraceEventRecords, TraceAggregationBuffer> entry : this.trace2buffer.entrySet()) {
-				final TraceAggregationBuffer buffer = entry.getValue();
-				final TraceEventRecords record = buffer.getTraceEventRecords();
-				record.setCount(buffer.getCount());
-				outputPort.send(record);
+				final TraceAggregationBuffer traceBuffer = entry.getValue();
+				send(traceBuffer);
 			}
 			this.trace2buffer.clear();
 		}
+
+		// BETTER re-use processTimeoutQueue here, e.g., as follows
+		// triggerInputPort.getPipe().add(new Date().getTime());
+		// executeWithPorts();
 
 		super.onTerminating();
 	}
@@ -95,13 +97,17 @@ public class TraceReductionFilter extends AbstractConsumerStage<TraceEventRecord
 				// this.logger.debug("traceBuffer.getBufferCreatedTimestamp(): " + traceBuffer.getBufferCreatedTimestamp() + " vs. " + bufferTimeoutInNs
 				// + " (bufferTimeoutInNs)");
 				if (traceBuffer.getBufferCreatedTimestamp() <= bufferTimeoutInNs) {
-					final TraceEventRecords record = traceBuffer.getTraceEventRecords();
-					record.setCount(traceBuffer.getCount());
-					outputPort.send(record);
+					send(traceBuffer);
 				}
 				iterator.remove();
 			}
 		}
+	}
+
+	private void send(final TraceAggregationBuffer traceBuffer) {
+		final TraceEventRecords record = traceBuffer.getTraceEventRecords();
+		record.setCount(traceBuffer.getCount());
+		outputPort.send(record);
 	}
 
 	public long getMaxCollectionDuration() {
