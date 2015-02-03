@@ -16,10 +16,13 @@
 package teetime.stage.io.filesystem;
 
 import java.io.File;
+import java.util.Arrays;
+import java.util.Collection;
 
-import teetime.framework.AbstractStage;
+import teetime.framework.CompositeStage;
 import teetime.framework.InputPort;
 import teetime.framework.OutputPort;
+import teetime.framework.Stage;
 import teetime.framework.pipe.IPipeFactory;
 import teetime.framework.pipe.PipeFactoryRegistry;
 import teetime.framework.pipe.PipeFactoryRegistry.PipeOrdering;
@@ -41,7 +44,7 @@ import kieker.common.util.filesystem.FSUtil;
  *
  * @since 1.0
  */
-public final class Dir2RecordsFilter extends AbstractStage {
+public final class Dir2RecordsFilter extends CompositeStage {
 
 	private final PipeFactoryRegistry pipeFactoryRegistry = PipeFactoryRegistry.INSTANCE;
 	private ClassNameRegistryRepository classNameRegistryRepository;
@@ -83,12 +86,14 @@ public final class Dir2RecordsFilter extends AbstractStage {
 		this.recordMerger = recordMerger;
 	}
 
-	public ClassNameRegistryRepository getClassNameRegistryRepository() {
-		return this.classNameRegistryRepository;
+	@Override
+	protected Stage getFirstStage() {
+		return classNameRegistryCreationFilter;
 	}
 
-	public void setClassNameRegistryRepository(final ClassNameRegistryRepository classNameRegistryRepository) {
-		this.classNameRegistryRepository = classNameRegistryRepository;
+	@Override
+	protected Collection<? extends Stage> getLastStages() {
+		return Arrays.asList((Stage) recordMerger);
 	}
 
 	public InputPort<File> getInputPort() {
@@ -99,9 +104,12 @@ public final class Dir2RecordsFilter extends AbstractStage {
 		return recordMerger.getOutputPort();
 	}
 
-	@Override
-	public void executeWithPorts() {
-		classNameRegistryCreationFilter.executeWithPorts();
+	public ClassNameRegistryRepository getClassNameRegistryRepository() {
+		return this.classNameRegistryRepository;
+	}
+
+	public void setClassNameRegistryRepository(final ClassNameRegistryRepository classNameRegistryRepository) {
+		this.classNameRegistryRepository = classNameRegistryRepository;
 	}
 
 }
