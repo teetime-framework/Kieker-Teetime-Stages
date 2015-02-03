@@ -47,9 +47,10 @@ import kieker.common.util.filesystem.FSUtil;
 public final class Dir2RecordsFilter extends CompositeStage {
 
 	private final PipeFactoryRegistry pipeFactoryRegistry = PipeFactoryRegistry.INSTANCE;
-	private ClassNameRegistryRepository classNameRegistryRepository;
 	private final ClassNameRegistryCreationFilter classNameRegistryCreationFilter;
 	private final Merger<IMonitoringRecord> recordMerger;
+
+	private ClassNameRegistryRepository classNameRegistryRepository;
 
 	public Dir2RecordsFilter(final ClassNameRegistryRepository classNameRegistryRepository) {
 		this.classNameRegistryRepository = classNameRegistryRepository;
