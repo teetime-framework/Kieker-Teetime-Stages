@@ -107,7 +107,7 @@ public final class TraceBufferList implements ValueFactory<TraceBufferList> {
 
 	public TraceEventRecords toTraceEvents() {
 		synchronized (this) {
-			// BETTER do not create a new array but use the events directly. Perhaps, we should refactor the sorted set to an array.
+			// BETTER do not create a new array but use the events directly. Perhaps, we should refactor the events to an array.
 			final AbstractTraceEvent[] traceEvents = this.events.toArray(new AbstractTraceEvent[this.events.size()]);
 			return new TraceEventRecords(this.trace, traceEvents);
 		}
