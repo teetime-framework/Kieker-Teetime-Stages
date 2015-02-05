@@ -18,6 +18,7 @@ import teetime.stage.InstanceOfFilter;
 import teetime.stage.Relay;
 import teetime.stage.basic.Sink;
 import teetime.stage.basic.distributor.Distributor;
+import teetime.stage.io.EveryXthPrinter;
 import teetime.stage.io.network.TcpReaderStage;
 import teetime.stage.trace.traceReconstruction.TraceReconstructionFilter;
 import teetime.util.Pair;
@@ -75,6 +76,7 @@ class TcpTraceReconstruction extends AnalysisConfiguration {
 		final InstanceOfFilter<IMonitoringRecord, IFlowRecord> instanceOfFilter = new InstanceOfFilter<IMonitoringRecord, IFlowRecord>(
 				IFlowRecord.class);
 		final TraceReconstructionFilter traceReconstructionFilter = new TraceReconstructionFilter(this.traceId2trace);
+		EveryXthPrinter<TraceEventRecords> everyXthPrinter = new EveryXthPrinter<TraceEventRecords>(1000000);
 		Sink<TraceEventRecords> endStage = new Sink<TraceEventRecords>();
 
 		// connect stages
@@ -83,7 +85,8 @@ class TcpTraceReconstruction extends AnalysisConfiguration {
 
 		intraThreadPipeFactory.create(relay.getOutputPort(), instanceOfFilter.getInputPort());
 		intraThreadPipeFactory.create(instanceOfFilter.getOutputPort(), traceReconstructionFilter.getInputPort());
-		intraThreadPipeFactory.create(traceReconstructionFilter.getTraceValidOutputPort(), endStage.getInputPort());
+		intraThreadPipeFactory.create(traceReconstructionFilter.getTraceValidOutputPort(), everyXthPrinter.getInputPort());
+		intraThreadPipeFactory.create(everyXthPrinter.getNewOutputPort(), endStage.getInputPort());
 
 		return relay;
 	}

@@ -21,7 +21,6 @@ import teetime.stage.InstanceOfFilter;
 import teetime.stage.Relay;
 import teetime.stage.basic.Sink;
 import teetime.stage.basic.distributor.Distributor;
-import teetime.stage.io.EveryXthPrinter;
 import teetime.stage.io.network.TcpReaderStage;
 import teetime.stage.trace.traceReconstruction.TraceReconstructionFilter;
 import teetime.stage.trace.traceReduction.TraceAggregationBuffer;
@@ -99,7 +98,6 @@ class TcpTraceReduction extends AnalysisConfiguration {
 				IFlowRecord.class);
 		final TraceReconstructionFilter traceReconstructionFilter = new TraceReconstructionFilter(this.traceId2trace);
 		TraceReductionFilter traceReductionFilter = new TraceReductionFilter(this.trace2buffer);
-		EveryXthPrinter<TraceEventRecords> everyXthPrinter = new EveryXthPrinter<TraceEventRecords>(10000);
 		Sink<TraceEventRecords> endStage = new Sink<TraceEventRecords>();
 
 		// connect stages
