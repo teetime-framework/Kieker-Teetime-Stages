@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit;
 import teetime.framework.AbstractConsumerStage;
 import teetime.framework.OutputPort;
 import teetime.util.concurrent.hashmap.ConcurrentHashMapWithDefault;
-import teetime.util.concurrent.hashmap.TraceBuffer;
+import teetime.util.concurrent.hashmap.TraceBufferList;
 
 import kieker.analysis.plugin.filter.flow.TraceEventRecords;
 import kieker.common.record.flow.IFlowRecord;
@@ -42,9 +42,9 @@ public class TraceReconstructionFilter extends AbstractConsumerStage<IFlowRecord
 	private long maxTraceTimeout = Long.MAX_VALUE;
 	private long maxEncounteredLoggingTimestamp = -1;
 
-	private final ConcurrentHashMapWithDefault<Long, TraceBuffer> traceId2trace;
+	private final ConcurrentHashMapWithDefault<Long, TraceBufferList> traceId2trace;
 
-	public TraceReconstructionFilter(final ConcurrentHashMapWithDefault<Long, TraceBuffer> traceId2trace) {
+	public TraceReconstructionFilter(final ConcurrentHashMapWithDefault<Long, TraceBufferList> traceId2trace) {
 		super();
 		this.traceId2trace = traceId2trace;
 	}
@@ -58,7 +58,7 @@ public class TraceReconstructionFilter extends AbstractConsumerStage<IFlowRecord
 	}
 
 	private void put(final Long traceId, final boolean onlyIfFinished) {
-		final TraceBuffer traceBuffer = this.traceId2trace.get(traceId);
+		final TraceBufferList traceBuffer = this.traceId2trace.get(traceId);
 		if (traceBuffer != null) { // null-check to check whether the trace has already been sent and removed
 			boolean shouldSend;
 			if (onlyIfFinished) {
@@ -80,12 +80,12 @@ public class TraceReconstructionFilter extends AbstractConsumerStage<IFlowRecord
 		Long traceId = null;
 		if (record instanceof TraceMetadata) {
 			traceId = ((TraceMetadata) record).getTraceId();
-			TraceBuffer traceBuffer = this.traceId2trace.getOrCreate(traceId);
+			final TraceBufferList traceBuffer = this.traceId2trace.getOrCreate(traceId);
 
 			traceBuffer.setTrace((TraceMetadata) record);
 		} else if (record instanceof AbstractTraceEvent) {
 			traceId = ((AbstractTraceEvent) record).getTraceId();
-			TraceBuffer traceBuffer = this.traceId2trace.getOrCreate(traceId);
+			final TraceBufferList traceBuffer = this.traceId2trace.getOrCreate(traceId);
 
 			traceBuffer.insertEvent((AbstractTraceEvent) record);
 		}
@@ -102,7 +102,7 @@ public class TraceReconstructionFilter extends AbstractConsumerStage<IFlowRecord
 		super.onTerminating();
 	}
 
-	private void sendTraceBuffer(final TraceBuffer traceBuffer) {
+	private void sendTraceBuffer(final TraceBufferList traceBuffer) {
 		OutputPort<TraceEventRecords> outputPort = (traceBuffer.isInvalid()) ? this.traceInvalidOutputPort
 				: this.traceValidOutputPort;
 		outputPort.send(traceBuffer.toTraceEvents());
@@ -147,13 +147,5 @@ public class TraceReconstructionFilter extends AbstractConsumerStage<IFlowRecord
 	public OutputPort<TraceEventRecords> getTraceInvalidOutputPort() {
 		return this.traceInvalidOutputPort;
 	}
-
-	// public Map<Long, TraceBuffer> getTraceId2trace() {
-	// return TraceReconstructionFilter.traceId2trace;
-	// }
-	//
-	// public void setTraceId2trace(final Map<Long, TraceBuffer> traceId2trace) {
-	// TraceReconstructionFilter.traceId2trace = traceId2trace;
-	// }
 
 }

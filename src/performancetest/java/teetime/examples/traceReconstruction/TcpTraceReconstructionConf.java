@@ -3,9 +3,9 @@ package teetime.examples.traceReconstruction;
 import java.util.LinkedList;
 import java.util.List;
 
-import teetime.framework.Stage;
 import teetime.framework.AnalysisConfiguration;
 import teetime.framework.Pipeline;
+import teetime.framework.Stage;
 import teetime.framework.pipe.IPipeFactory;
 import teetime.framework.pipe.PipeFactoryRegistry.PipeOrdering;
 import teetime.framework.pipe.PipeFactoryRegistry.ThreadCommunication;
@@ -18,7 +18,7 @@ import teetime.stage.basic.distributor.Distributor;
 import teetime.stage.io.network.TcpReaderStage;
 import teetime.stage.trace.traceReconstruction.TraceReconstructionFilter;
 import teetime.util.concurrent.hashmap.ConcurrentHashMapWithDefault;
-import teetime.util.concurrent.hashmap.TraceBuffer;
+import teetime.util.concurrent.hashmap.TraceBufferList;
 
 import kieker.analysis.plugin.filter.flow.TraceEventRecords;
 import kieker.common.record.IMonitoringRecord;
@@ -31,7 +31,7 @@ public class TcpTraceReconstructionConf extends AnalysisConfiguration {
 
 	private final List<TraceEventRecords> elementCollection = new LinkedList<TraceEventRecords>();
 
-	private final ConcurrentHashMapWithDefault<Long, TraceBuffer> traceId2trace = new ConcurrentHashMapWithDefault<Long, TraceBuffer>(new TraceBuffer());
+	private final ConcurrentHashMapWithDefault<Long, TraceBufferList> traceId2trace = new ConcurrentHashMapWithDefault<Long, TraceBufferList>(new TraceBufferList());
 
 	private Counter<IMonitoringRecord> recordCounter;
 	private Counter<TraceEventRecords> traceCounter;

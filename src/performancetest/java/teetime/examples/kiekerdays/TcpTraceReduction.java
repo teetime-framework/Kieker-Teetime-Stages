@@ -28,7 +28,7 @@ import teetime.stage.trace.traceReduction.TraceComperator;
 import teetime.stage.trace.traceReduction.TraceReductionFilter;
 import teetime.util.Pair;
 import teetime.util.concurrent.hashmap.ConcurrentHashMapWithDefault;
-import teetime.util.concurrent.hashmap.TraceBuffer;
+import teetime.util.concurrent.hashmap.TraceBufferList;
 
 import kieker.analysis.plugin.filter.flow.TraceEventRecords;
 import kieker.common.record.IMonitoringRecord;
@@ -41,7 +41,7 @@ class TcpTraceReduction extends AnalysisConfiguration {
 	private static final int TCP_RELAY_MAX_SIZE = 2 * MIO;
 
 	private final List<TraceEventRecords> elementCollection = new LinkedList<TraceEventRecords>();
-	private final ConcurrentHashMapWithDefault<Long, TraceBuffer> traceId2trace = new ConcurrentHashMapWithDefault<Long, TraceBuffer>(new TraceBuffer());
+	private final ConcurrentHashMapWithDefault<Long, TraceBufferList> traceId2trace = new ConcurrentHashMapWithDefault<Long, TraceBufferList>(new TraceBufferList());
 	private final NavigableMap<TraceEventRecords, TraceAggregationBuffer> trace2buffer;
 	private final List<IPipe> tcpRelayPipes = new ArrayList<IPipe>();
 

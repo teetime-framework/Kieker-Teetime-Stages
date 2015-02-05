@@ -24,7 +24,7 @@ import teetime.stage.string.buffer.handler.MonitoringRecordHandler;
 import teetime.stage.string.buffer.handler.StringHandler;
 import teetime.stage.trace.traceReconstruction.TraceReconstructionFilter;
 import teetime.util.concurrent.hashmap.ConcurrentHashMapWithDefault;
-import teetime.util.concurrent.hashmap.TraceBuffer;
+import teetime.util.concurrent.hashmap.TraceBufferList;
 
 import kieker.analysis.plugin.filter.flow.TraceEventRecords;
 import kieker.common.record.IMonitoringRecord;
@@ -35,7 +35,7 @@ public class TraceReconstructionConf extends AnalysisConfiguration {
 	private final List<TraceEventRecords> elementCollection = new LinkedList<TraceEventRecords>();
 
 	private final File inputDir;
-	private final ConcurrentHashMapWithDefault<Long, TraceBuffer> traceId2trace;
+	private final ConcurrentHashMapWithDefault<Long, TraceBufferList> traceId2trace;
 	private final IPipeFactory intraThreadPipeFactory;
 	private final IPipeFactory interThreadPipeFactory;
 
@@ -46,7 +46,7 @@ public class TraceReconstructionConf extends AnalysisConfiguration {
 
 	public TraceReconstructionConf(final File inputDir) {
 		this.inputDir = inputDir;
-		traceId2trace = new ConcurrentHashMapWithDefault<Long, TraceBuffer>(new TraceBuffer());
+		traceId2trace = new ConcurrentHashMapWithDefault<Long, TraceBufferList>(new TraceBufferList());
 		intraThreadPipeFactory = PIPE_FACTORY_REGISTRY.getPipeFactory(ThreadCommunication.INTRA, PipeOrdering.ARBITRARY, false);
 		interThreadPipeFactory = PIPE_FACTORY_REGISTRY.getPipeFactory(ThreadCommunication.INTER, PipeOrdering.QUEUE_BASED, false);
 		init();

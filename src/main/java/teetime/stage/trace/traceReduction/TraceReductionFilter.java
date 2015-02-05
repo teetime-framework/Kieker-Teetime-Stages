@@ -57,15 +57,14 @@ public class TraceReductionFilter extends AbstractConsumerStage<TraceEventRecord
 			this.processTimeoutQueue(timestampInNs);
 		}
 
-		final long timestamp = System.nanoTime();
-		this.countSameTraces(traceEventRecords, timestamp);
+		this.countSameTraces(traceEventRecords);
 	}
 
-	private void countSameTraces(final TraceEventRecords traceEventRecords, final long timestamp) {
+	private void countSameTraces(final TraceEventRecords traceEventRecords) {
 		synchronized (this.trace2buffer) {
 			TraceAggregationBuffer traceBuffer = this.trace2buffer.get(traceEventRecords);
 			if (traceBuffer == null) {
-				traceBuffer = new TraceAggregationBuffer(timestamp, traceEventRecords);
+				traceBuffer = new TraceAggregationBuffer(traceEventRecords);
 				this.trace2buffer.put(traceEventRecords, traceBuffer);
 			}
 			traceBuffer.count();
@@ -96,7 +95,7 @@ public class TraceReductionFilter extends AbstractConsumerStage<TraceEventRecord
 				final TraceAggregationBuffer traceBuffer = iterator.next().getValue();
 				// this.logger.debug("traceBuffer.getBufferCreatedTimestamp(): " + traceBuffer.getBufferCreatedTimestamp() + " vs. " + bufferTimeoutInNs
 				// + " (bufferTimeoutInNs)");
-				if (traceBuffer.getBufferCreatedTimestamp() <= bufferTimeoutInNs) {
+				if (traceBuffer.getBufferCreatedTimestampInNs() <= bufferTimeoutInNs) {
 					send(traceBuffer);
 				}
 				iterator.remove();
