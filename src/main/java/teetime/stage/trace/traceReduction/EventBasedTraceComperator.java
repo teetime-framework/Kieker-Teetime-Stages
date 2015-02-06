@@ -2,8 +2,10 @@ package teetime.stage.trace.traceReduction;
 
 import java.io.Serializable;
 import java.util.Comparator;
+import java.util.List;
 
-import kieker.analysis.plugin.filter.flow.TraceEventRecords;
+import teetime.stage.trace.traceReconstruction.EventBasedTrace;
+
 import kieker.common.record.flow.trace.AbstractTraceEvent;
 import kieker.common.record.flow.trace.operation.AbstractOperationEvent;
 import kieker.common.record.flow.trace.operation.AfterOperationFailedEvent;
@@ -11,13 +13,14 @@ import kieker.common.record.flow.trace.operation.AfterOperationFailedEvent;
 /**
  * @author Jan Waller, Florian Fittkau, Florian Biss
  */
-public final class TraceComperator implements Comparator<TraceEventRecords>, Serializable {
+public final class EventBasedTraceComperator implements Comparator<EventBasedTrace>, Serializable {
+
 	private static final long serialVersionUID = 8920766818232517L;
 
 	/**
 	 * Creates a new instance of this class.
 	 */
-	public TraceComperator() {
+	public EventBasedTraceComperator() {
 		// default empty constructor
 	}
 
@@ -25,26 +28,24 @@ public final class TraceComperator implements Comparator<TraceEventRecords>, Ser
 	 * {@inheritDoc}
 	 */
 	@Override
-	public int compare(final TraceEventRecords t1, final TraceEventRecords t2) {
-		final AbstractTraceEvent[] recordsT1 = t1.getTraceEvents();
-		final AbstractTraceEvent[] recordsT2 = t2.getTraceEvents();
+	public int compare(final EventBasedTrace t1, final EventBasedTrace t2) {
+		final List<AbstractTraceEvent> recordsT1 = t1.getTraceEvents();
+		final List<AbstractTraceEvent> recordsT2 = t2.getTraceEvents();
 
-		if (recordsT1.length != recordsT2.length) {
-			return recordsT1.length - recordsT2.length;
+		if (recordsT1.size() != recordsT2.size()) {
+			return recordsT1.size() - recordsT2.size();
 		}
 
-		final int cmpHostnames = t1.getTraceMetadata().getHostname()
-				.compareTo(t2.getTraceMetadata().getHostname());
+		final int cmpHostnames = t1.getTraceMetaData().getHostname().compareTo(t2.getTraceMetaData().getHostname());
 		if (cmpHostnames != 0) {
 			return cmpHostnames;
 		}
 
-		for (int i = 0; i < recordsT1.length; i++) {
-			final AbstractTraceEvent recordT1 = recordsT1[i];
-			final AbstractTraceEvent recordT2 = recordsT2[i];
+		for (int i = 0; i < recordsT1.size(); i++) {
+			final AbstractTraceEvent recordT1 = recordsT1.get(i);
+			final AbstractTraceEvent recordT2 = recordsT2.get(i);
 
-			final int cmpClass = recordT1.getClass().getName()
-					.compareTo(recordT2.getClass().getName());
+			final int cmpClass = recordT1.getClass().getName().compareTo(recordT2.getClass().getName());
 			if (cmpClass != 0) {
 				return cmpClass;
 			}

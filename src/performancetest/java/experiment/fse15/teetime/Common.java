@@ -9,7 +9,10 @@ import kieker.common.record.IMonitoringRecord;
 
 final class Common {
 
-	static final int NUM_ELEMENTS = 1000000;
+	static final int NUM_ELEMENTS_LOG_TRIGGER = 1000000;
+	static final int TCP_RELAY_MAX_SIZE = 100 * 1000;
+
+	static final int NUM_VIRTUAL_CORES = Runtime.getRuntime().availableProcessors();
 
 	private Common() {
 		// utility class

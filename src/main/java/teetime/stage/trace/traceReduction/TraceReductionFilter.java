@@ -23,8 +23,7 @@ import java.util.Map.Entry;
 import teetime.framework.AbstractConsumerStage;
 import teetime.framework.InputPort;
 import teetime.framework.OutputPort;
-
-import kieker.analysis.plugin.filter.flow.TraceEventRecords;
+import teetime.stage.trace.traceReconstruction.EventBasedTrace;
 
 /**
  * This filter collects incoming traces for a specified amount of time.
@@ -37,44 +36,44 @@ import kieker.analysis.plugin.filter.flow.TraceEventRecords;
  *
  * @since
  */
-public class TraceReductionFilter extends AbstractConsumerStage<TraceEventRecords> {
+public class TraceReductionFilter extends AbstractConsumerStage<EventBasedTrace> {
 
 	private final InputPort<Long> triggerInputPort = this.createInputPort();
-	private final OutputPort<TraceEventRecords> outputPort = this.createOutputPort();
+	private final OutputPort<TraceAggregationBuffer> outputPort = this.createOutputPort();
 
-	private final Map<TraceEventRecords, TraceAggregationBuffer> trace2buffer;
+	private final Map<EventBasedTrace, TraceAggregationBuffer> trace2buffer;
 
 	private long maxCollectionDurationInNs;
 
-	public TraceReductionFilter(final Map<TraceEventRecords, TraceAggregationBuffer> trace2buffer) {
+	public TraceReductionFilter(final Map<EventBasedTrace, TraceAggregationBuffer> trace2buffer) {
 		this.trace2buffer = trace2buffer;
 	}
 
 	@Override
-	protected void execute(final TraceEventRecords traceEventRecords) {
+	protected void execute(final EventBasedTrace eventBasedTrace) {
 		Long timestampInNs = this.triggerInputPort.receive();
 		if (timestampInNs != null) {
 			this.processTimeoutQueue(timestampInNs);
 		}
 
-		this.countSameTraces(traceEventRecords);
+		this.countSameTraces(eventBasedTrace);
 	}
 
-	private void countSameTraces(final TraceEventRecords traceEventRecords) {
+	private void countSameTraces(final EventBasedTrace eventBasedTrace) {
 		synchronized (this.trace2buffer) {
-			TraceAggregationBuffer traceBuffer = this.trace2buffer.get(traceEventRecords);
-			if (traceBuffer == null) {
-				traceBuffer = new TraceAggregationBuffer(traceEventRecords);
-				this.trace2buffer.put(traceEventRecords, traceBuffer);
+			TraceAggregationBuffer aggregatedTrace = this.trace2buffer.get(eventBasedTrace);
+			if (aggregatedTrace == null) {
+				aggregatedTrace = new TraceAggregationBuffer(eventBasedTrace);
+				this.trace2buffer.put(eventBasedTrace, aggregatedTrace);
 			}
-			traceBuffer.count();
+			aggregatedTrace.count();
 		}
 	}
 
 	@Override
 	public void onTerminating() throws Exception {
 		synchronized (this.trace2buffer) { // BETTER hide and improve synchronization in the buffer
-			for (final Entry<TraceEventRecords, TraceAggregationBuffer> entry : this.trace2buffer.entrySet()) {
+			for (final Entry<EventBasedTrace, TraceAggregationBuffer> entry : this.trace2buffer.entrySet()) {
 				final TraceAggregationBuffer traceBuffer = entry.getValue();
 				send(traceBuffer);
 			}
@@ -91,7 +90,7 @@ public class TraceReductionFilter extends AbstractConsumerStage<TraceEventRecord
 	private void processTimeoutQueue(final long timestampInNs) {
 		final long bufferTimeoutInNs = timestampInNs - this.maxCollectionDurationInNs;
 		synchronized (this.trace2buffer) {
-			for (final Iterator<Entry<TraceEventRecords, TraceAggregationBuffer>> iterator = this.trace2buffer.entrySet().iterator(); iterator.hasNext();) {
+			for (final Iterator<Entry<EventBasedTrace, TraceAggregationBuffer>> iterator = this.trace2buffer.entrySet().iterator(); iterator.hasNext();) {
 				final TraceAggregationBuffer traceBuffer = iterator.next().getValue();
 				// this.logger.debug("traceBuffer.getBufferCreatedTimestamp(): " + traceBuffer.getBufferCreatedTimestamp() + " vs. " + bufferTimeoutInNs
 				// + " (bufferTimeoutInNs)");
@@ -104,9 +103,7 @@ public class TraceReductionFilter extends AbstractConsumerStage<TraceEventRecord
 	}
 
 	private void send(final TraceAggregationBuffer traceBuffer) {
-		final TraceEventRecords record = traceBuffer.getTraceEventRecords();
-		record.setCount(traceBuffer.getCount());
-		outputPort.send(record);
+		outputPort.send(traceBuffer);
 	}
 
 	public long getMaxCollectionDuration() {
@@ -121,7 +118,7 @@ public class TraceReductionFilter extends AbstractConsumerStage<TraceEventRecord
 		return this.triggerInputPort;
 	}
 
-	public OutputPort<TraceEventRecords> getOutputPort() {
+	public OutputPort<TraceAggregationBuffer> getOutputPort() {
 		return this.outputPort;
 	}
 }

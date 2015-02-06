@@ -20,9 +20,7 @@ import java.util.concurrent.TimeUnit;
 import teetime.framework.AbstractConsumerStage;
 import teetime.framework.OutputPort;
 import teetime.util.concurrent.hashmap.ConcurrentHashMapWithDefault;
-import teetime.util.concurrent.hashmap.TraceBufferList;
 
-import kieker.analysis.plugin.filter.flow.TraceEventRecords;
 import kieker.common.record.flow.IFlowRecord;
 import kieker.common.record.flow.trace.AbstractTraceEvent;
 import kieker.common.record.flow.trace.TraceMetadata;
@@ -34,17 +32,17 @@ import kieker.common.record.flow.trace.TraceMetadata;
  */
 public class TraceReconstructionFilter extends AbstractConsumerStage<IFlowRecord> {
 
-	private final OutputPort<TraceEventRecords> traceValidOutputPort = this.createOutputPort();
-	private final OutputPort<TraceEventRecords> traceInvalidOutputPort = this.createOutputPort();
+	private final OutputPort<EventBasedTrace> traceValidOutputPort = this.createOutputPort();
+	private final OutputPort<EventBasedTrace> traceInvalidOutputPort = this.createOutputPort();
 
 	private TimeUnit timeunit;
 	private long maxTraceDuration = Long.MAX_VALUE;
 	private long maxTraceTimeout = Long.MAX_VALUE;
 	private long maxEncounteredLoggingTimestamp = -1;
 
-	private final ConcurrentHashMapWithDefault<Long, TraceBufferList> traceId2trace;
+	private final ConcurrentHashMapWithDefault<Long, EventBasedTrace> traceId2trace;
 
-	public TraceReconstructionFilter(final ConcurrentHashMapWithDefault<Long, TraceBufferList> traceId2trace) {
+	public TraceReconstructionFilter(final ConcurrentHashMapWithDefault<Long, EventBasedTrace> traceId2trace) {
 		super();
 		this.traceId2trace = traceId2trace;
 	}
@@ -58,7 +56,7 @@ public class TraceReconstructionFilter extends AbstractConsumerStage<IFlowRecord
 	}
 
 	private void put(final Long traceId, final boolean onlyIfFinished) {
-		final TraceBufferList traceBuffer = this.traceId2trace.get(traceId);
+		final EventBasedTrace traceBuffer = this.traceId2trace.get(traceId);
 		if (traceBuffer != null) { // null-check to check whether the trace has already been sent and removed
 			boolean shouldSend;
 			if (onlyIfFinished) {
@@ -80,12 +78,12 @@ public class TraceReconstructionFilter extends AbstractConsumerStage<IFlowRecord
 		Long traceId = null;
 		if (record instanceof TraceMetadata) {
 			traceId = ((TraceMetadata) record).getTraceId();
-			final TraceBufferList traceBuffer = this.traceId2trace.getOrCreate(traceId);
+			final EventBasedTrace traceBuffer = this.traceId2trace.getOrCreate(traceId);
 
 			traceBuffer.setTrace((TraceMetadata) record);
 		} else if (record instanceof AbstractTraceEvent) {
 			traceId = ((AbstractTraceEvent) record).getTraceId();
-			final TraceBufferList traceBuffer = this.traceId2trace.getOrCreate(traceId);
+			final EventBasedTrace traceBuffer = this.traceId2trace.getOrCreate(traceId);
 
 			traceBuffer.insertEvent((AbstractTraceEvent) record);
 		}
@@ -102,10 +100,9 @@ public class TraceReconstructionFilter extends AbstractConsumerStage<IFlowRecord
 		super.onTerminating();
 	}
 
-	private void sendTraceBuffer(final TraceBufferList traceBuffer) {
-		OutputPort<TraceEventRecords> outputPort = (traceBuffer.isInvalid()) ? this.traceInvalidOutputPort
-				: this.traceValidOutputPort;
-		outputPort.send(traceBuffer.toTraceEvents());
+	private void sendTraceBuffer(final EventBasedTrace traceBufferList) {
+		OutputPort<EventBasedTrace> outputPort = (traceBufferList.isInvalid()) ? this.traceInvalidOutputPort : this.traceValidOutputPort;
+		outputPort.send(traceBufferList);
 	}
 
 	public TimeUnit getTimeunit() {
@@ -140,11 +137,11 @@ public class TraceReconstructionFilter extends AbstractConsumerStage<IFlowRecord
 		this.maxEncounteredLoggingTimestamp = maxEncounteredLoggingTimestamp;
 	}
 
-	public OutputPort<TraceEventRecords> getTraceValidOutputPort() {
+	public OutputPort<EventBasedTrace> getTraceValidOutputPort() {
 		return this.traceValidOutputPort;
 	}
 
-	public OutputPort<TraceEventRecords> getTraceInvalidOutputPort() {
+	public OutputPort<EventBasedTrace> getTraceInvalidOutputPort() {
 		return this.traceInvalidOutputPort;
 	}
 

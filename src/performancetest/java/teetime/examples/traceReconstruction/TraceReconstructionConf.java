@@ -22,33 +22,33 @@ import teetime.stage.io.filesystem.Dir2RecordsFilter;
 import teetime.stage.string.buffer.StringBufferFilter;
 import teetime.stage.string.buffer.handler.MonitoringRecordHandler;
 import teetime.stage.string.buffer.handler.StringHandler;
+import teetime.stage.trace.traceReconstruction.EventBasedTrace;
+import teetime.stage.trace.traceReconstruction.EventBasedTraceFactory;
 import teetime.stage.trace.traceReconstruction.TraceReconstructionFilter;
 import teetime.util.concurrent.hashmap.ConcurrentHashMapWithDefault;
-import teetime.util.concurrent.hashmap.TraceBufferList;
 
-import kieker.analysis.plugin.filter.flow.TraceEventRecords;
 import kieker.common.record.IMonitoringRecord;
 import kieker.common.record.flow.IFlowRecord;
 
 public class TraceReconstructionConf extends AnalysisConfiguration {
 
-	private final List<TraceEventRecords> elementCollection = new LinkedList<TraceEventRecords>();
+	private final List<EventBasedTrace> elementCollection = new LinkedList<EventBasedTrace>();
 
 	private final File inputDir;
-	private final ConcurrentHashMapWithDefault<Long, TraceBufferList> traceId2trace;
 	private final IPipeFactory intraThreadPipeFactory;
 	private final IPipeFactory interThreadPipeFactory;
+	private final ConcurrentHashMapWithDefault<Long, EventBasedTrace> traceId2trace;
 
 	private ClassNameRegistryRepository classNameRegistryRepository;
 	private Counter<IMonitoringRecord> recordCounter;
-	private Counter<TraceEventRecords> traceCounter;
+	private Counter<EventBasedTrace> traceCounter;
 	private ElementThroughputMeasuringStage<IFlowRecord> throughputFilter;
 
 	public TraceReconstructionConf(final File inputDir) {
 		this.inputDir = inputDir;
-		traceId2trace = new ConcurrentHashMapWithDefault<Long, TraceBufferList>(new TraceBufferList());
 		intraThreadPipeFactory = PIPE_FACTORY_REGISTRY.getPipeFactory(ThreadCommunication.INTRA, PipeOrdering.ARBITRARY, false);
 		interThreadPipeFactory = PIPE_FACTORY_REGISTRY.getPipeFactory(ThreadCommunication.INTER, PipeOrdering.QUEUE_BASED, false);
+		this.traceId2trace = new ConcurrentHashMapWithDefault<Long, EventBasedTrace>(EventBasedTraceFactory.INSTANCE);
 		init();
 	}
 
@@ -81,9 +81,9 @@ public class TraceReconstructionConf extends AnalysisConfiguration {
 				IFlowRecord.class);
 		this.throughputFilter = new ElementThroughputMeasuringStage<IFlowRecord>();
 		final TraceReconstructionFilter traceReconstructionFilter = new TraceReconstructionFilter(this.traceId2trace);
-		Merger<TraceEventRecords> merger = new Merger<TraceEventRecords>();
-		this.traceCounter = new Counter<TraceEventRecords>();
-		final CollectorSink<TraceEventRecords> collector = new CollectorSink<TraceEventRecords>(this.elementCollection);
+		Merger<EventBasedTrace> merger = new Merger<EventBasedTrace>();
+		this.traceCounter = new Counter<EventBasedTrace>();
+		final CollectorSink<EventBasedTrace> collector = new CollectorSink<EventBasedTrace>(this.elementCollection);
 
 		// configure stages
 		stringBufferFilter.getDataTypeHandlers().add(new MonitoringRecordHandler());
@@ -108,7 +108,7 @@ public class TraceReconstructionConf extends AnalysisConfiguration {
 		return initialElementProducer;
 	}
 
-	public List<TraceEventRecords> getElementCollection() {
+	public List<EventBasedTrace> getElementCollection() {
 		return this.elementCollection;
 	}
 

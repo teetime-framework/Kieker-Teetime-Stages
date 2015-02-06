@@ -1,6 +1,5 @@
 package teetime.examples.traceReconstruction;
 
-import java.util.LinkedList;
 import java.util.List;
 
 import teetime.framework.AnalysisConfiguration;
@@ -16,11 +15,11 @@ import teetime.stage.InstanceOfFilter;
 import teetime.stage.basic.Sink;
 import teetime.stage.basic.distributor.Distributor;
 import teetime.stage.io.network.TcpReaderStage;
+import teetime.stage.trace.traceReconstruction.EventBasedTrace;
+import teetime.stage.trace.traceReconstruction.EventBasedTraceFactory;
 import teetime.stage.trace.traceReconstruction.TraceReconstructionFilter;
 import teetime.util.concurrent.hashmap.ConcurrentHashMapWithDefault;
-import teetime.util.concurrent.hashmap.TraceBufferList;
 
-import kieker.analysis.plugin.filter.flow.TraceEventRecords;
 import kieker.common.record.IMonitoringRecord;
 import kieker.common.record.flow.IFlowRecord;
 
@@ -29,14 +28,12 @@ public class TcpTraceReconstructionConf extends AnalysisConfiguration {
 	private static final int MIO = 1000000;
 	private static final int TCP_RELAY_MAX_SIZE = 2 * MIO;
 
-	private final List<TraceEventRecords> elementCollection = new LinkedList<TraceEventRecords>();
-
-	private final ConcurrentHashMapWithDefault<Long, TraceBufferList> traceId2trace = new ConcurrentHashMapWithDefault<Long, TraceBufferList>(new TraceBufferList());
+	private final ConcurrentHashMapWithDefault<Long, EventBasedTrace> traceId2trace;
 
 	private Counter<IMonitoringRecord> recordCounter;
-	private Counter<TraceEventRecords> traceCounter;
+	private Counter<EventBasedTrace> traceCounter;
 	private ElementThroughputMeasuringStage<IFlowRecord> recordThroughputFilter;
-	private ElementThroughputMeasuringStage<TraceEventRecords> traceThroughputFilter;
+	private ElementThroughputMeasuringStage<EventBasedTrace> traceThroughputFilter;
 
 	private final IPipeFactory intraThreadPipeFactory;
 	private final IPipeFactory interThreadPipeFactory;
@@ -44,6 +41,7 @@ public class TcpTraceReconstructionConf extends AnalysisConfiguration {
 	public TcpTraceReconstructionConf() {
 		intraThreadPipeFactory = PIPE_FACTORY_REGISTRY.getPipeFactory(ThreadCommunication.INTRA, PipeOrdering.ARBITRARY, false);
 		interThreadPipeFactory = PIPE_FACTORY_REGISTRY.getPipeFactory(ThreadCommunication.INTER, PipeOrdering.QUEUE_BASED, false);
+		this.traceId2trace = new ConcurrentHashMapWithDefault<Long, EventBasedTrace>(EventBasedTraceFactory.INSTANCE);
 		init();
 	}
 
@@ -76,9 +74,9 @@ public class TcpTraceReconstructionConf extends AnalysisConfiguration {
 				IFlowRecord.class);
 		this.recordThroughputFilter = new ElementThroughputMeasuringStage<IFlowRecord>();
 		final TraceReconstructionFilter traceReconstructionFilter = new TraceReconstructionFilter(this.traceId2trace);
-		this.traceThroughputFilter = new ElementThroughputMeasuringStage<TraceEventRecords>();
-		this.traceCounter = new Counter<TraceEventRecords>();
-		Sink<TraceEventRecords> endStage = new Sink<TraceEventRecords>();
+		this.traceThroughputFilter = new ElementThroughputMeasuringStage<EventBasedTrace>();
+		this.traceCounter = new Counter<EventBasedTrace>();
+		Sink<EventBasedTrace> endStage = new Sink<EventBasedTrace>();
 
 		// connect stages
 		interThreadPipeFactory.create(tcpReader.getOutputPort(), this.recordCounter.getInputPort(), TCP_RELAY_MAX_SIZE);
@@ -95,10 +93,6 @@ public class TcpTraceReconstructionConf extends AnalysisConfiguration {
 		interThreadPipeFactory.create(clock2Stage.getNewOutputPort(), this.traceThroughputFilter.getTriggerInputPort(), 10);
 
 		return tcpReader;
-	}
-
-	public List<TraceEventRecords> getElementCollection() {
-		return this.elementCollection;
 	}
 
 	public int getNumRecords() {

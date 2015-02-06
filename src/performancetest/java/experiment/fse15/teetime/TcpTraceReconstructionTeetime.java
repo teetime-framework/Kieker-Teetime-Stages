@@ -2,7 +2,6 @@ package experiment.fse15.teetime;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
 
 import teetime.framework.Analysis;
@@ -19,34 +18,32 @@ import teetime.stage.Relay;
 import teetime.stage.basic.Sink;
 import teetime.stage.basic.distributor.Distributor;
 import teetime.stage.io.EveryXthPrinter;
+import teetime.stage.trace.traceReconstruction.EventBasedTrace;
+import teetime.stage.trace.traceReconstruction.EventBasedTraceFactory;
 import teetime.stage.trace.traceReconstruction.TraceReconstructionFilter;
 import teetime.util.Pair;
 import teetime.util.concurrent.hashmap.ConcurrentHashMapWithDefault;
-import teetime.util.concurrent.hashmap.TraceBufferList;
 
-import kieker.analysis.plugin.filter.flow.TraceEventRecords;
 import kieker.common.record.IMonitoringRecord;
 import kieker.common.record.flow.IFlowRecord;
 
 class TcpTraceReconstructionTeetime extends AnalysisConfiguration {
 
-	private static final int NUM_VIRTUAL_CORES = Runtime.getRuntime().availableProcessors();
-	private static final int MIO = 1000000;
-	private static final int TCP_RELAY_MAX_SIZE = 2 * MIO;
-
-	private final List<TraceEventRecords> elementCollection = new LinkedList<TraceEventRecords>();
-	private final ConcurrentHashMapWithDefault<Long, TraceBufferList> traceId2trace = new ConcurrentHashMapWithDefault<Long, TraceBufferList>(new TraceBufferList());
-	private final List<IPipe> tcpRelayPipes = new ArrayList<IPipe>();
+	private final ConcurrentHashMapWithDefault<Long, EventBasedTrace> traceId2trace;
+	private final int numWorkerThreads;
 
 	private final IPipeFactory intraThreadPipeFactory;
 	private final IPipeFactory interThreadPipeFactory;
 
-	private final int numWorkerThreads;
+	private final List<IPipe> tcpRelayPipes = new ArrayList<IPipe>();
 
 	public TcpTraceReconstructionTeetime(final int numWorkerThreads) {
-		intraThreadPipeFactory = PIPE_FACTORY_REGISTRY.getPipeFactory(ThreadCommunication.INTRA, PipeOrdering.ARBITRARY, false);
-		interThreadPipeFactory = PIPE_FACTORY_REGISTRY.getPipeFactory(ThreadCommunication.INTER, PipeOrdering.QUEUE_BASED, false);
-		this.numWorkerThreads = Math.min(NUM_VIRTUAL_CORES, numWorkerThreads);
+		this.numWorkerThreads = Math.min(numWorkerThreads, Common.NUM_VIRTUAL_CORES);
+		this.traceId2trace = new ConcurrentHashMapWithDefault<Long, EventBasedTrace>(EventBasedTraceFactory.INSTANCE);
+
+		this.intraThreadPipeFactory = PIPE_FACTORY_REGISTRY.getPipeFactory(ThreadCommunication.INTRA, PipeOrdering.ARBITRARY, false);
+		this.interThreadPipeFactory = PIPE_FACTORY_REGISTRY.getPipeFactory(ThreadCommunication.INTER, PipeOrdering.QUEUE_BASED, false);
+
 		init();
 	}
 
@@ -66,11 +63,11 @@ class TcpTraceReconstructionTeetime extends AnalysisConfiguration {
 		final InstanceOfFilter<IMonitoringRecord, IFlowRecord> instanceOfFilter = new InstanceOfFilter<IMonitoringRecord, IFlowRecord>(
 				IFlowRecord.class);
 		final TraceReconstructionFilter traceReconstructionFilter = new TraceReconstructionFilter(this.traceId2trace);
-		EveryXthPrinter<TraceEventRecords> everyXthPrinter = new EveryXthPrinter<TraceEventRecords>(Common.NUM_ELEMENTS);
-		Sink<TraceEventRecords> endStage = new Sink<TraceEventRecords>();
+		EveryXthPrinter<EventBasedTrace> everyXthPrinter = new EveryXthPrinter<EventBasedTrace>(Common.NUM_ELEMENTS_LOG_TRIGGER);
+		Sink<EventBasedTrace> endStage = new Sink<EventBasedTrace>();
 
 		// connect stages
-		IPipe tcpRelayPipe = interThreadPipeFactory.create(tcpReaderPipeline.getNewOutputPort(), relay.getInputPort(), TCP_RELAY_MAX_SIZE);
+		IPipe tcpRelayPipe = interThreadPipeFactory.create(tcpReaderPipeline.getNewOutputPort(), relay.getInputPort(), Common.TCP_RELAY_MAX_SIZE);
 		this.tcpRelayPipes.add(tcpRelayPipe);
 
 		intraThreadPipeFactory.create(relay.getOutputPort(), instanceOfFilter.getInputPort());
@@ -88,10 +85,6 @@ class TcpTraceReconstructionTeetime extends AnalysisConfiguration {
 			maxNumWaits = Math.max(maxNumWaits, interThreadPipe.getNumWaits());
 		}
 		System.out.println("max #waits of TcpRelayPipes: " + maxNumWaits);
-	}
-
-	public List<TraceEventRecords> getElementCollection() {
-		return this.elementCollection;
 	}
 
 	public int getNumWorkerThreads() {

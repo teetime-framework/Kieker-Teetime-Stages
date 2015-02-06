@@ -1,6 +1,6 @@
 package teetime.stage.trace.traceReduction;
 
-import kieker.analysis.plugin.filter.flow.TraceEventRecords;
+import teetime.stage.trace.traceReconstruction.EventBasedTrace;
 
 /**
  * Buffer for similar traces that are to be aggregated into a single trace.
@@ -10,13 +10,13 @@ import kieker.analysis.plugin.filter.flow.TraceEventRecords;
 public final class TraceAggregationBuffer {
 
 	private final long bufferCreatedTimestampInNs;
-	private final TraceEventRecords aggregatedTrace;
+	private final EventBasedTrace representativeTrace;
 
 	private int countOfAggregatedTraces;
 
-	public TraceAggregationBuffer(final TraceEventRecords trace) {
+	public TraceAggregationBuffer(final EventBasedTrace trace) {
 		this.bufferCreatedTimestampInNs = System.nanoTime();
-		this.aggregatedTrace = trace;
+		this.representativeTrace = trace;
 	}
 
 	public void count() {
@@ -27,8 +27,8 @@ public final class TraceAggregationBuffer {
 		return this.bufferCreatedTimestampInNs;
 	}
 
-	public TraceEventRecords getTraceEventRecords() {
-		return this.aggregatedTrace;
+	public EventBasedTrace getRepresentativeTrace() {
+		return this.representativeTrace;
 	}
 
 	public int getCount() {

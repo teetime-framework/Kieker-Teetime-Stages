@@ -1,4 +1,4 @@
-package teetime.util.concurrent.hashmap;
+package teetime.stage.trace.traceReconstruction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,23 +17,24 @@ import kieker.common.record.flow.trace.operation.BeforeOperationEvent;
  *
  * @author Jan Waller
  */
-public final class TraceBufferList {
-	private static final Log LOG = LogFactory.getLog(TraceBufferList.class);
+public final class EventBasedTrace {
 
-	private TraceMetadata trace;
-	private final List<AbstractTraceEvent> events = new ArrayList<AbstractTraceEvent>(1024);
+	private static final Log LOG = LogFactory.getLog(EventBasedTrace.class);
+
+	private final List<AbstractTraceEvent> events = new ArrayList<AbstractTraceEvent>(128);
+
+	private TraceMetadata traceMetaData;
+	private long traceId = -1;
 
 	private boolean closeable;
 	private boolean damaged;
 	private int openEvents;
 	private int maxOrderIndex = -1;
 
-	private long traceId = -1;
-
 	/**
 	 * Creates a new instance of this class.
 	 */
-	public TraceBufferList() {
+	public EventBasedTrace() {
 		// default empty constructor
 	}
 
@@ -66,17 +67,18 @@ public final class TraceBufferList {
 		}
 	}
 
-	public void setTrace(final TraceMetadata trace) {
-		final long myTraceId = trace.getTraceId();
+	public void setTrace(final TraceMetadata traceMetaData) {
+		final long myTraceId = traceMetaData.getTraceId();
 		synchronized (this) {
 			if (this.traceId == -1) {
 				this.traceId = myTraceId;
 			} else if (this.traceId != myTraceId) {
-				LOG.error("Invalid traceId! Expected: " + this.traceId + " but found: " + myTraceId + " in trace " + trace.toString());
+				LOG.error("Invalid traceId! Expected: " + this.traceId + " but found: " + myTraceId + " in trace " + traceMetaData.toString());
 				this.damaged = true;
 			}
-			if (this.trace == null) {
-				this.trace = trace;
+
+			if (this.traceMetaData == null) {
+				this.traceMetaData = traceMetaData;
 			} else {
 				LOG.error("Duplicate Trace entry for traceId " + myTraceId);
 				this.damaged = true;
@@ -92,16 +94,31 @@ public final class TraceBufferList {
 
 	public boolean isInvalid() {
 		synchronized (this) {
-			return (this.trace == null) || this.damaged || (this.openEvents != 0) || (((this.maxOrderIndex + 1) != this.events.size()) || this.events.isEmpty());
+			return (this.traceMetaData == null) || this.damaged || (this.openEvents != 0)
+					|| (((this.maxOrderIndex + 1) != this.events.size()) || this.events.isEmpty());
 		}
 	}
 
+	/**
+	 * @deprecated Will be removed in 1.1 due to performance issues
+	 *
+	 * @return the trace meta data and the trace events
+	 */
+	@Deprecated
 	public TraceEventRecords toTraceEvents() {
 		synchronized (this) {
 			// BETTER do not create a new array but use the events directly. Perhaps, we should refactor the events to an array.
 			final AbstractTraceEvent[] traceEvents = this.events.toArray(new AbstractTraceEvent[this.events.size()]);
-			return new TraceEventRecords(this.trace, traceEvents);
+			return new TraceEventRecords(this.traceMetaData, traceEvents);
 		}
+	}
+
+	public List<AbstractTraceEvent> getTraceEvents() {
+		return events;
+	}
+
+	public TraceMetadata getTraceMetaData() {
+		return traceMetaData;
 	}
 
 }

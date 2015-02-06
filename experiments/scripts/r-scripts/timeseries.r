@@ -1,8 +1,8 @@
 library("data.table")
 require(graphics)			# ts.plot
 
-loadResponseTimesInNs = function(filename) {
-	csvTable = fread(filename)
+loadResponseTimesInNs = function(filename, numFirstValuesToIgnore) {
+	csvTable = fread(filename, skip=numFirstValuesToIgnore)
 	values = csvTable[,V2]
 	return(values)
 }
@@ -34,10 +34,12 @@ micro2sec = function(value) {
 	return(value/(1000*1000))
 }
 
-name			<- "raw"
-iterations		<- list(1)		# 1:10
+name			<- "h:/raw"
+iterations		<- 1:5		# 1:10
 stackDepth		<- 10
 scenarios		<- 4:6
+
+numFirstValuesToIgnore	<- 1000*1000
 
 numXvalues			<- 1000
 timeseries 			<- matrix(nrow=numXvalues,ncol=length(scenarios))
@@ -48,7 +50,7 @@ durationsInSec		= scenarios
 throughputValues	= scenarios
 
 #timeseriesColors	<- c("black","black","black","red","blue","green")
-timeseriesColors	<- c("red","blue","green")
+timeseriesColors	<- c(rgb(0,0,0), rgb(0.3,0.3,0.9), rgb(0.3,0.9,0.3))
 
 rowNames				<- formatC( c("mean","ci95%","min","25%","median","75%","max","duration (sec)","throughput (per sec)"), format="f", width=20)
 #colNames				<- c("no instrumentation","instrumentation","collecting","record recon","trace recon", "trace reduc")
@@ -57,7 +59,7 @@ printMatrixDimnames		<- list(rowNames, colNames)
 printMatrix				<- matrix(nrow=length(rowNames), ncol=length(scenarios), dimnames=printMatrixDimnames)
 resultTablesFilename	<- "resultTables.txt"
 
-for (iteration in iterations) {
+outputIterationResults = function(iteration) {
 	scenarioIndex = 0
 	for (scenario in scenarios) {
 		print(paste("iteration:", iteration, ", ", "scenario:", scenario, sep=""))
@@ -66,7 +68,7 @@ for (iteration in iterations) {
 		scenarioIndex			= scenarioIndex+1
 
 		filename				<- getFilename(name, iteration, stackDepth, scenario)
-		respTimesInNs			<- loadResponseTimesInNs(filename)
+		respTimesInNs			<- loadResponseTimesInNs(filename, numFirstValuesToIgnore)
 		numValues				<- length(respTimesInNs)
 		chunkedRespTimesInNs	<- getChunkedYvalues(respTimesInNs, numXvalues)
 		chunkedRespTimesInUs	<- nano2micro( chunkedRespTimesInNs )
@@ -92,4 +94,8 @@ for (iteration in iterations) {
 	
 	write.table(printMatrix,file=resultTablesFilename,append=TRUE,quote=FALSE,sep="\t",col.names=FALSE)
 	write("\n\n", file=resultTablesFilename, append = TRUE)
+}
+
+for (iteration in iterations) {
+	outputIterationResults(iteration)
 }

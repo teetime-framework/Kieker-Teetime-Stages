@@ -32,10 +32,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import teetime.framework.Analysis;
+import teetime.stage.trace.traceReconstruction.EventBasedTrace;
 import teetime.util.StopWatch;
 import util.test.eval.StatisticsUtil;
-
-import kieker.analysis.plugin.filter.flow.TraceEventRecords;
 
 /**
  * @author Christian Wulf
@@ -79,11 +78,11 @@ public class ChwHomeTraceReconstructionAnalysisTest {
 		assertEquals(50002, configuration.getNumRecords());
 		assertEquals(2, configuration.getNumTraces());
 
-		TraceEventRecords trace6884 = configuration.getElementCollection().get(0);
-		assertEquals(6884, trace6884.getTraceMetadata().getTraceId());
+		EventBasedTrace trace6884 = configuration.getElementCollection().get(0);
+		assertEquals(6884, trace6884.getTraceMetaData().getTraceId());
 
-		TraceEventRecords trace6886 = configuration.getElementCollection().get(1);
-		assertEquals(6886, trace6886.getTraceMetadata().getTraceId());
+		EventBasedTrace trace6886 = configuration.getElementCollection().get(1);
+		assertEquals(6886, trace6886.getTraceMetaData().getTraceId());
 
 		assertThat(quintiles.get(0.5), is(both(greaterThan(0l)).and(lessThan(2l))));
 	}
@@ -109,11 +108,11 @@ public class ChwHomeTraceReconstructionAnalysisTest {
 		assertEquals(1489902, configuration.getNumRecords());
 		assertEquals(24013, configuration.getNumTraces());
 
-		TraceEventRecords trace0 = configuration.getElementCollection().get(0);
-		assertEquals(8974347286117089280l, trace0.getTraceMetadata().getTraceId());
+		EventBasedTrace trace0 = configuration.getElementCollection().get(0);
+		assertEquals(8974347286117089280l, trace0.getTraceMetaData().getTraceId());
 
-		TraceEventRecords trace1 = configuration.getElementCollection().get(1);
-		assertEquals(8974347286117089281l, trace1.getTraceMetadata().getTraceId());
+		EventBasedTrace trace1 = configuration.getElementCollection().get(1);
+		assertEquals(8974347286117089281l, trace1.getTraceMetaData().getTraceId());
 
 		assertThat(quintiles.get(0.5), is(both(greaterThan(2100l)).and(lessThan(2200l))));
 	}
@@ -141,11 +140,11 @@ public class ChwHomeTraceReconstructionAnalysisTest {
 		assertEquals(17371, configuration.getNumRecords());
 		assertEquals(22, configuration.getNumTraces());
 
-		TraceEventRecords trace0 = configuration.getElementCollection().get(0);
-		assertEquals(0, trace0.getTraceMetadata().getTraceId());
+		EventBasedTrace trace0 = configuration.getElementCollection().get(0);
+		assertEquals(0, trace0.getTraceMetaData().getTraceId());
 
-		TraceEventRecords trace1 = configuration.getElementCollection().get(1);
-		assertEquals(1, trace1.getTraceMetadata().getTraceId());
+		EventBasedTrace trace1 = configuration.getElementCollection().get(1);
+		assertEquals(1, trace1.getTraceMetaData().getTraceId());
 
 		// assertThat(quintiles.get(0.5), is(both(greaterThan(200l)).and(lessThan(250l))));
 	}
