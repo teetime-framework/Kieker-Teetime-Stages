@@ -88,7 +88,7 @@ class TcpTraceReductionTeetime extends AnalysisConfiguration {
 		final InstanceOfFilter<IMonitoringRecord, IFlowRecord> instanceOfFilter = new InstanceOfFilter<IMonitoringRecord, IFlowRecord>(
 				IFlowRecord.class);
 		final TraceReconstructionFilter traceReconstructionFilter = new TraceReconstructionFilter(this.traceId2trace);
-		EveryXthPrinter<TraceEventRecords> everyXthPrinter = new EveryXthPrinter<TraceEventRecords>(1000000);
+		EveryXthPrinter<TraceEventRecords> everyXthPrinter = new EveryXthPrinter<TraceEventRecords>(Common.NUM_ELEMENTS);
 		TraceReductionFilter traceReductionFilter = new TraceReductionFilter(this.trace2buffer);
 		Sink<TraceEventRecords> endStage = new Sink<TraceEventRecords>();
 

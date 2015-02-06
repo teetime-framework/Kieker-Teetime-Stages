@@ -9,6 +9,8 @@ import kieker.common.record.IMonitoringRecord;
 
 final class Common {
 
+	static final int NUM_ELEMENTS = 1000000;
+
 	private Common() {
 		// utility class
 	}
