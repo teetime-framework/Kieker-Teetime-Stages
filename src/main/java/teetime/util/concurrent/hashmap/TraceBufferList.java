@@ -17,7 +17,7 @@ import kieker.common.record.flow.trace.operation.BeforeOperationEvent;
  *
  * @author Jan Waller
  */
-public final class TraceBufferList implements ValueFactory<TraceBufferList> {
+public final class TraceBufferList {
 	private static final Log LOG = LogFactory.getLog(TraceBufferList.class);
 
 	private TraceMetadata trace;
@@ -27,9 +27,6 @@ public final class TraceBufferList implements ValueFactory<TraceBufferList> {
 	private boolean damaged;
 	private int openEvents;
 	private int maxOrderIndex = -1;
-
-	private long minLoggingTimestamp = Long.MAX_VALUE;
-	private long maxLoggingTimestamp = -1;
 
 	private long traceId = -1;
 
@@ -49,13 +46,7 @@ public final class TraceBufferList implements ValueFactory<TraceBufferList> {
 				LOG.error("Invalid traceId! Expected: " + this.traceId + " but found: " + myTraceId + " in event " + event.toString());
 				this.damaged = true;
 			}
-			final long loggingTimestamp = event.getTimestamp();
-			if (loggingTimestamp > this.maxLoggingTimestamp) {
-				this.maxLoggingTimestamp = loggingTimestamp;
-			}
-			if (loggingTimestamp < this.minLoggingTimestamp) {
-				this.minLoggingTimestamp = loggingTimestamp;
-			}
+
 			final int orderIndex = event.getOrderIndex();
 			if (orderIndex > this.maxOrderIndex) {
 				this.maxOrderIndex = orderIndex;
@@ -113,20 +104,4 @@ public final class TraceBufferList implements ValueFactory<TraceBufferList> {
 		}
 	}
 
-	public long getMaxLoggingTimestamp() {
-		synchronized (this) {
-			return this.maxLoggingTimestamp;
-		}
-	}
-
-	public long getMinLoggingTimestamp() {
-		synchronized (this) {
-			return this.minLoggingTimestamp;
-		}
-	}
-
-	@Override
-	public TraceBufferList create() {
-		return new TraceBufferList();
-	}
 }
