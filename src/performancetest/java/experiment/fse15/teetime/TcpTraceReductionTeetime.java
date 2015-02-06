@@ -1,9 +1,11 @@
-package teetime.examples.kiekerdays;
+package experiment.fse15.teetime;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.NavigableMap;
+import java.util.TreeMap;
 
 import teetime.framework.Analysis;
 import teetime.framework.AnalysisConfiguration;
@@ -14,13 +16,16 @@ import teetime.framework.pipe.IPipeFactory;
 import teetime.framework.pipe.PipeFactoryRegistry.PipeOrdering;
 import teetime.framework.pipe.PipeFactoryRegistry.ThreadCommunication;
 import teetime.framework.pipe.SpScPipe;
+import teetime.stage.Clock;
 import teetime.stage.InstanceOfFilter;
 import teetime.stage.Relay;
 import teetime.stage.basic.Sink;
 import teetime.stage.basic.distributor.Distributor;
 import teetime.stage.io.EveryXthPrinter;
-import teetime.stage.io.network.TcpReaderStage;
 import teetime.stage.trace.traceReconstruction.TraceReconstructionFilter;
+import teetime.stage.trace.traceReduction.TraceAggregationBuffer;
+import teetime.stage.trace.traceReduction.TraceComperator;
+import teetime.stage.trace.traceReduction.TraceReductionFilter;
 import teetime.util.Pair;
 import teetime.util.concurrent.hashmap.ConcurrentHashMapWithDefault;
 import teetime.util.concurrent.hashmap.TraceBufferList;
@@ -29,7 +34,7 @@ import kieker.analysis.plugin.filter.flow.TraceEventRecords;
 import kieker.common.record.IMonitoringRecord;
 import kieker.common.record.flow.IFlowRecord;
 
-class TcpTraceReconstruction extends AnalysisConfiguration {
+class TcpTraceReductionTeetime extends AnalysisConfiguration {
 
 	private static final int NUM_VIRTUAL_CORES = Runtime.getRuntime().availableProcessors();
 	private static final int MIO = 1000000;
@@ -37,46 +42,54 @@ class TcpTraceReconstruction extends AnalysisConfiguration {
 
 	private final List<TraceEventRecords> elementCollection = new LinkedList<TraceEventRecords>();
 	private final ConcurrentHashMapWithDefault<Long, TraceBufferList> traceId2trace = new ConcurrentHashMapWithDefault<Long, TraceBufferList>(new TraceBufferList());
+	private final NavigableMap<TraceEventRecords, TraceAggregationBuffer> trace2buffer;
 	private final List<IPipe> tcpRelayPipes = new ArrayList<IPipe>();
+
+	private final int numWorkerThreads;
 
 	private final IPipeFactory intraThreadPipeFactory;
 	private final IPipeFactory interThreadPipeFactory;
 
-	private final int numWorkerThreads;
-
-	public TcpTraceReconstruction(final int numWorkerThreads) {
+	public TcpTraceReductionTeetime(final int numWorkerThreads) {
+		this.numWorkerThreads = Math.min(numWorkerThreads, NUM_VIRTUAL_CORES);
+		trace2buffer = new TreeMap<TraceEventRecords, TraceAggregationBuffer>(new TraceComperator());
 		intraThreadPipeFactory = PIPE_FACTORY_REGISTRY.getPipeFactory(ThreadCommunication.INTRA, PipeOrdering.ARBITRARY, false);
 		interThreadPipeFactory = PIPE_FACTORY_REGISTRY.getPipeFactory(ThreadCommunication.INTER, PipeOrdering.QUEUE_BASED, false);
-		this.numWorkerThreads = Math.min(NUM_VIRTUAL_CORES, numWorkerThreads);
 		init();
 	}
 
 	private void init() {
-		Pipeline<Distributor<IMonitoringRecord>> tcpPipeline = this.buildTcpPipeline();
+		Pipeline<Distributor<IMonitoringRecord>> tcpPipeline = Common.buildTcpPipeline(intraThreadPipeFactory);
 		addThreadableStage(tcpPipeline);
 
+		Pipeline<Distributor<Long>> clockStage = this.buildClockPipeline(5000);
+		addThreadableStage(clockStage);
+
 		for (int i = 0; i < this.numWorkerThreads; i++) {
-			Stage pipeline = this.buildPipeline(tcpPipeline.getLastStage());
+			Stage pipeline = this.buildPipeline(tcpPipeline.getLastStage(), clockStage.getLastStage());
 			addThreadableStage(pipeline);
 		}
 	}
 
-	private Pipeline<Distributor<IMonitoringRecord>> buildTcpPipeline() {
-		TcpReaderStage tcpReader = new TcpReaderStage();
-		Distributor<IMonitoringRecord> distributor = new Distributor<IMonitoringRecord>();
+	private Pipeline<Distributor<Long>> buildClockPipeline(final long intervalDelayInMs) {
+		Clock clock = new Clock();
+		clock.setInitialDelayInMs(intervalDelayInMs);
+		clock.setIntervalDelayInMs(intervalDelayInMs);
+		Distributor<Long> distributor = new Distributor<Long>();
 
-		intraThreadPipeFactory.create(tcpReader.getOutputPort(), distributor.getInputPort());
+		intraThreadPipeFactory.create(clock.getOutputPort(), distributor.getInputPort());
 
-		return new Pipeline<Distributor<IMonitoringRecord>>(tcpReader, distributor);
+		return new Pipeline<Distributor<Long>>(clock, distributor);
 	}
 
-	private Stage buildPipeline(final Distributor<IMonitoringRecord> tcpReaderPipeline) {
+	private Stage buildPipeline(final Distributor<IMonitoringRecord> tcpReaderPipeline, final Distributor<Long> clockStage) {
 		// create stages
 		Relay<IMonitoringRecord> relay = new Relay<IMonitoringRecord>();
 		final InstanceOfFilter<IMonitoringRecord, IFlowRecord> instanceOfFilter = new InstanceOfFilter<IMonitoringRecord, IFlowRecord>(
 				IFlowRecord.class);
 		final TraceReconstructionFilter traceReconstructionFilter = new TraceReconstructionFilter(this.traceId2trace);
 		EveryXthPrinter<TraceEventRecords> everyXthPrinter = new EveryXthPrinter<TraceEventRecords>(1000000);
+		TraceReductionFilter traceReductionFilter = new TraceReductionFilter(this.trace2buffer);
 		Sink<TraceEventRecords> endStage = new Sink<TraceEventRecords>();
 
 		// connect stages
@@ -86,7 +99,10 @@ class TcpTraceReconstruction extends AnalysisConfiguration {
 		intraThreadPipeFactory.create(relay.getOutputPort(), instanceOfFilter.getInputPort());
 		intraThreadPipeFactory.create(instanceOfFilter.getOutputPort(), traceReconstructionFilter.getInputPort());
 		intraThreadPipeFactory.create(traceReconstructionFilter.getTraceValidOutputPort(), everyXthPrinter.getInputPort());
-		intraThreadPipeFactory.create(everyXthPrinter.getNewOutputPort(), endStage.getInputPort());
+		intraThreadPipeFactory.create(everyXthPrinter.getNewOutputPort(), traceReductionFilter.getInputPort());
+		intraThreadPipeFactory.create(traceReductionFilter.getOutputPort(), endStage.getInputPort());
+
+		interThreadPipeFactory.create(clockStage.getNewOutputPort(), traceReductionFilter.getTriggerInputPort(), 10);
 
 		return relay;
 	}
@@ -95,6 +111,7 @@ class TcpTraceReconstruction extends AnalysisConfiguration {
 		int maxNumWaits = 0;
 		for (IPipe pipe : this.tcpRelayPipes) {
 			SpScPipe interThreadPipe = (SpScPipe) pipe;
+			// TODO introduce IInterThreadPipe
 			maxNumWaits = Math.max(maxNumWaits, interThreadPipe.getNumWaits());
 		}
 		System.out.println("max #waits of TcpRelayPipes: " + maxNumWaits);
@@ -111,10 +128,11 @@ class TcpTraceReconstruction extends AnalysisConfiguration {
 	public static void main(final String[] args) {
 		int numWorkerThreads = Integer.valueOf(args[0]);
 
-		final TcpTraceReconstruction configuration = new TcpTraceReconstruction(numWorkerThreads);
+		final TcpTraceReductionTeetime configuration = new TcpTraceReductionTeetime(numWorkerThreads);
 
 		Analysis analysis = new Analysis(configuration);
 		analysis.init();
+
 		Collection<Pair<Thread, Throwable>> exceptions = analysis.start();
 
 		System.out.println("Exceptions: " + exceptions.size());

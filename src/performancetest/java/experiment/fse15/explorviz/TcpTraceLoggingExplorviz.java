@@ -1,4 +1,4 @@
-package teetime.examples.kiekerdays;
+package experiment.fse15.explorviz;
 
 import teetime.framework.AnalysisConfiguration;
 import teetime.framework.RunnableProducerStage;
