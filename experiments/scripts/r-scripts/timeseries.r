@@ -34,10 +34,16 @@ micro2sec = function(value) {
 	return(value/(1000*1000))
 }
 
-name			<- "h:/results-benchmark-teetime/raw"
+resultDir="C:/results/results-benchmark-teetime-07-02-15-13-18-52"
+
+pdfOutputFilename=paste(resultDir, "/results.pdf", sep="")
+pdf(pdfOutputFilename, width=10, height=6.25, paper="special")
+
+#name			<- "h:/results-benchmark-teetime/raw"
+name			<- paste(resultDir, "/raw", sep="")
 iterations		<- 1:5		# 1:10
 stackDepth		<- 10
-scenarios		<- 3:6
+scenarios		<- 3:7
 
 numFirstValuesToIgnore	<- 1000*1000
 
@@ -50,14 +56,16 @@ durationsInSec		= scenarios
 throughputValues	= scenarios
 
 #timeseriesColors	<- c("black","black","black","red","blue","green")
-timeseriesColors	<- c(rgb(0,0,0), rgb(0.3,0.3,0.9), rgb(0.3,0.9,0.3), rgb(0.3,0.9,1))
+timeseriesColors	<- c(rgb(0.5,0.5,0.5), rgb(0,0,0), rgb(0.3,0.3,0.9), rgb(0.3,0.9,0.3), rgb(0.3,0.9,1))
 
 rowNames				<- formatC( c("mean","ci95%","min","25%","median","75%","max","duration (sec)","throughput (per sec)"), format="f", width=20)
 #colNames				<- c("no instrumentation","instrumentation","collecting","record recon","trace recon", "trace reduc")
-colNames				<- c("collecting","record recon","trace recon", "trace reduc")
+colNames				<- c("collecting","record recon","threaded record recon","trace recon", "trace reduc")
 printMatrixDimnames		<- list(rowNames, colNames)
 printMatrix				<- matrix(nrow=length(rowNames), ncol=length(scenarios), dimnames=printMatrixDimnames)
-resultTablesFilename	<- "resultTables.txt"
+resultTablesFilename	<- paste(resultDir, "/resultTables.txt", sep="")
+
+timeseriesLabels		<- colNames
 
 outputIterationResults = function(iteration) {
 	scenarioIndex = 0
@@ -94,8 +102,15 @@ outputIterationResults = function(iteration) {
 	
 	write.table(printMatrix,file=resultTablesFilename,append=TRUE,quote=FALSE,sep="\t",col.names=FALSE)
 	write("\n\n", file=resultTablesFilename, append = TRUE)
+	
+	legend("topright",inset=c(0.01,0.01),legend=c(rev(timeseriesLabels)),lty="solid",col=rev(timeseriesColors),bg="white",title="Mean execution time of ...",ncol=2)
+
+	title(main=paste("Iteration: ", iteration, "  Recursion Depth: ", stackDepth), ylab=expression(paste("Execution Time (",mu,"s)")))
 }
 
 for (iteration in iterations) {
 	outputIterationResults(iteration)
 }
+
+# write pdf
+invisible(dev.off())

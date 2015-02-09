@@ -8,6 +8,7 @@ import teetime.framework.Pipeline;
 import teetime.framework.pipe.IPipeFactory;
 import teetime.framework.pipe.PipeFactoryRegistry.PipeOrdering;
 import teetime.framework.pipe.PipeFactoryRegistry.ThreadCommunication;
+import teetime.stage.basic.Sink;
 import teetime.stage.basic.distributor.Distributor;
 import teetime.util.Pair;
 
@@ -24,9 +25,11 @@ class TcpTraceLoggingTeetime extends AnalysisConfiguration {
 
 	private void init() {
 		Pipeline<Distributor<IMonitoringRecord>> tcpPipeline = Common.buildTcpPipeline(intraThreadPipeFactory);
-		addThreadableStage(tcpPipeline);
+		Sink<IMonitoringRecord> sink = new Sink<IMonitoringRecord>();
 
-		tcpPipeline.getLastStage().getNewOutputPort();
+		intraThreadPipeFactory.create(tcpPipeline.getLastStage().getNewOutputPort(), sink.getInputPort());
+
+		addThreadableStage(tcpPipeline);
 	}
 
 	// private Stage buildTcpPipeline() {
