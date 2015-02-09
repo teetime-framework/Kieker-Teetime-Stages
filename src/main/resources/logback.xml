@@ -2,7 +2,7 @@
 	<statusListener class="ch.qos.logback.core.status.OnConsoleStatusListener" />
 
 	<appender name="FILE" class="ch.qos.logback.core.FileAppender">
-		<file>teetime.log</file>
+		<file>main.log</file>
 		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
 			<level>INFO</level>
 		</filter>
