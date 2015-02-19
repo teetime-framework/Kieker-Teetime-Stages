@@ -40,21 +40,21 @@ public class TraceReconstructionFilter extends AbstractConsumerStage<IFlowRecord
 	private long maxTraceTimeout = Long.MAX_VALUE;
 	private long maxEncounteredLoggingTimestamp = -1;
 
-	private final ConcurrentHashMapWithDefault<Long, EventBasedTrace> traceId2trace;
+	private final TraceReconstructor reconstructor;
 
 	public TraceReconstructionFilter(final ConcurrentHashMapWithDefault<Long, EventBasedTrace> traceId2trace) {
 		super();
-		this.traceId2trace = traceId2trace;
+		this.reconstructor = new TraceReconstructor(traceId2trace);
 	}
 
 	@Override
 	protected void execute(final IFlowRecord element) {
-		TraceReconstructor.execute(element, traceId2trace, this);
+		reconstructor.execute(element, this);
 	}
 
 	@Override
 	public void onTerminating() throws Exception {
-		TraceReconstructor.terminate(traceId2trace, this);
+		reconstructor.terminate(this);
 
 		super.onTerminating();
 	}

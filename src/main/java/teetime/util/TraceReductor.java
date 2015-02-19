@@ -15,11 +15,13 @@ import teetime.stage.trace.traceReduction.TraceAggregationBuffer;
  */
 public class TraceReductor {
 
-	private TraceReductor() {
-		// Utility class
+	private final Map<EventBasedTrace, TraceAggregationBuffer> trace2buffer;
+
+	public TraceReductor(final Map<EventBasedTrace, TraceAggregationBuffer> trace2buffer) {
+		this.trace2buffer = trace2buffer;
 	}
 
-	public static void countSameTraces(final EventBasedTrace eventBasedTrace, final Map<EventBasedTrace, TraceAggregationBuffer> trace2buffer) {
+	public void countSameTraces(final EventBasedTrace eventBasedTrace) {
 		synchronized (trace2buffer) {
 			TraceAggregationBuffer aggregatedTrace = trace2buffer.get(eventBasedTrace);
 			if (aggregatedTrace == null) {
@@ -30,8 +32,7 @@ public class TraceReductor {
 		}
 	}
 
-	public static void processTimeoutQueue(final long timestampInNs, final long maxCollectionDurationInNs,
-			final Map<EventBasedTrace, TraceAggregationBuffer> trace2buffer, final ISendTraceAggregationBuffer sender) {
+	public void processTimeoutQueue(final long timestampInNs, final long maxCollectionDurationInNs, final ISendTraceAggregationBuffer sender) {
 		final long bufferTimeoutInNs = timestampInNs - maxCollectionDurationInNs;
 		synchronized (trace2buffer) {
 			for (final Iterator<Entry<EventBasedTrace, TraceAggregationBuffer>> iterator = trace2buffer
@@ -45,7 +46,7 @@ public class TraceReductor {
 		}
 	}
 
-	public static void terminate(final Map<EventBasedTrace, TraceAggregationBuffer> trace2buffer, final ISendTraceAggregationBuffer sender) {
+	public void terminate(final ISendTraceAggregationBuffer sender) {
 		synchronized (trace2buffer) { // BETTER hide and improve synchronization in the buffer
 			for (final Entry<EventBasedTrace, TraceAggregationBuffer> entry : trace2buffer.entrySet()) {
 				final TraceAggregationBuffer aggregatedTrace = entry.getValue();
