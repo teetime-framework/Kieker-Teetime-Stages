@@ -19,6 +19,7 @@ import java.util.concurrent.TimeUnit;
 
 import teetime.framework.AbstractConsumerStage;
 import teetime.framework.OutputPort;
+import teetime.util.ISendTraceBuffer;
 import teetime.util.TraceReconstructor;
 import teetime.util.concurrent.hashmap.ConcurrentHashMapWithDefault;
 
@@ -29,7 +30,7 @@ import kieker.common.record.flow.IFlowRecord;
  *
  * @since 1.10
  */
-public class TraceReconstructionFilter extends AbstractConsumerStage<IFlowRecord> {
+public class TraceReconstructionFilter extends AbstractConsumerStage<IFlowRecord> implements ISendTraceBuffer {
 
 	private final OutputPort<EventBasedTrace> traceValidOutputPort = this.createOutputPort();
 	private final OutputPort<EventBasedTrace> traceInvalidOutputPort = this.createOutputPort();
@@ -48,41 +49,18 @@ public class TraceReconstructionFilter extends AbstractConsumerStage<IFlowRecord
 
 	@Override
 	protected void execute(final IFlowRecord element) {
-		final Long traceId = TraceReconstructor.reconstructTrace(element, traceId2trace);
-		if (traceId != null) {
-			this.put(traceId, true);
-		}
-	}
-
-	private void put(final Long traceId, final boolean onlyIfFinished) {
-		final EventBasedTrace traceBuffer = this.traceId2trace.get(traceId);
-		if (traceBuffer != null) { // null-check to check whether the trace has already been sent and removed
-			boolean shouldSend;
-			if (onlyIfFinished) {
-				shouldSend = traceBuffer.isFinished();
-			} else {
-				shouldSend = true;
-			}
-
-			if (shouldSend) {
-				boolean removed = (null != this.traceId2trace.remove(traceId));
-				if (removed) {
-					this.sendTraceBuffer(traceBuffer);
-				}
-			}
-		}
+		TraceReconstructor.execute(element, traceId2trace, this);
 	}
 
 	@Override
 	public void onTerminating() throws Exception {
-		for (Long traceId : this.traceId2trace.keySet()) {
-			this.put(traceId, false);
-		}
+		TraceReconstructor.terminate(traceId2trace, this);
 
 		super.onTerminating();
 	}
 
-	private void sendTraceBuffer(final EventBasedTrace traceBufferList) {
+	@Override
+	public void sendTraceBuffer(final EventBasedTrace traceBufferList) {
 		OutputPort<EventBasedTrace> outputPort = (traceBufferList.isInvalid()) ? this.traceInvalidOutputPort : this.traceValidOutputPort;
 		outputPort.send(traceBufferList);
 	}
