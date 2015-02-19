@@ -19,11 +19,10 @@ import java.util.concurrent.TimeUnit;
 
 import teetime.framework.AbstractConsumerStage;
 import teetime.framework.OutputPort;
+import teetime.util.TraceReconstructor;
 import teetime.util.concurrent.hashmap.ConcurrentHashMapWithDefault;
 
 import kieker.common.record.flow.IFlowRecord;
-import kieker.common.record.flow.trace.AbstractTraceEvent;
-import kieker.common.record.flow.trace.TraceMetadata;
 
 /**
  * @author Christian Wulf
@@ -49,7 +48,7 @@ public class TraceReconstructionFilter extends AbstractConsumerStage<IFlowRecord
 
 	@Override
 	protected void execute(final IFlowRecord element) {
-		final Long traceId = this.reconstructTrace(element);
+		final Long traceId = TraceReconstructor.reconstructTrace(element, traceId2trace);
 		if (traceId != null) {
 			this.put(traceId, true);
 		}
@@ -72,23 +71,6 @@ public class TraceReconstructionFilter extends AbstractConsumerStage<IFlowRecord
 				}
 			}
 		}
-	}
-
-	private Long reconstructTrace(final IFlowRecord record) {
-		Long traceId = null;
-		if (record instanceof TraceMetadata) {
-			traceId = ((TraceMetadata) record).getTraceId();
-			final EventBasedTrace traceBuffer = this.traceId2trace.getOrCreate(traceId);
-
-			traceBuffer.setTrace((TraceMetadata) record);
-		} else if (record instanceof AbstractTraceEvent) {
-			traceId = ((AbstractTraceEvent) record).getTraceId();
-			final EventBasedTrace traceBuffer = this.traceId2trace.getOrCreate(traceId);
-
-			traceBuffer.insertEvent((AbstractTraceEvent) record);
-		}
-
-		return traceId;
 	}
 
 	@Override
