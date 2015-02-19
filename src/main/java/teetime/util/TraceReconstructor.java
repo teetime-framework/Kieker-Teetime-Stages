@@ -7,6 +7,12 @@ import kieker.common.record.flow.IFlowRecord;
 import kieker.common.record.flow.trace.AbstractTraceEvent;
 import kieker.common.record.flow.trace.TraceMetadata;
 
+/**
+ * Utility class with methods containing the logic for trace reconstruction
+ *
+ * @author Nelson Tavares de Sousa
+ *
+ */
 public class TraceReconstructor {
 
 	private TraceReconstructor() {

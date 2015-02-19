@@ -16,14 +16,14 @@
 
 package teetime.stage.trace.traceReduction;
 
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import teetime.framework.AbstractConsumerStage;
 import teetime.framework.InputPort;
 import teetime.framework.OutputPort;
 import teetime.stage.trace.traceReconstruction.EventBasedTrace;
+import teetime.util.ISendTraceAggregationBuffer;
+import teetime.util.TraceReductor;
 
 /**
  * This filter collects incoming traces for a specified amount of time.
@@ -36,7 +36,7 @@ import teetime.stage.trace.traceReconstruction.EventBasedTrace;
  *
  * @since
  */
-public class TraceReductionFilter extends AbstractConsumerStage<EventBasedTrace> {
+public class TraceReductionFilter extends AbstractConsumerStage<EventBasedTrace> implements ISendTraceAggregationBuffer {
 
 	private final InputPort<Long> triggerInputPort = this.createInputPort();
 	private final OutputPort<TraceAggregationBuffer> outputPort = this.createOutputPort();
@@ -53,32 +53,15 @@ public class TraceReductionFilter extends AbstractConsumerStage<EventBasedTrace>
 	protected void execute(final EventBasedTrace eventBasedTrace) {
 		Long timestampInNs = this.triggerInputPort.receive();
 		if (timestampInNs != null) {
-			this.processTimeoutQueue(timestampInNs);
+			TraceReductor.processTimeoutQueue(timestampInNs, maxCollectionDurationInNs, trace2buffer, this);
 		}
 
-		this.countSameTraces(eventBasedTrace);
-	}
-
-	private void countSameTraces(final EventBasedTrace eventBasedTrace) {
-		synchronized (this.trace2buffer) {
-			TraceAggregationBuffer aggregatedTrace = this.trace2buffer.get(eventBasedTrace);
-			if (aggregatedTrace == null) {
-				aggregatedTrace = new TraceAggregationBuffer(eventBasedTrace);
-				this.trace2buffer.put(eventBasedTrace, aggregatedTrace);
-			}
-			aggregatedTrace.count();
-		}
+		TraceReductor.countSameTraces(eventBasedTrace, trace2buffer);
 	}
 
 	@Override
 	public void onTerminating() throws Exception {
-		synchronized (this.trace2buffer) { // BETTER hide and improve synchronization in the buffer
-			for (final Entry<EventBasedTrace, TraceAggregationBuffer> entry : this.trace2buffer.entrySet()) {
-				final TraceAggregationBuffer traceBuffer = entry.getValue();
-				send(traceBuffer);
-			}
-			this.trace2buffer.clear();
-		}
+		TraceReductor.terminate(trace2buffer, this);
 
 		// BETTER re-use processTimeoutQueue here, e.g., as follows
 		// triggerInputPort.getPipe().add(new Date().getTime());
@@ -87,22 +70,8 @@ public class TraceReductionFilter extends AbstractConsumerStage<EventBasedTrace>
 		super.onTerminating();
 	}
 
-	private void processTimeoutQueue(final long timestampInNs) {
-		final long bufferTimeoutInNs = timestampInNs - this.maxCollectionDurationInNs;
-		synchronized (this.trace2buffer) {
-			for (final Iterator<Entry<EventBasedTrace, TraceAggregationBuffer>> iterator = this.trace2buffer.entrySet().iterator(); iterator.hasNext();) {
-				final TraceAggregationBuffer traceBuffer = iterator.next().getValue();
-				// this.logger.debug("traceBuffer.getBufferCreatedTimestamp(): " + traceBuffer.getBufferCreatedTimestamp() + " vs. " + bufferTimeoutInNs
-				// + " (bufferTimeoutInNs)");
-				if (traceBuffer.getBufferCreatedTimestampInNs() <= bufferTimeoutInNs) {
-					send(traceBuffer);
-				}
-				iterator.remove();
-			}
-		}
-	}
-
-	private void send(final TraceAggregationBuffer traceBuffer) {
+	@Override
+	public void send(final TraceAggregationBuffer traceBuffer) {
 		outputPort.send(traceBuffer);
 	}
 
