@@ -1,9 +1,8 @@
 package teetime.framework;
 
+import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
-
-import teetime.framework.signal.ISignal;
-import teetime.framework.validation.InvalidPortConnection;
 
 /**
  *
@@ -13,59 +12,29 @@ import teetime.framework.validation.InvalidPortConnection;
  *            the type of the last stage in this pipeline
  */
 // TODO Consider to move it in the framework
-public final class Pipeline<L extends Stage> extends Stage {
+public final class Pipeline<L extends Stage> extends CompositeStage {
 
 	private final Stage firstStage;
-	private final L lastStage;
+	private final List<L> lastStages = new LinkedList<L>();
 
 	public Pipeline(final Stage firstStage, final L lastStage) {
 		super();
 		this.firstStage = firstStage;
-		this.lastStage = lastStage;
+		this.lastStages.add(lastStage);
 	}
 
 	@Override
-	public TerminationStrategy getTerminationStrategy() {
-		return firstStage.getTerminationStrategy();
-	}
-
-	@Override
-	public void terminate() {
-		firstStage.terminate();
-	}
-
-	@Override
-	public boolean shouldBeTerminated() {
-		return firstStage.shouldBeTerminated();
-	}
-
-	@Override
-	public void executeWithPorts() {
-		firstStage.executeWithPorts();
-	}
-
-	@Override
-	public void onSignal(final ISignal signal, final InputPort<?> inputPort) {
-		firstStage.onSignal(signal, inputPort);
-	}
-
-	@Override
-	public void validateOutputPorts(final List<InvalidPortConnection> invalidPortConnections) {
-		lastStage.validateOutputPorts(invalidPortConnections);
+	protected Stage getFirstStage() {
+		return firstStage;
 	}
 
 	public L getLastStage() {
-		return lastStage;
+		return lastStages.get(0);
 	}
 
 	@Override
-	protected InputPort<?>[] getInputPorts() {
-		return firstStage.getInputPorts();
-	}
-
-	@Override
-	protected boolean isStarted() {
-		return firstStage.isStarted();
+	protected Collection<? extends Stage> getLastStages() {
+		return lastStages;
 	}
 
 	@Override
