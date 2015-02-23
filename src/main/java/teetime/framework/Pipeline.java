@@ -68,4 +68,19 @@ public final class Pipeline<L extends Stage> extends Stage {
 		return firstStage.isStarted();
 	}
 
+	@Override
+	public void onValidating(final List<InvalidPortConnection> invalidPortConnections) {
+		firstStage.onValidating(invalidPortConnections);
+	}
+
+	@Override
+	public void onStarting() throws Exception {
+		firstStage.onStarting();
+	}
+
+	@Override
+	public void onTerminating() throws Exception {
+		firstStage.onTerminating();
+	}
+
 }
