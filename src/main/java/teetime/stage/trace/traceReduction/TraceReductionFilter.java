@@ -46,14 +46,14 @@ public class TraceReductionFilter extends AbstractConsumerStage<EventBasedTrace>
 	private long maxCollectionDurationInNs;
 
 	public TraceReductionFilter(final Map<EventBasedTrace, TraceAggregationBuffer> trace2buffer) {
-		this.reductor = new TraceReductor(trace2buffer);
+		this.reductor = new TraceReductor(trace2buffer, this);
 	}
 
 	@Override
 	protected void execute(final EventBasedTrace eventBasedTrace) {
 		Long timestampInNs = this.triggerInputPort.receive();
 		if (timestampInNs != null) {
-			reductor.processTimeoutQueue(timestampInNs, maxCollectionDurationInNs, this);
+			reductor.processTimeoutQueue(timestampInNs, maxCollectionDurationInNs);
 		}
 
 		reductor.countSameTraces(eventBasedTrace);
@@ -61,7 +61,7 @@ public class TraceReductionFilter extends AbstractConsumerStage<EventBasedTrace>
 
 	@Override
 	public void onTerminating() throws Exception {
-		reductor.terminate(this);
+		reductor.terminate();
 
 		// BETTER re-use processTimeoutQueue here, e.g., as follows
 		// triggerInputPort.getPipe().add(new Date().getTime());
