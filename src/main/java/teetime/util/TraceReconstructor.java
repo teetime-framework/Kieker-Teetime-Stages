@@ -16,9 +16,11 @@ import kieker.common.record.flow.trace.TraceMetadata;
 public class TraceReconstructor {
 
 	private final ConcurrentHashMapWithDefault<Long, EventBasedTrace> traceId2trace;
+	private final ISendTraceBuffer sender;
 
-	public TraceReconstructor(final ConcurrentHashMapWithDefault<Long, EventBasedTrace> traceId2trace) {
+	public TraceReconstructor(final ConcurrentHashMapWithDefault<Long, EventBasedTrace> traceId2trace, final ISendTraceBuffer sender) {
 		this.traceId2trace = traceId2trace;
+		this.sender = sender;
 	}
 
 	private Long reconstructTrace(final IFlowRecord record) {
@@ -58,13 +60,13 @@ public class TraceReconstructor {
 		}
 	}
 
-	public void terminate(final ISendTraceBuffer sender) {
+	public void terminate() {
 		for (Long traceId : traceId2trace.keySet()) {
 			this.put(traceId, false, sender);
 		}
 	}
 
-	public void execute(final IFlowRecord record, final ISendTraceBuffer sender) {
+	public void execute(final IFlowRecord record) {
 		final Long traceId = this.reconstructTrace(record);
 		if (traceId != null) {
 			this.put(traceId, true, sender);

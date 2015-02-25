@@ -44,17 +44,17 @@ public class TraceReconstructionFilter extends AbstractConsumerStage<IFlowRecord
 
 	public TraceReconstructionFilter(final ConcurrentHashMapWithDefault<Long, EventBasedTrace> traceId2trace) {
 		super();
-		this.reconstructor = new TraceReconstructor(traceId2trace);
+		this.reconstructor = new TraceReconstructor(traceId2trace, this);
 	}
 
 	@Override
 	protected void execute(final IFlowRecord element) {
-		reconstructor.execute(element, this);
+		reconstructor.execute(element);
 	}
 
 	@Override
 	public void onTerminating() throws Exception {
-		reconstructor.terminate(this);
+		reconstructor.terminate();
 
 		super.onTerminating();
 	}
