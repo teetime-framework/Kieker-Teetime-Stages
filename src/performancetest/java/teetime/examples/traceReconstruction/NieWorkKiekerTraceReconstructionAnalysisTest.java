@@ -31,7 +31,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import teetime.util.StopWatch;
-import util.test.eval.StatisticsUtil;
+import teetime.util.test.eval.StatisticsUtil;
 
 import kieker.analysis.plugin.filter.flow.TraceEventRecords;
 
