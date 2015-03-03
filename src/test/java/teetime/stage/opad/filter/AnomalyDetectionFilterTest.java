@@ -64,7 +64,7 @@ public class AnomalyDetectionFilterTest {
 	}
 
 	@Test
-	public void OutputPortNormalShouldForwardElements() {
+	public void theOutputPortNormalShouldForwardElements() {
 		test(adf).and().send(input1, input2).to(adf.getInputPort()).and().receive(resultsNormalPort).from(adf.getOutputPortNormal()).start();
 		assertThat(resultsNormalPort, contains(input1, input2));
 
@@ -74,7 +74,7 @@ public class AnomalyDetectionFilterTest {
 
 	@Test
 	@Ignore("maybe a problem in; org.hamcrest.collection.IsIterableContainingInOrder.contains")
-	public void OutputPortAnnormalShouldForwardElements() {
+	public void theOutputPortAnnormalShouldForwardElements() {
 		test(adf).and().send(input3, input4).to(adf.getInputPort())
 				.and().receive(resultsNormalPort).from(adf.getOutputPortNormal())
 				.start();
