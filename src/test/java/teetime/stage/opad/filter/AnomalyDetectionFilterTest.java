@@ -27,8 +27,6 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import teetime.stage.opad.filter.AnomalyDetectionFilter;
-
 import kieker.tools.opad.record.StorableDetectionResult;
 
 /**
@@ -67,7 +65,7 @@ public class AnomalyDetectionFilterTest {
 		test(adf).and().send(input1, input2).to(adf.getInputPort()).and().receive(resultsNormalPort).from(adf.getOutputPortNormal()).start();
 		assertThat(resultsNormalPort, contains(input1, input2));
 
-		test(adf).and().send(input1, input2).to(adf.getInputPort()).and().receive(resultsNormalPort).from(adf.getOutputPortAnnormal()).start();
+		test(adf).and().send(input1, input2).to(adf.getInputPort()).and().receive(resultsAnnormalPort).from(adf.getOutputPortAnnormal()).start();
 		assertEquals(0, resultsAnnormalPort.size());
 
 	}
