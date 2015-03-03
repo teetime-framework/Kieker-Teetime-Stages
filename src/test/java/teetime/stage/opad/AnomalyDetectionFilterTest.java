@@ -18,7 +18,6 @@ package teetime.stage.opad;
 import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 import static teetime.framework.test.StageTester.test;
 
 import java.util.ArrayList;
@@ -76,7 +75,7 @@ public class AnomalyDetectionFilterTest {
 	public void OutputPortAnnormalShouldForwardElements() {
 
 		test(adf).and().send(input3, input4).to(adf.getInputPort()).and().receive(resultsNormalPort).from(adf.getOutputPortNormal()).start();
-		assertTrue("no output", resultsNormalPort.size() == 0);
+		assertEquals(0, resultsAnnormalPort.size());
 
 		test(adf).and().send(input3, input4).to(adf.getInputPort()).and().receive(resultsAnnormalPort).from(adf.getOutputPortAnnormal()).start();
 		assertThat("output: input3, input4", resultsAnnormalPort, contains(input3, input4));
