@@ -15,6 +15,8 @@
  */
 package teetime.stage.opad.filter;
 
+import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
@@ -66,7 +68,7 @@ public class AnomalyDetectionFilterTest {
 		assertThat(resultsNormalPort, contains(input1, input2));
 
 		test(adf).and().send(input1, input2).to(adf.getInputPort()).and().receive(resultsAnnormalPort).from(adf.getOutputPortAnnormal()).start();
-		assertEquals(0, resultsAnnormalPort.size());
+		assertThat(resultsAnnormalPort, is(empty()));
 
 	}
 
