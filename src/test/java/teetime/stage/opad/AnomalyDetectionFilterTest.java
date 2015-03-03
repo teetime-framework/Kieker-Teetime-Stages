@@ -63,7 +63,7 @@ public class AnomalyDetectionFilterTest {
 	public void OutputPortNormalShouldForwardElements() {
 
 		test(adf).and().send(input1, input2).to(adf.getInputPort()).and().receive(resultsNormalPort).from(adf.getOutputPortNormal()).start();
-		assertThat("output: input1, input2", resultsNormalPort, contains(input1, input2));
+		assertThat(resultsNormalPort, contains(input1, input2));
 
 		test(adf).and().send(input1, input2).to(adf.getInputPort()).and().receive(resultsNormalPort).from(adf.getOutputPortAnnormal()).start();
 		assertEquals(0, resultsAnnormalPort.size());
@@ -78,7 +78,7 @@ public class AnomalyDetectionFilterTest {
 		assertEquals(0, resultsAnnormalPort.size());
 
 		test(adf).and().send(input3, input4).to(adf.getInputPort()).and().receive(resultsAnnormalPort).from(adf.getOutputPortAnnormal()).start();
-		assertThat("output: input3, input4", resultsAnnormalPort, contains(input3, input4));
+		assertThat(resultsAnnormalPort, contains(input3, input4));
 
 	}
 
@@ -87,11 +87,11 @@ public class AnomalyDetectionFilterTest {
 	public void bothOutputPortsShouldForwardElements() {
 
 		test(adf).and().send(input1, input2, input3, input4).to(adf.getInputPort()).and().receive(resultsNormalPort).from(adf.getOutputPortNormal()).start();
-		assertThat("output: input1, input2", resultsNormalPort, contains(input1, input2));
+		assertThat(resultsNormalPort, contains(input1, input2));
 
 		test(adf).and().send(input1, input2, input3, input4, input5).to(adf.getInputPort()).and().receive(resultsAnnormalPort).from(adf.getOutputPortAnnormal())
 				.start();
-		assertThat("output: input3, input4", resultsAnnormalPort, contains(input3, input4, input5));
+		assertThat(resultsAnnormalPort, contains(input3, input4, input5));
 
 	}
 }
