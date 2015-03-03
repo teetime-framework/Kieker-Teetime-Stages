@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package teetime.stage.opad;
+package teetime.stage.opad.filter;
 
 import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
 import static org.junit.Assert.assertEquals;
@@ -26,6 +26,8 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+
+import teetime.stage.opad.filter.AnomalyDetectionFilter;
 
 import kieker.tools.opad.record.StorableDetectionResult;
 

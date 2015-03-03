@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package teetime.stage.opad;
+package teetime.stage.opad.filter;
 
 import teetime.framework.AbstractConsumerStage;
 import teetime.framework.OutputPort;
