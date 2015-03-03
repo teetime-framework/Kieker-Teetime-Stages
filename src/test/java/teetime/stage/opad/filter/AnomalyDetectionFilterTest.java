@@ -24,11 +24,14 @@ import static org.junit.Assert.assertThat;
 import static teetime.framework.test.StageTester.test;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+
+import teetime.util.Pair;
 
 import kieker.tools.opad.record.StorableDetectionResult;
 
@@ -72,21 +75,31 @@ public class AnomalyDetectionFilterTest {
 	@Test
 	@Ignore("maybe a problem in; org.hamcrest.collection.IsIterableContainingInOrder.contains")
 	public void OutputPortAnnormalShouldForwardElements() {
-		test(adf).and().send(input3, input4).to(adf.getInputPort()).and().receive(resultsNormalPort).from(adf.getOutputPortNormal()).start();
+		test(adf).and().send(input3, input4).to(adf.getInputPort())
+				.and().receive(resultsNormalPort).from(adf.getOutputPortNormal())
+				.start();
 		assertEquals(0, resultsAnnormalPort.size());
 
-		test(adf).and().send(input3, input4).to(adf.getInputPort()).and().receive(resultsAnnormalPort).from(adf.getOutputPortAnnormal()).start();
+		test(adf).and().send(input3, input4).to(adf.getInputPort())
+				.and().receive(resultsAnnormalPort).from(adf.getOutputPortAnnormal())
+				.start();
 		assertThat(resultsAnnormalPort, contains(input3, input4));
 	}
 
 	@Test
 	public void bothOutputPortsShouldForwardElements() {
-		test(adf).and().send(input1, input2, input3, input4).to(adf.getInputPort()).and().receive(resultsNormalPort).from(adf.getOutputPortNormal()).start();
+		Collection<Pair<Thread, Throwable>> exceptions;
+		exceptions = test(adf).and().send(input1, input2, input3, input4).to(adf.getInputPort())
+				.and().receive(resultsNormalPort).from(adf.getOutputPortNormal())
+				.start();
+		assertThat(exceptions, is(empty()));
 		assertThat(resultsNormalPort, is(not(empty())));
 		assertThat(resultsNormalPort, contains(input1, input2));
 
-		test(adf).and().send(input1, input2, input3, input4, input5).to(adf.getInputPort()).and().receive(resultsAnnormalPort).from(adf.getOutputPortAnnormal())
+		exceptions = test(adf).and().send(input1, input2, input3, input4, input5).to(adf.getInputPort())
+				.and().receive(resultsAnnormalPort).from(adf.getOutputPortAnnormal())
 				.start();
+		assertThat(exceptions, is(empty()));
 		assertThat(resultsAnnormalPort, is(not(empty())));
 		assertThat(resultsAnnormalPort, contains(input3, input4, input5));
 	}
