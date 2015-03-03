@@ -1,4 +1,4 @@
-a/**
+/**
  * Copyright (C) 2015 TeeTime (http://teetime.sourceforge.net)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,8 +17,10 @@ a/**
 package teetime.stage.opad;
 
 import teetime.framework.AbstractConsumerStage;
-import teetime.framework.InputPort;
 import teetime.framework.OutputPort;
+
+import kieker.tools.opad.record.ExtendedStorableDetectionResult;
+import kieker.tools.opad.record.StorableDetectionResult;
 
 /**
  *
@@ -26,34 +28,26 @@ import teetime.framework.OutputPort;
  * into two output ports, depending on whether the threshold was reached or not. This filter has configuration properties for the (critical) threshold. Although the
  * configuration of the critical threshold is possible, the value is currently not used by the filter.
  *
- * @author original by: Tillmann Carlos Bielefeld, Thomas Duellmann, Tobias Rudolph
- * @author edit by: Arne Jan Salveter
+ * @author Tillmann Carlos Bielefeld, Thomas Duellmann, Tobias Rudolph, Arne Jan Salveter
  * @since 1.10
  *
  */
-public class AnomalyDetectionFilter<T> extends AbstractConsumerStage<T> {
+public class AnomalyDetectionFilter extends AbstractConsumerStage<StorableDetectionResult> {
 
-	private double limit = 0;
-	private final OutputPort<T> outputPortNormal = this.createOutputPort();
-	private final OutputPort<T> outputPortAnnomal = this.createOutputPort();
-	private final OutputPort<T> outputPortAll = this.createOutputPort();
+	private final OutputPort<StorableDetectionResult> outputPortNormal = this.createOutputPort();
+	private final OutputPort<StorableDetectionResult> outputPortAnnomal = this.createOutputPort();
+	private final OutputPort<ExtendedStorableDetectionResult> outputPortAll = this.createOutputPort();
 
-	private final InputPort<T> inputport = this.createInputPort();
+	private final double limit;
 
-	// _____________End-Attributs__________________________________________________________________________________
-
-	// ______________End-Constructos_____________________________________________________________________
-
-	public void setLimit(final double limit) {
+	public AnomalyDetectionFilter(final double limit) {
+		super();
 		this.limit = limit;
 	}
 
-	// ______________End-Getter/Setter_____________________________________________________________________________
-
 	@Override
-	protected void execute(final T element) {
-
-		if ((StorableDetectionResult) element.getValue() >= limit) {
+	protected void execute(final StorableDetectionResult element) {
+		if (element.getValue() >= limit) {
 
 			outputPortAnnomal.send(element);
 
