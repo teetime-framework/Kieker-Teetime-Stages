@@ -24,6 +24,7 @@ import static org.junit.Assert.assertThat;
 import static teetime.framework.test.StageTester.test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -46,9 +47,10 @@ public class AnomalyDetectionFilterTest {
 	private StorableDetectionResult input3;
 	private StorableDetectionResult input4;
 	private StorableDetectionResult input5;
+	private List<StorableDetectionResult> inputElements;
 
-	List<StorableDetectionResult> resultsNormalPort;
-	List<StorableDetectionResult> resultsAnnormalPort;
+	private List<StorableDetectionResult> resultsNormalPort;
+	private List<StorableDetectionResult> resultsAnnormalPort;
 
 	@Before
 	public void initializeAnomalyDetectionFilterAndInputs() {
@@ -57,7 +59,7 @@ public class AnomalyDetectionFilterTest {
 		input2 = new StorableDetectionResult("Test2", 2, 1, 1, 1);
 		input3 = new StorableDetectionResult("Test3", 6, 1, 1, 1);
 		input4 = new StorableDetectionResult("Test4", 7, 1, 1, 1);
-		input5 = new StorableDetectionResult("Test4", 10, 1, 1, 1);
+		inputElements = Arrays.asList(input1, input2, input3, input4);
 
 		resultsNormalPort = new ArrayList<StorableDetectionResult>();
 		resultsAnnormalPort = new ArrayList<StorableDetectionResult>();
@@ -89,14 +91,14 @@ public class AnomalyDetectionFilterTest {
 	@Test
 	public void bothOutputPortsShouldForwardElements() {
 		Collection<Pair<Thread, Throwable>> exceptions;
-		exceptions = test(adf).and().send(input1, input2, input3, input4).to(adf.getInputPort())
+		exceptions = test(adf).and().send(inputElements).to(adf.getInputPort())
 				.and().receive(resultsNormalPort).from(adf.getOutputPortNormal())
 				.start();
 		assertThat(exceptions, is(empty()));
 		assertThat(resultsNormalPort, is(not(empty())));
 		assertThat(resultsNormalPort, contains(input1, input2));
 
-		exceptions = test(adf).and().send(input1, input2, input3, input4, input5).to(adf.getInputPort())
+		exceptions = test(adf).and().send(inputElements).to(adf.getInputPort())
 				.and().receive(resultsAnnormalPort).from(adf.getOutputPortAnnormal())
 				.start();
 		assertThat(exceptions, is(empty()));
