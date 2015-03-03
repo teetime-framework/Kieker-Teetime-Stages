@@ -1,4 +1,4 @@
-a/**
+/**
  * Copyright (C) 2015 TeeTime (http://teetime.sourceforge.net)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,6 +19,8 @@ package teetime.stage.opad;
 import teetime.framework.AbstractConsumerStage;
 import teetime.framework.InputPort;
 import teetime.framework.OutputPort;
+
+import kieker.tools.opad.record.StorableDetectionResult;
 
 /**
  *
