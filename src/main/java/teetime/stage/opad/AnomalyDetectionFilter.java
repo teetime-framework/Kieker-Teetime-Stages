@@ -17,7 +17,6 @@
 package teetime.stage.opad;
 
 import teetime.framework.AbstractConsumerStage;
-import teetime.framework.InputPort;
 import teetime.framework.OutputPort;
 
 import kieker.tools.opad.record.StorableDetectionResult;
@@ -28,44 +27,53 @@ import kieker.tools.opad.record.StorableDetectionResult;
  * into two output ports, depending on whether the threshold was reached or not. This filter has configuration properties for the (critical) threshold. Although the
  * configuration of the critical threshold is possible, the value is currently not used by the filter.
  *
- * @author original by: Tillmann Carlos Bielefeld, Thomas Duellmann, Tobias Rudolph
- * @author edit by: Arne Jan Salveter
+ * @author Tillmann Carlos Bielefeld, Thomas Duellmann, Tobias Rudolph, Arne Jan Salveter
  * @since 1.10
  *
  */
-public class AnomalyDetectionFilter<T> extends AbstractConsumerStage<T> {
+public class AnomalyDetectionFilter extends AbstractConsumerStage<StorableDetectionResult> {
 
-	private double limit = 0;
-	private final OutputPort<T> outputPortNormal = this.createOutputPort();
-	private final OutputPort<T> outputPortAnnomal = this.createOutputPort();
-	private final OutputPort<T> outputPortAll = this.createOutputPort();
+	/**
+	 * The output port delivering the normalyscore if it remains below
+	 * the threshhold.
+	 */
+	private final OutputPort<StorableDetectionResult> outputPortNormal = this.createOutputPort();
 
-	private final InputPort<T> inputport = this.createInputPort();
+	/**
+	 * The output port delivering the annromalyscore if it exceeds the
+	 * threshhold.
+	 */
+	private final OutputPort<StorableDetectionResult> outputPortAnnormal = this.createOutputPort();
 
-	// _____________End-Attributs__________________________________________________________________________________
+	private final double threshold;
 
-	// ______________End-Constructos_____________________________________________________________________
-
-	public void setLimit(final double limit) {
-		this.limit = limit;
+	public OutputPort<StorableDetectionResult> getOutputPortNormal() {
+		return outputPortNormal;
 	}
 
-	// ______________End-Getter/Setter_____________________________________________________________________________
+	public OutputPort<StorableDetectionResult> getOutputPortAnnormal() {
+		return outputPortAnnormal;
+	}
+
+	public double getThreshold() {
+		return threshold;
+	}
+
+	/**
+	 *
+	 * @param threshold
+	 */
+	public AnomalyDetectionFilter(final double threshold) {
+		super();
+		this.threshold = threshold;
+	}
 
 	@Override
-	protected void execute(final T element) {
-
-		if ((StorableDetectionResult) element.getValue() >= limit) {
-
-			outputPortAnnomal.send(element);
-
+	protected void execute(final StorableDetectionResult element) {
+		if (element.getValue() >= threshold) {
+			outputPortAnnormal.send(element);
 		} else {
-
 			outputPortNormal.send(element);
-
 		}
-
-		outputPortAll.send(element);
-
 	}
 }
