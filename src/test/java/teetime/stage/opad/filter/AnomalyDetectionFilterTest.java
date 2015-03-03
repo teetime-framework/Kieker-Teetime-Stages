@@ -29,7 +29,6 @@ import java.util.Collection;
 import java.util.List;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import teetime.util.Pair;
@@ -46,7 +45,6 @@ public class AnomalyDetectionFilterTest {
 	private StorableDetectionResult input2;
 	private StorableDetectionResult input3;
 	private StorableDetectionResult input4;
-	private StorableDetectionResult input5;
 	private List<StorableDetectionResult> inputElements;
 
 	private List<StorableDetectionResult> resultsNormalPort;
@@ -75,7 +73,6 @@ public class AnomalyDetectionFilterTest {
 	}
 
 	@Test
-	@Ignore("maybe a problem in; org.hamcrest.collection.IsIterableContainingInOrder.contains")
 	public void theOutputPortAnnormalShouldForwardElements() {
 		test(adf).and().send(input3, input4).to(adf.getInputPort())
 				.and().receive(resultsNormalPort).from(adf.getOutputPortNormal())
@@ -103,6 +100,6 @@ public class AnomalyDetectionFilterTest {
 				.start();
 		assertThat(exceptions, is(empty()));
 		assertThat(resultsAnnormalPort, is(not(empty())));
-		assertThat(resultsAnnormalPort, contains(input3, input4, input5));
+		assertThat(resultsAnnormalPort, contains(input3, input4));
 	}
 }
