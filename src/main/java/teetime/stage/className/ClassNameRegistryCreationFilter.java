@@ -55,6 +55,7 @@ public class ClassNameRegistryCreationFilter extends AbstractConsumerStage<File>
 	protected void execute(final File inputDir) {
 		final File mappingFile = this.mappingFileParser.findMappingFile(inputDir);
 		if (mappingFile == null) {
+			this.logger.error("Directory '" + inputDir + "' does not exist or an I/O error occured.");
 			return;
 		}
 
