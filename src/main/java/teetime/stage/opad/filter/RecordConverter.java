@@ -32,23 +32,21 @@ import kieker.tools.opad.record.NamedDoubleRecord;
 public class RecordConverter extends AbstractConsumerStage<OperationExecutionRecord> {
 
 	/** Output port that delivers NamedDoubleRecords. */
-	private final OutputPort<NamedDoubleRecord> outputPortNdr = this.createOutputPort();
+	private final OutputPort<NamedDoubleRecord> outputPort = this.createOutputPort();
 
 	public OutputPort<NamedDoubleRecord> getOutputPortNdr() {
-		return outputPortNdr;
+		return outputPort;
 	}
 
 	@Override
 	protected void execute(final OperationExecutionRecord oer) {
-
 		final String applicationName = oer.getHostname() + ":" + oer.getOperationSignature();
 		final long timestamp = oer.getLoggingTimestamp();
 		final double responseTime = oer.getTout() - oer.getTin();
 
 		if (responseTime >= 0.0d) {
 			final NamedDoubleRecord ndr = new NamedDoubleRecord(applicationName, timestamp, responseTime);
-			this.outputPortNdr.send(ndr);
+			this.outputPort.send(ndr);
 		}
-
 	}
 }

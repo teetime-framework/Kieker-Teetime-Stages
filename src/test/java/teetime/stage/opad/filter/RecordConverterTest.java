@@ -37,10 +37,8 @@ public class RecordConverterTest {
 
 	@Before
 	public void initializeRecordConverterAndInputsOutputs() {
-
 		recordConverter = new RecordConverter();
 		resultsNdrOutputport = new LinkedList<NamedDoubleRecord>();
-
 		long timeOne = 1;
 
 		input1 = new OperationExecutionRecord("Signature-1", "TestID-1", 100, 50, 100, "Host-1", 1, 1);
@@ -56,12 +54,10 @@ public class RecordConverterTest {
 		output1 = new NamedDoubleRecord("Host-1:Signature-1", timeOne, 50);
 		output2 = new NamedDoubleRecord("Host-2:Signature-2", timeOne, 19);
 		output3 = new NamedDoubleRecord("Host-3:Signature-3", timeOne, 0.0d);
-
 	}
 
 	@Test
 	public void theOutputPortNdrShouldForwardConvetedElement() {
-
 		exceptions = test(recordConverter).and().send(input1).to(recordConverter.getInputPort())
 				.and().receive(resultsNdrOutputport)
 				.from(recordConverter.getOutputPortNdr())
@@ -72,26 +68,21 @@ public class RecordConverterTest {
 
 	@Test
 	public void theOutputPortNdrShouldForwardZeroElements() {
-
 		exceptions = test(recordConverter).and().send(input4).to(recordConverter.getInputPort())
 				.and().receive(resultsNdrOutputport)
 				.from(recordConverter.getOutputPortNdr())
 				.start();
 		assertThat(this.exceptions, is(empty()));
 		assertThat(this.resultsNdrOutputport, is(empty()));
-
 	}
 
 	@Test
 	public void theOutputPortNdrShouldForwardThreeElements() {
-
 		exceptions = test(recordConverter).and().send(inputElements).to(recordConverter.getInputPort())
 				.and().receive(resultsNdrOutputport)
 				.from(recordConverter.getOutputPortNdr())
 				.start();
 		assertThat(this.exceptions, is(empty()));
 		assertThat(this.resultsNdrOutputport, contains(output1, output2, output3));
-
 	}
-
 }
