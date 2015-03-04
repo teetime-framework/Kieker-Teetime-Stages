@@ -32,7 +32,6 @@ public class RecordConverterTest {
 	private NamedDoubleRecord output1;
 	private NamedDoubleRecord output2;
 	private NamedDoubleRecord output3;
-	private NamedDoubleRecord output4;
 	private List<OperationExecutionRecord> inputElements;
 	private List<NamedDoubleRecord> resultsNdrOutputport;
 
@@ -41,8 +40,6 @@ public class RecordConverterTest {
 
 		recordConverter = new RecordConverter();
 		resultsNdrOutputport = new LinkedList<NamedDoubleRecord>();
-
-		// Was sind eoi und esi?
 
 		long timeOne = 1;
 
