@@ -31,37 +31,24 @@ import kieker.tools.opad.record.NamedDoubleRecord;
  */
 public class RecordConverter extends AbstractConsumerStage<OperationExecutionRecord> {
 
-	/**
-	 * The output port delivers the converted OperationExecutionRecord to a NamedDoubleRecord (ndr).
-	 */
+	/** Output port that delivers NamedDoubleRecords. */
 	private final OutputPort<NamedDoubleRecord> outputPortNdr = this.createOutputPort();
 
-	/**
-	 * @return the outputPortNormal
-	 */
 	public OutputPort<NamedDoubleRecord> getOutputPortNdr() {
 		return outputPortNdr;
 	}
 
-	// public RecordConverter() {
-	// super();
-	// }
-
 	@Override
 	protected void execute(final OperationExecutionRecord oer) {
 
-		// public OperationExecutionRecord(final String operationSignature, final String sessionId, final long traceId, final long tin, final long tout, final String
-		// hostname, final int eoi, final int ess) {
-
-		// public NamedDoubleRecord(final String applicationName, final long timestamp, final double responseTime) {
-
-		final String applicationName = oer.getHostname(); // reicht diese Bezeichnung?
-		final long timestamp = oer.getTin(); // berücksichtigt nur die Startzeit einer Methode
+		final String applicationName = oer.getHostname() + ":" + oer.getOperationSignature();
+		final long timestamp = oer.getLoggingTimestamp();
 		final double responseTime = oer.getTout() - oer.getTin();
 
-		final NamedDoubleRecord ndr = new NamedDoubleRecord(applicationName, timestamp, responseTime);
-
-		getOutputPortNdr().send(ndr);
+		if (responseTime >= 0.0d) {
+			final NamedDoubleRecord ndr = new NamedDoubleRecord(applicationName, timestamp, responseTime);
+			this.outputPortNdr.send(ndr);
+		}
 
 	}
 }
