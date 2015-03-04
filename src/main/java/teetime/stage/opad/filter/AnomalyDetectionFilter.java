@@ -23,7 +23,7 @@ import kieker.tools.opad.record.StorableDetectionResult;
 
 /**
  *
- * This filter separates input values by their reach of a certain threshold (parameter). It takes events of type StorableDetectionResult and channels them
+ * This filter separates input values by their reach of a certain threshold (parameter). It takes events of type {@link StorableDetectionResult} and channels them
  * into two output ports, depending on whether the threshold was reached or not. This filter has configuration properties for the (critical) threshold. Although the
  * configuration of the critical threshold is possible, the value is currently not used by the filter.
  *
@@ -36,7 +36,7 @@ public class AnomalyDetectionFilter extends AbstractConsumerStage<StorableDetect
 	/** The output port delivering the normal score if it remains below the threshold. */
 	private final OutputPort<StorableDetectionResult> outputPortNormal = this.createOutputPort();
 
-	/** The output port delivering the abnormal score if it exceeds the threshold. */
+	/** The output port delivering the abnormal score if it exceeds or equals the threshold. */
 	private final OutputPort<StorableDetectionResult> outputPortAnnormal = this.createOutputPort();
 
 	private final double threshold;
