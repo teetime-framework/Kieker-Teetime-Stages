@@ -1,5 +1,5 @@
 /***************************************************************************
- * Copyright 2014 Kieker Project (http://kieker-monitoring.net)
+ * Copyright 2015 Kieker Project (http://kieker-monitoring.net)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,6 +49,11 @@ public class RecordConverter extends AbstractConsumerStage<OperationExecutionRec
 
 	@Override
 	protected void execute(final OperationExecutionRecord oer) {
+
+		// public OperationExecutionRecord(final String operationSignature, final String sessionId, final long traceId, final long tin, final long tout, final String
+		// hostname, final int eoi, final int ess) {
+
+		// public NamedDoubleRecord(final String applicationName, final long timestamp, final double responseTime) {
 
 		final String applicationName = oer.getHostname(); // reicht diese Bezeichnung?
 		final long timestamp = oer.getTin(); // berücksichtigt nur die Startzeit einer Methode
