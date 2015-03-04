@@ -20,6 +20,8 @@
 		</encoder>
 	</appender>
 
+<!-- 	<logger name="teetime" level="TRACE" /> -->
+	
 	<logger name="util" level="INFO" />
 
 	<root level="ERROR">
