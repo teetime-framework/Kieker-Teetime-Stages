@@ -43,7 +43,7 @@ public class RecordConverterTest {
 
 		input1 = new OperationExecutionRecord("Signature-1", "TestID-1", 100, 50, 100, "Host-1", 1, 1);
 		input2 = new OperationExecutionRecord("Signature-2", "TestID-2", 101, 1, 20, "Host-2", 1, 1);
-		input3 = new OperationExecutionRecord("Signature-3", "TestID-3", 104, 0, (long) 0.0d, "Host-3", 1, 1);
+		input3 = new OperationExecutionRecord("Signature-3", "TestID-3", 104, 0, 0, "Host-3", 1, 1);
 		input4 = new OperationExecutionRecord("Signature-4", "TestID-4", 100, 99, 1, "Host-4", 1, 1);
 		inputElements = Arrays.asList(input1, input2, input3, input4);
 
@@ -53,14 +53,14 @@ public class RecordConverterTest {
 
 		output1 = new NamedDoubleRecord("Host-1:Signature-1", timeOne, 50);
 		output2 = new NamedDoubleRecord("Host-2:Signature-2", timeOne, 19);
-		output3 = new NamedDoubleRecord("Host-3:Signature-3", timeOne, 0.0d);
+		output3 = new NamedDoubleRecord("Host-3:Signature-3", timeOne, 0);
 	}
 
 	@Test
-	public void theOutputPortNdrShouldForwardConvetedElement() {
-		exceptions = test(recordConverter).and().send(input1).to(recordConverter.getInputPort())
-				.and().receive(resultsNdrOutputport)
-				.from(recordConverter.getOutputPortNdr())
+	public void theOutputPortNdrShouldForwardConvertedElement() {
+		exceptions = test(recordConverter)
+				.and().send(input1).to(recordConverter.getInputPort())
+				.and().receive(resultsNdrOutputport).from(recordConverter.getOutputPortNdr())
 				.start();
 		assertThat(this.exceptions, is(empty()));
 		assertThat(resultsNdrOutputport, contains(output1));
@@ -68,19 +68,19 @@ public class RecordConverterTest {
 
 	@Test
 	public void theOutputPortNdrShouldForwardZeroElements() {
-		exceptions = test(recordConverter).and().send(input4).to(recordConverter.getInputPort())
-				.and().receive(resultsNdrOutputport)
-				.from(recordConverter.getOutputPortNdr())
+		exceptions = test(recordConverter)
+				.and().send(input4).to(recordConverter.getInputPort())
+				.and().receive(resultsNdrOutputport).from(recordConverter.getOutputPortNdr())
 				.start();
 		assertThat(this.exceptions, is(empty()));
 		assertThat(this.resultsNdrOutputport, is(empty()));
 	}
 
 	@Test
-	public void theOutputPortNdrShouldForwardThreeElements() {
-		exceptions = test(recordConverter).and().send(inputElements).to(recordConverter.getInputPort())
-				.and().receive(resultsNdrOutputport)
-				.from(recordConverter.getOutputPortNdr())
+	public void theOutputPortNdrShouldForwardThreeConvertedElements() {
+		exceptions = test(recordConverter)
+				.and().send(inputElements).to(recordConverter.getInputPort())
+				.and().receive(resultsNdrOutputport).from(recordConverter.getOutputPortNdr())
 				.start();
 		assertThat(this.exceptions, is(empty()));
 		assertThat(this.resultsNdrOutputport, contains(output1, output2, output3));
