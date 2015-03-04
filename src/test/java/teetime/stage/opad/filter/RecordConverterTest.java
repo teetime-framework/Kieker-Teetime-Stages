@@ -60,7 +60,7 @@ public class RecordConverterTest {
 	public void theOutputPortNdrShouldForwardConvertedElement() {
 		exceptions = test(recordConverter)
 				.and().send(input1).to(recordConverter.getInputPort())
-				.and().receive(resultsNdrOutputport).from(recordConverter.getOutputPortNdr())
+				.and().receive(resultsNdrOutputport).from(recordConverter.getOutputPort())
 				.start();
 		assertThat(this.exceptions, is(empty()));
 		assertThat(resultsNdrOutputport, contains(output1));
@@ -70,7 +70,7 @@ public class RecordConverterTest {
 	public void theOutputPortNdrShouldForwardZeroElements() {
 		exceptions = test(recordConverter)
 				.and().send(input4).to(recordConverter.getInputPort())
-				.and().receive(resultsNdrOutputport).from(recordConverter.getOutputPortNdr())
+				.and().receive(resultsNdrOutputport).from(recordConverter.getOutputPort())
 				.start();
 		assertThat(this.exceptions, is(empty()));
 		assertThat(this.resultsNdrOutputport, is(empty()));
@@ -80,7 +80,7 @@ public class RecordConverterTest {
 	public void theOutputPortNdrShouldForwardThreeConvertedElements() {
 		exceptions = test(recordConverter)
 				.and().send(inputElements).to(recordConverter.getInputPort())
-				.and().receive(resultsNdrOutputport).from(recordConverter.getOutputPortNdr())
+				.and().receive(resultsNdrOutputport).from(recordConverter.getOutputPort())
 				.start();
 		assertThat(this.exceptions, is(empty()));
 		assertThat(this.resultsNdrOutputport, contains(output1, output2, output3));

@@ -34,7 +34,7 @@ public class RecordConverter extends AbstractConsumerStage<OperationExecutionRec
 	/** Output port that delivers NamedDoubleRecords. */
 	private final OutputPort<NamedDoubleRecord> outputPort = this.createOutputPort();
 
-	public OutputPort<NamedDoubleRecord> getOutputPortNdr() {
+	public OutputPort<NamedDoubleRecord> getOutputPort() {
 		return outputPort;
 	}
 
