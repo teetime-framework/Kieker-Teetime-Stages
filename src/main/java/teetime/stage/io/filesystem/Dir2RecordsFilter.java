@@ -53,6 +53,13 @@ public final class Dir2RecordsFilter extends CompositeStage {
 
 	private ClassNameRegistryRepository classNameRegistryRepository;
 
+	/**
+	 * Default constructor using a new instance of {@link ClassNameRegistryRepository}
+	 */
+	public Dir2RecordsFilter() {
+		this(new ClassNameRegistryRepository());
+	}
+
 	public Dir2RecordsFilter(final ClassNameRegistryRepository classNameRegistryRepository) {
 		this.classNameRegistryRepository = classNameRegistryRepository;
 
