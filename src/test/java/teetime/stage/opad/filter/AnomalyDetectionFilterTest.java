@@ -17,9 +17,7 @@ package teetime.stage.opad.filter;
 
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
 import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static teetime.framework.test.StageTester.test;
 
@@ -46,7 +44,6 @@ public class AnomalyDetectionFilterTest {
 	private StorableDetectionResult input3;
 	private StorableDetectionResult input4;
 	private List<StorableDetectionResult> inputElements;
-
 	private List<StorableDetectionResult> resultsNormalPort;
 	private List<StorableDetectionResult> resultsAnnormalPort;
 
@@ -65,23 +62,26 @@ public class AnomalyDetectionFilterTest {
 
 	@Test
 	public void theOutputPortNormalShouldForwardElements() {
-		test(adf).and().send(input1, input2).to(adf.getInputPort()).and().receive(resultsNormalPort).from(adf.getOutputPortNormal()).start();
-		assertThat(resultsNormalPort, contains(input1, input2));
 
-		test(adf).and().send(input1, input2).to(adf.getInputPort()).and().receive(resultsAnnormalPort).from(adf.getOutputPortAnnormal()).start();
+		Collection<Pair<Thread, Throwable>> exceptions;
+		exceptions = test(adf).and().send(input1, input2).to(adf.getInputPort())
+				.and().receive(resultsNormalPort).from(adf.getOutputPortNormal())
+				.and().receive(resultsAnnormalPort).from(adf.getOutputPortAnnormal())
+				.start();
+		assertThat(exceptions, is(empty()));
+		assertThat(resultsNormalPort, contains(input1, input2));
 		assertThat(resultsAnnormalPort, is(empty()));
 	}
 
 	@Test
 	public void theOutputPortAnnormalShouldForwardElements() {
-		test(adf).and().send(input3, input4).to(adf.getInputPort())
+		Collection<Pair<Thread, Throwable>> exceptions;
+		exceptions = test(adf).and().send(input3, input4).to(adf.getInputPort())
 				.and().receive(resultsNormalPort).from(adf.getOutputPortNormal())
-				.start();
-		assertEquals(0, resultsAnnormalPort.size());
-
-		test(adf).and().send(input3, input4).to(adf.getInputPort())
 				.and().receive(resultsAnnormalPort).from(adf.getOutputPortAnnormal())
 				.start();
+		assertThat(exceptions, is(empty()));
+		assertThat(resultsNormalPort, is(empty()));
 		assertThat(resultsAnnormalPort, contains(input3, input4));
 	}
 
@@ -90,16 +90,10 @@ public class AnomalyDetectionFilterTest {
 		Collection<Pair<Thread, Throwable>> exceptions;
 		exceptions = test(adf).and().send(inputElements).to(adf.getInputPort())
 				.and().receive(resultsNormalPort).from(adf.getOutputPortNormal())
-				.start();
-		assertThat(exceptions, is(empty()));
-		assertThat(resultsNormalPort, is(not(empty())));
-		assertThat(resultsNormalPort, contains(input1, input2));
-
-		exceptions = test(adf).and().send(inputElements).to(adf.getInputPort())
 				.and().receive(resultsAnnormalPort).from(adf.getOutputPortAnnormal())
 				.start();
 		assertThat(exceptions, is(empty()));
-		assertThat(resultsAnnormalPort, is(not(empty())));
+		assertThat(resultsNormalPort, contains(input1, input2));
 		assertThat(resultsAnnormalPort, contains(input3, input4));
 	}
 }
