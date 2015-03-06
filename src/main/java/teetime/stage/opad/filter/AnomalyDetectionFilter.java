@@ -39,6 +39,9 @@ public class AnomalyDetectionFilter extends AbstractConsumerStage<StorableDetect
 	/** The output port delivering the abnormal score if it exceeds or equals the threshold. */
 	private final OutputPort<StorableDetectionResult> outputPortAnnormal = this.createOutputPort();
 
+	/** Name of the property determining the threshold. */
+	public static final String CONFIG_PROPERTY_NAME_THRESHOLD = "threshold";
+
 	private final double threshold;
 
 	public OutputPort<StorableDetectionResult> getOutputPortNormal() {
@@ -67,4 +70,5 @@ public class AnomalyDetectionFilter extends AbstractConsumerStage<StorableDetect
 			outputPortNormal.send(element);
 		}
 	}
+
 }
