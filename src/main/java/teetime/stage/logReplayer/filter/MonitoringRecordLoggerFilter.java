@@ -42,6 +42,8 @@ public class MonitoringRecordLoggerFilter extends AbstractConsumerStage<IMonitor
 	/** The {@link IMonitoringController} the records received via {@link #inputIMonitoringRecord(IMonitoringRecord)} are passed to. */
 	private final IMonitoringController monitoringController;
 
+	public static final String CONFIG_PROPERTY_NAME_MONITORING_PROPS_FN = "monitoringPropertiesFilename";
+
 	/** Used to cache the configuration. */
 	private final Configuration configuration;
 
@@ -53,31 +55,42 @@ public class MonitoringRecordLoggerFilter extends AbstractConsumerStage<IMonitor
 		return monitoringController;
 	}
 
-	public Configuration getConfiguration() {
-		return configuration;
+	public static String getConfigPropertyNameMonitoringPropsFn() {
+		return CONFIG_PROPERTY_NAME_MONITORING_PROPS_FN;
 	}
 
-	public MonitoringRecordLoggerFilter(final Configuration configuration, final String monitoringPropertiesFilename) {
+	/**
+	 * {@inheritDoc}
+	 */
+	public Configuration getCurrentConfiguration() {
+		// clone again, so no one can change anything
+		return (Configuration) this.configuration.clone();
+	}
+
+	public MonitoringRecordLoggerFilter(final Configuration configuration) {
+
 		final Configuration controllerConfiguration;
-		final String monitoringPropertiesFn = configuration.getPathProperty(monitoringPropertiesFilename);
+		final String monitoringPropertiesFn = configuration.getPathProperty(CONFIG_PROPERTY_NAME_MONITORING_PROPS_FN);
 
 		if (monitoringPropertiesFn.length() > 0) {
 
 			controllerConfiguration = ConfigurationFactory.createConfigurationFromFile(monitoringPropertiesFn);
 
 		} else {
-
 			this.logger.info("No path to a 'monitoring.properties' file passed; using default configuration");
 			controllerConfiguration = ConfigurationFactory.createDefaultConfiguration();
-
 		}
-
+		// flatten submitted properties
+		final Configuration flatConfiguration = configuration.flatten();
 		// just remember this configuration without the added MonitoringController configuration
-		this.configuration = (Configuration) configuration.flatten().clone();
-		configuration.flatten().setDefaultConfiguration(controllerConfiguration);
-		this.monitoringController = MonitoringController.createInstance(configuration.flatten());
+		this.configuration = (Configuration) flatConfiguration.clone();
+		flatConfiguration.setDefaultConfiguration(controllerConfiguration);
+		this.monitoringController = MonitoringController.createInstance(flatConfiguration);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void onTerminating() throws Exception {
 		this.monitoringController.terminateMonitoring();

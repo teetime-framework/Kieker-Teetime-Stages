@@ -44,7 +44,6 @@ public class MonitoringRecordLoggerFilterTest {
 	private IMonitoringRecord input3;
 	private IMonitoringRecord input4;
 
-	private String monitoringPropertiesFilename;
 	private Configuration config;
 
 	private LinkedList<IMonitoringRecord> inputElements;
@@ -55,9 +54,8 @@ public class MonitoringRecordLoggerFilterTest {
 
 		resultsOutputPort = new LinkedList<IMonitoringRecord>();
 		config = new Configuration();
-		monitoringPropertiesFilename = "test";
 
-		filter = new MonitoringRecordLoggerFilter(config, "");
+		filter = new MonitoringRecordLoggerFilter(config);
 
 		input1 = new NamedDoubleRecord("TestName1", 1, 1);
 		input2 = new NamedDoubleRecord("TestName2", 2, 3);
