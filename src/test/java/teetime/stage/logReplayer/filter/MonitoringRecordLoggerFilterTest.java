@@ -34,6 +34,11 @@ import kieker.common.configuration.Configuration;
 import kieker.common.record.IMonitoringRecord;
 import kieker.tools.opad.record.NamedDoubleRecord;
 
+/**
+ *
+ * @author Arne Jan Salveter
+ * @since 1.6
+ */
 public class MonitoringRecordLoggerFilterTest {
 
 	public Collection<Pair<Thread, Throwable>> exceptions;
@@ -51,7 +56,6 @@ public class MonitoringRecordLoggerFilterTest {
 
 	@Before
 	public void initializeRecordConverterAndInputsOutputs() {
-
 		resultsOutputPort = new LinkedList<IMonitoringRecord>();
 		config = new Configuration();
 
@@ -67,7 +71,6 @@ public class MonitoringRecordLoggerFilterTest {
 		inputElements.add(input2);
 		inputElements.add(input3);
 		inputElements.add(input4);
-
 	}
 
 	@Test
