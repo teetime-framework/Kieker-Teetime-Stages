@@ -58,14 +58,11 @@ public class MonitoringRecordLoggerFilterTest {
 	public void initializeRecordConverterAndInputsOutputs() {
 		resultsOutputPort = new LinkedList<IMonitoringRecord>();
 		config = new Configuration();
-
 		filter = new MonitoringRecordLoggerFilter(config);
-
 		input1 = new NamedDoubleRecord("TestName1", 1, 1);
 		input2 = new NamedDoubleRecord("TestName2", 2, 3);
 		input3 = new NamedDoubleRecord("TestName3", 3, 50);
 		input4 = new NamedDoubleRecord("TestName4", 4, 150);
-
 		inputElements = new LinkedList<IMonitoringRecord>();
 		inputElements.add(input1);
 		inputElements.add(input2);
@@ -81,6 +78,5 @@ public class MonitoringRecordLoggerFilterTest {
 				.start();
 		assertThat(this.exceptions, is(empty()));
 		assertThat(resultsOutputPort, contains(input1, input2, input3, input4));
-
 	}
 }

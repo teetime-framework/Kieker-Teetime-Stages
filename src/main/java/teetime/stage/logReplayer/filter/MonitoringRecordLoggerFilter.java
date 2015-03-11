@@ -67,6 +67,21 @@ public class MonitoringRecordLoggerFilter extends AbstractConsumerStage<IMonitor
 		return (Configuration) this.configuration.clone();
 	}
 
+	/** @return the configuration */
+	public Configuration getConfiguration() {
+		return configuration;
+	}
+
+	/**
+	 * Creates a new instance of this class using the given parameters.
+	 *
+	 * @param configuration
+	 *            The configuration for this component.
+	 * @param projectContext
+	 *            The project context for this component.
+	 *
+	 * @since 1.7
+	 */
 	public MonitoringRecordLoggerFilter(final Configuration configuration) {
 
 		final Configuration controllerConfiguration;
