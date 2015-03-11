@@ -49,7 +49,6 @@ public class RecordConverter extends AbstractConsumerStage<OperationExecutionRec
 		final String applicationName = oer.getHostname() + ":" + oer.getOperationSignature();
 		final long timestamp = oer.getLoggingTimestamp();
 		final double responseTime = oer.getTout() - oer.getTin();
-
 		if (responseTime >= 0.0d) {
 			final NamedDoubleRecord ndr = new NamedDoubleRecord(applicationName, timestamp, responseTime);
 			this.outputPort.send(ndr);
