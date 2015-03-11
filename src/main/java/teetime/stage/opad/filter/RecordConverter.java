@@ -38,6 +38,12 @@ public class RecordConverter extends AbstractConsumerStage<OperationExecutionRec
 		return outputPort;
 	}
 
+	/**
+	 * Receives OperationExecutionRecords and delivers them converted to NamedDoubleRecords.
+	 *
+	 * @param oer
+	 *            OperationExecutionRecord object to be converted
+	 */
 	@Override
 	protected void execute(final OperationExecutionRecord oer) {
 		final String applicationName = oer.getHostname() + ":" + oer.getOperationSignature();
