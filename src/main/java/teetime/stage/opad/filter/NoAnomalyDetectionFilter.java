@@ -31,9 +31,9 @@ import kieker.tools.opad.record.StorableDetectionResult;
  * @since 1.10
  *
  */
-public class AnomalyDetectionFilter extends AbstractConsumerStage<StorableDetectionResult> {
+public class NoAnomalyDetectionFilter extends AbstractConsumerStage<StorableDetectionResult> {
 
-	/** The output port delivering the abnormal score if it exceeds or equals the threshold. */
+	/** The output port delivering the normal score if it remains below the threshold. */
 	private final OutputPort<StorableDetectionResult> outputPort = this.createOutputPort();
 
 	/** Name of the property determining the threshold. */
@@ -50,14 +50,14 @@ public class AnomalyDetectionFilter extends AbstractConsumerStage<StorableDetect
 	}
 
 	/** @param threshold */
-	public AnomalyDetectionFilter(final double threshold) {
+	public NoAnomalyDetectionFilter(final double threshold) {
 		super();
 		this.threshold = threshold;
 	}
 
 	@Override
 	protected void execute(final StorableDetectionResult element) {
-		if (element.getValue() >= threshold) {
+		if (element.getValue() < threshold) {
 			outputPort.send(element);
 		}
 	}
