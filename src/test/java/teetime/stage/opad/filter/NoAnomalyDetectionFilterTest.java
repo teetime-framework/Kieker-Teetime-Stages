@@ -36,9 +36,9 @@ import kieker.tools.opad.record.StorableDetectionResult;
 /**
  * @author Arne Jan Salveter
  */
-public class AnomalyDetectionFilterTest {
+public class NoAnomalyDetectionFilterTest {
 
-	private AnomalyDetectionFilter adf;
+	private NoAnomalyDetectionFilter adf;
 	private StorableDetectionResult input1;
 	private StorableDetectionResult input2;
 	private StorableDetectionResult input3;
@@ -48,35 +48,33 @@ public class AnomalyDetectionFilterTest {
 
 	@Before
 	public void initializeAnomalyDetectionFilterAndInputs() {
-		adf = new AnomalyDetectionFilter(6);
+		adf = new NoAnomalyDetectionFilter(6);
 		input1 = new StorableDetectionResult("Test1", 1, 1, 1, 1);
 		input2 = new StorableDetectionResult("Test2", 2, 1, 1, 1);
 		input3 = new StorableDetectionResult("Test3", 6, 1, 1, 1);
 		input4 = new StorableDetectionResult("Test4", 7, 1, 1, 1);
 		inputElements = Arrays.asList(input1, input2, input3, input4);
-
 		results = new ArrayList<StorableDetectionResult>();
-	}
-
-	@Test
-	public void theOutputPortShouldForwardZeroElements() {
-
-		Collection<Pair<Thread, Throwable>> exceptions;
-		exceptions = test(adf).and().send(input1, input2).to(adf.getInputPort())
-				.and().receive(results).from(adf.getOutputPort())
-				.start();
-		assertThat(exceptions, is(empty()));
-		assertThat(results, is(empty()));
 	}
 
 	@Test
 	public void theOutputPortShouldForwardTwoElements() {
 		Collection<Pair<Thread, Throwable>> exceptions;
+		exceptions = test(adf).and().send(input1, input2).to(adf.getInputPort())
+				.and().receive(results).from(adf.getOutputPort())
+				.start();
+		assertThat(exceptions, is(empty()));
+		assertThat(results, contains(input1, input2));
+	}
+
+	@Test
+	public void theOutputPortShouldForwardZeroElements() {
+		Collection<Pair<Thread, Throwable>> exceptions;
 		exceptions = test(adf).and().send(input3, input4).to(adf.getInputPort())
 				.and().receive(results).from(adf.getOutputPort())
 				.start();
 		assertThat(exceptions, is(empty()));
-		assertThat(results, contains(input3, input4));
+		assertThat(results, is(empty()));
 	}
 
 	@Test
@@ -86,6 +84,6 @@ public class AnomalyDetectionFilterTest {
 				.and().receive(results).from(adf.getOutputPort())
 				.start();
 		assertThat(exceptions, is(empty()));
-		assertThat(results, contains(input3, input4));
+		assertThat(results, contains(input1, input2));
 	}
 }
