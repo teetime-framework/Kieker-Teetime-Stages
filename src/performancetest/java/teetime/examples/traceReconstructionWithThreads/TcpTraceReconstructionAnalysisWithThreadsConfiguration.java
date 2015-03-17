@@ -178,7 +178,7 @@ public class TcpTraceReconstructionAnalysisWithThreadsConfiguration extends Anal
 		intraThreadPipeFactory.create(recordCounter.getOutputPort(), recordThroughputFilter.getInputPort());
 		intraThreadPipeFactory.create(recordThroughputFilter.getOutputPort(), traceMetadataCounter.getInputPort());
 		intraThreadPipeFactory.create(traceMetadataCounter.getOutputPort(), instanceOfFilter.getInputPort());
-		intraThreadPipeFactory.create(instanceOfFilter.getOutputPort(), traceReconstructionFilter.getInputPort());
+		intraThreadPipeFactory.create(instanceOfFilter.getMatchedOutputPort(), traceReconstructionFilter.getInputPort());
 		intraThreadPipeFactory.create(traceReconstructionFilter.getTraceValidOutputPort(), traceCounter.getInputPort());
 		// intraThreadPipeFactory.create(traceReconstructionFilter.getOutputPort(), traceThroughputFilter.getInputPort());
 		// intraThreadPipeFactory.create(traceThroughputFilter.getOutputPort(), traceCounter.getInputPort());

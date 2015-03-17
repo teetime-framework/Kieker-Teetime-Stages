@@ -45,7 +45,7 @@ public class DirWithBin2RecordFilter extends AbstractStage {
 	}
 
 	@Override
-	public void executeWithPorts() {
-		classNameRegistryCreationFilter.executeWithPorts();
+	public void executeStage() {
+		classNameRegistryCreationFilter.executeStage();
 	}
 }
