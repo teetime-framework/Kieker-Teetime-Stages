@@ -173,7 +173,7 @@ public class TcpTraceReductionAnalysisWithThreadsConfiguration extends AnalysisC
 		intraThreadPipeFactory.create(relay.getOutputPort(), recordCounter.getInputPort());
 		intraThreadPipeFactory.create(recordCounter.getOutputPort(), traceMetadataCounter.getInputPort());
 		intraThreadPipeFactory.create(traceMetadataCounter.getOutputPort(), instanceOfFilter.getInputPort());
-		intraThreadPipeFactory.create(instanceOfFilter.getOutputPort(), traceReconstructionFilter.getInputPort());
+		intraThreadPipeFactory.create(instanceOfFilter.getMatchedOutputPort(), traceReconstructionFilter.getInputPort());
 		intraThreadPipeFactory.create(traceReconstructionFilter.getTraceValidOutputPort(), traceReductionFilter.getInputPort());
 		intraThreadPipeFactory.create(traceReductionFilter.getOutputPort(), traceCounter.getInputPort());
 		intraThreadPipeFactory.create(traceCounter.getOutputPort(), traceThroughputFilter.getInputPort());
