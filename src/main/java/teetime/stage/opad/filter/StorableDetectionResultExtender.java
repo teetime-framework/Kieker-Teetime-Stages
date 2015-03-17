@@ -19,6 +19,7 @@ package teetime.stage.opad.filter;
 import teetime.framework.AbstractConsumerStage;
 import teetime.framework.OutputPort;
 
+import kieker.tools.opad.record.ExtendedStorableDetectionResult;
 import kieker.tools.opad.record.StorableDetectionResult;
 
 /**
@@ -31,13 +32,10 @@ import kieker.tools.opad.record.StorableDetectionResult;
  * @since 1.10
  *
  */
-public class NoAnomalyDetectionFilter extends AbstractConsumerStage<StorableDetectionResult> {
+public class StorableDetectionResultExtender extends AbstractConsumerStage<StorableDetectionResult> {
 
 	/** The output port delivering the normal score if it remains below the threshold. */
 	private final OutputPort<StorableDetectionResult> outputPort = this.createOutputPort();
-
-	/** Name of the property determining the threshold. */
-	public static final String CONFIG_PROPERTY_NAME_THRESHOLD = "threshold";
 
 	private final double threshold;
 
@@ -50,16 +48,23 @@ public class NoAnomalyDetectionFilter extends AbstractConsumerStage<StorableDete
 	}
 
 	/** @param threshold */
-	public NoAnomalyDetectionFilter(final double threshold) {
+	public StorableDetectionResultExtender(final double threshold) {
 		super();
 		this.threshold = threshold;
 	}
 
 	@Override
 	protected void execute(final StorableDetectionResult element) {
-		if (element.getValue() < threshold) {
-			outputPort.send(element);
-		}
-	}
 
+		final ExtendedStorableDetectionResult extAnomalyScore =
+				new ExtendedStorableDetectionResult(
+						element.getApplicationName(),
+						element.getValue(),
+						element.getTimestamp(),
+						element.getForecast(),
+						element.getScore(),
+						this.threshold);
+
+		outputPort.send(extAnomalyScore);
+	}
 }
