@@ -19,7 +19,7 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
 
-import teetime.framework.CompositeStage;
+import teetime.framework.AbstractCompositeStage;
 import teetime.framework.InputPort;
 import teetime.framework.OutputPort;
 import teetime.framework.Stage;
@@ -37,7 +37,7 @@ import kieker.common.record.IMonitoringRecord;
  *
  * @since 1.10
  */
-public class DatFile2RecordFilter extends CompositeStage {
+public class DatFile2RecordFilter extends AbstractCompositeStage {
 
 	private final PipeFactoryRegistry pipeFactoryRegistry = PipeFactoryRegistry.INSTANCE;
 
