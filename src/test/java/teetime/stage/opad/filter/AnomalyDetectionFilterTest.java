@@ -38,13 +38,15 @@ import kieker.tools.opad.record.StorableDetectionResult;
  */
 public class AnomalyDetectionFilterTest {
 
+	Collection<Pair<Thread, Throwable>> exceptions;
 	private AnomalyDetectionFilter adf;
 	private StorableDetectionResult input1;
 	private StorableDetectionResult input2;
 	private StorableDetectionResult input3;
 	private StorableDetectionResult input4;
 	private List<StorableDetectionResult> inputElements;
-	private List<StorableDetectionResult> results;
+	private List<StorableDetectionResult> resultsOutputPortAnomal;
+	private List<StorableDetectionResult> resultsOutputPortNormal;
 
 	@Before
 	public void initializeAnomalyDetectionFilterAndInputs() {
@@ -54,38 +56,42 @@ public class AnomalyDetectionFilterTest {
 		input3 = new StorableDetectionResult("Test3", 6, 1, 1, 1);
 		input4 = new StorableDetectionResult("Test4", 7, 1, 1, 1);
 		inputElements = Arrays.asList(input1, input2, input3, input4);
-
-		results = new ArrayList<StorableDetectionResult>();
+		resultsOutputPortAnomal = new ArrayList<StorableDetectionResult>();
+		resultsOutputPortNormal = new ArrayList<StorableDetectionResult>();
 	}
 
 	@Test
-	public void theOutputPortShouldForwardZeroElements() {
+	public void theOutputPortAnormalShouldForwardZeroElements() {
 
-		Collection<Pair<Thread, Throwable>> exceptions;
 		exceptions = test(adf).and().send(input1, input2).to(adf.getInputPort())
-				.and().receive(results).from(adf.getOutputPort())
+				.and().receive(resultsOutputPortAnomal).from(adf.getOutputPortAnomal())
+				.and().receive(resultsOutputPortNormal).from(adf.getOutputPortNomal())
 				.start();
 		assertThat(exceptions, is(empty()));
-		assertThat(results, is(empty()));
+		assertThat(resultsOutputPortAnomal, is(empty()));
+		assertThat(resultsOutputPortNormal, contains(input1, input2));
 	}
 
 	@Test
-	public void theOutputPortShouldForwardTwoElements() {
-		Collection<Pair<Thread, Throwable>> exceptions;
+	public void theOutputPortAnomalShouldForwardTwoElements() {
 		exceptions = test(adf).and().send(input3, input4).to(adf.getInputPort())
-				.and().receive(results).from(adf.getOutputPort())
+				.and().receive(resultsOutputPortAnomal).from(adf.getOutputPortAnomal())
+				.and().receive(resultsOutputPortNormal).from(adf.getOutputPortNomal())
 				.start();
 		assertThat(exceptions, is(empty()));
-		assertThat(results, contains(input3, input4));
+		assertThat(resultsOutputPortAnomal, contains(input3, input4));
+		assertThat(resultsOutputPortNormal, is(empty()));
 	}
 
 	@Test
-	public void theOutputPortsShouldForwardElements() {
-		Collection<Pair<Thread, Throwable>> exceptions;
+	public void bothOutputPortsShouldForwardElements() {
 		exceptions = test(adf).and().send(inputElements).to(adf.getInputPort())
-				.and().receive(results).from(adf.getOutputPort())
+				.and().receive(resultsOutputPortAnomal).from(adf.getOutputPortAnomal())
+				.and().receive(resultsOutputPortNormal).from(adf.getOutputPortNomal())
 				.start();
 		assertThat(exceptions, is(empty()));
-		assertThat(results, contains(input3, input4));
+		assertThat(resultsOutputPortNormal, contains(input1, input2));
+		assertThat(resultsOutputPortAnomal, contains(input3, input4));
+
 	}
 }
