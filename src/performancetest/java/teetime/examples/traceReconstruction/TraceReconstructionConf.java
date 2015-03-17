@@ -95,7 +95,7 @@ public class TraceReconstructionConf extends AnalysisConfiguration {
 		intraThreadPipeFactory.create(this.recordCounter.getOutputPort(), cache.getInputPort());
 		intraThreadPipeFactory.create(cache.getOutputPort(), stringBufferFilter.getInputPort());
 		intraThreadPipeFactory.create(stringBufferFilter.getOutputPort(), instanceOfFilter.getInputPort());
-		intraThreadPipeFactory.create(instanceOfFilter.getOutputPort(), this.throughputFilter.getInputPort());
+		intraThreadPipeFactory.create(instanceOfFilter.getMatchedOutputPort(), this.throughputFilter.getInputPort());
 		intraThreadPipeFactory.create(this.throughputFilter.getOutputPort(), traceReconstructionFilter.getInputPort());
 		// intraThreadPipeFactory.create(instanceOfFilter.getOutputPort(), traceReconstructionFilter.getInputPort());
 		intraThreadPipeFactory.create(traceReconstructionFilter.getTraceValidOutputPort(), merger.getNewInputPort());
