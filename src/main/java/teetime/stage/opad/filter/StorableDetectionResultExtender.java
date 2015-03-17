@@ -55,7 +55,6 @@ public class StorableDetectionResultExtender extends AbstractConsumerStage<Stora
 
 	@Override
 	protected void execute(final StorableDetectionResult element) {
-
 		final ExtendedStorableDetectionResult extAnomalyScore =
 				new ExtendedStorableDetectionResult(
 						element.getApplicationName(),

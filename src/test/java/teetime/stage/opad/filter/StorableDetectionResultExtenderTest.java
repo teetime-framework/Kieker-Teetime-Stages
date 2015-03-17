@@ -51,7 +51,6 @@ public class StorableDetectionResultExtenderTest {
 		sDRExtender = new StorableDetectionResultExtender(6);
 		input = new StorableDetectionResult("Test1", 1, 1, 1, 1);
 		output = new ExtendedStorableDetectionResult("Test1", 1, 1, 1, 1, 6);
-
 		results = new ArrayList<StorableDetectionResult>();
 	}
 
@@ -64,7 +63,5 @@ public class StorableDetectionResultExtenderTest {
 		assertThat(exceptions, is(empty()));
 		assertThat(results, is(not(empty())));
 		assertThat(results, contains(output));
-
 	}
-
 }
