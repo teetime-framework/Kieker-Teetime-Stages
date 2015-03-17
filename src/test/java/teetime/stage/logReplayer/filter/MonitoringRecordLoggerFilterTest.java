@@ -78,5 +78,6 @@ public class MonitoringRecordLoggerFilterTest {
 				.start();
 		assertThat(this.exceptions, is(empty()));
 		assertThat(resultsOutputPort, contains(input1, input2, input3, input4));
+		assertThat(filter.getMonitoringController().isMonitoringTerminated(), is(true));
 	}
 }
