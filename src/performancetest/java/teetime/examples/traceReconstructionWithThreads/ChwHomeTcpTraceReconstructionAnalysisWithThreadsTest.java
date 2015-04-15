@@ -78,7 +78,7 @@ public class ChwHomeTcpTraceReconstructionAnalysisWithThreadsTest {
 
 		this.stopWatch.start();
 		try {
-			analysis.start();
+			analysis.executeBlocking();
 		} finally {
 			this.stopWatch.end();
 		}

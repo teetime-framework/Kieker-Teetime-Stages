@@ -61,7 +61,7 @@ public class ChwWorkTcpTraceReconstructionAnalysisTest {
 
 		this.stopWatch.start();
 		try {
-			analysis.start();
+			analysis.executeBlocking();
 		} finally {
 			this.stopWatch.end();
 		}
