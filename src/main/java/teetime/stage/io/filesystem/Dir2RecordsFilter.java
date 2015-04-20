@@ -16,8 +16,6 @@
 package teetime.stage.io.filesystem;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.Collection;
 
 import teetime.framework.AbstractCompositeStage;
 import teetime.framework.InputPort;
@@ -98,11 +96,6 @@ public final class Dir2RecordsFilter extends AbstractCompositeStage {
 	@Override
 	protected Stage getFirstStage() {
 		return classNameRegistryCreationFilter;
-	}
-
-	@Override
-	protected Collection<? extends Stage> getLastStages() {
-		return Arrays.asList((Stage) recordMerger);
 	}
 
 	public InputPort<File> getInputPort() {

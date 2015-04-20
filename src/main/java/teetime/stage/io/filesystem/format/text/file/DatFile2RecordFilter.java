@@ -16,8 +16,6 @@
 package teetime.stage.io.filesystem.format.text.file;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.Collection;
 
 import teetime.framework.AbstractCompositeStage;
 import teetime.framework.InputPort;
@@ -55,11 +53,6 @@ public class DatFile2RecordFilter extends AbstractCompositeStage {
 	@Override
 	protected Stage getFirstStage() {
 		return file2TextLinesFilter;
-	}
-
-	@Override
-	protected Collection<? extends Stage> getLastStages() {
-		return Arrays.asList(textLine2RecordFilter);
 	}
 
 	public InputPort<File> getInputPort() {

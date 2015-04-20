@@ -23,13 +23,10 @@ import static teetime.framework.test.StageTester.test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
-
-import teetime.util.Pair;
 
 import kieker.tools.opad.record.StorableDetectionResult;
 
@@ -62,37 +59,30 @@ public class AnomalyDetectionFilterTest {
 
 	@Test
 	public void theOutputPortNormalShouldForwardElements() {
-
-		Collection<Pair<Thread, Throwable>> exceptions;
-		exceptions = test(adf).and().send(input1, input2).to(adf.getInputPort())
+		test(adf).and().send(input1, input2).to(adf.getInputPort())
 				.and().receive(resultsNormalPort).from(adf.getOutputPortNormal())
 				.and().receive(resultsAnnormalPort).from(adf.getOutputPortAnnormal())
 				.start();
-		assertThat(exceptions, is(empty()));
 		assertThat(resultsNormalPort, contains(input1, input2));
 		assertThat(resultsAnnormalPort, is(empty()));
 	}
 
 	@Test
 	public void theOutputPortAnnormalShouldForwardElements() {
-		Collection<Pair<Thread, Throwable>> exceptions;
-		exceptions = test(adf).and().send(input3, input4).to(adf.getInputPort())
+		test(adf).and().send(input3, input4).to(adf.getInputPort())
 				.and().receive(resultsNormalPort).from(adf.getOutputPortNormal())
 				.and().receive(resultsAnnormalPort).from(adf.getOutputPortAnnormal())
 				.start();
-		assertThat(exceptions, is(empty()));
 		assertThat(resultsNormalPort, is(empty()));
 		assertThat(resultsAnnormalPort, contains(input3, input4));
 	}
 
 	@Test
 	public void bothOutputPortsShouldForwardElements() {
-		Collection<Pair<Thread, Throwable>> exceptions;
-		exceptions = test(adf).and().send(inputElements).to(adf.getInputPort())
+		test(adf).and().send(inputElements).to(adf.getInputPort())
 				.and().receive(resultsNormalPort).from(adf.getOutputPortNormal())
 				.and().receive(resultsAnnormalPort).from(adf.getOutputPortAnnormal())
 				.start();
-		assertThat(exceptions, is(empty()));
 		assertThat(resultsNormalPort, contains(input1, input2));
 		assertThat(resultsAnnormalPort, contains(input3, input4));
 	}

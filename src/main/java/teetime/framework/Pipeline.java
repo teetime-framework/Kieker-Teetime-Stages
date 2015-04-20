@@ -15,7 +15,6 @@
  */
 package teetime.framework;
 
-import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -45,11 +44,6 @@ public final class Pipeline<L extends Stage> extends AbstractCompositeStage {
 
 	public L getLastStage() {
 		return lastStages.get(0);
-	}
-
-	@Override
-	protected Collection<? extends Stage> getLastStages() {
-		return lastStages;
 	}
 
 }
