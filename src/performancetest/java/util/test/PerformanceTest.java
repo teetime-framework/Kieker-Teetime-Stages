@@ -30,6 +30,8 @@ import teetime.util.StopWatch;
 import teetime.util.TimestampObject;
 import teetime.util.test.eval.PerformanceResult;
 import teetime.util.test.eval.StatisticsUtil;
+import teetime.util.test.framework.MeasurementRepository;
+import teetime.util.test.framework.PerformanceCheckProfileRepository;
 
 public abstract class PerformanceTest {
 

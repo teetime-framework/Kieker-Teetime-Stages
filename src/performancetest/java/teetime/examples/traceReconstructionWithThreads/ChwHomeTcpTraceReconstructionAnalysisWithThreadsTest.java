@@ -73,8 +73,8 @@ public class ChwHomeTcpTraceReconstructionAnalysisWithThreadsTest {
 	void performAnalysis(final int numWorkerThreads) {
 		final TcpTraceReconstructionAnalysisWithThreadsConfiguration configuration = new TcpTraceReconstructionAnalysisWithThreadsConfiguration(numWorkerThreads);
 
-		Analysis analysis = new Analysis(configuration);
-		analysis.init();
+		Analysis<TcpTraceReconstructionAnalysisWithThreadsConfiguration> analysis;
+		analysis = new Analysis<TcpTraceReconstructionAnalysisWithThreadsConfiguration>(configuration);
 
 		this.stopWatch.start();
 		try {

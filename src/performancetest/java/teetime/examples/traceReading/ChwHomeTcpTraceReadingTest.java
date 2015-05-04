@@ -66,8 +66,8 @@ public class ChwHomeTcpTraceReadingTest {
 	public void performAnalysis() {
 		final TcpTraceLoggingExtAnalysisConfiguration configuration = new TcpTraceLoggingExtAnalysisConfiguration();
 
-		final Analysis analysis = new Analysis(configuration);
-		analysis.init();
+		final Analysis<TcpTraceLoggingExtAnalysisConfiguration> analysis;
+		analysis = new Analysis<TcpTraceLoggingExtAnalysisConfiguration>(configuration);
 
 		this.stopWatch.start();
 		try {

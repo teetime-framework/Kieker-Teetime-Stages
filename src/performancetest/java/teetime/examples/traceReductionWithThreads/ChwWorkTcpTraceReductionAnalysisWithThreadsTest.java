@@ -102,8 +102,8 @@ public class ChwWorkTcpTraceReductionAnalysisWithThreadsTest {
 	void performAnalysis(final int numWorkerThreads) {
 		final TcpTraceReductionAnalysisWithThreadsConfiguration configuration = new TcpTraceReductionAnalysisWithThreadsConfiguration(numWorkerThreads);
 
-		Analysis analysis = new Analysis(configuration);
-		analysis.init();
+		Analysis<TcpTraceReductionAnalysisWithThreadsConfiguration> analysis;
+		analysis = new Analysis<TcpTraceReductionAnalysisWithThreadsConfiguration>(configuration);
 
 		this.stopWatch.start();
 		try {

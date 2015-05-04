@@ -27,11 +27,11 @@ import teetime.framework.AbstractStage;
 import teetime.framework.AnalysisConfiguration;
 import teetime.framework.Pipeline;
 import teetime.framework.Stage;
+import teetime.framework.pipe.IMonitorablePipe;
 import teetime.framework.pipe.IPipe;
 import teetime.framework.pipe.IPipeFactory;
 import teetime.framework.pipe.PipeFactoryRegistry.PipeOrdering;
 import teetime.framework.pipe.PipeFactoryRegistry.ThreadCommunication;
-import teetime.framework.pipe.SpScPipe;
 import teetime.stage.Clock;
 import teetime.stage.Counter;
 import teetime.stage.ElementDelayMeasuringStage;
@@ -62,7 +62,7 @@ public class TcpTraceReductionAnalysisWithThreadsConfiguration extends AnalysisC
 
 	private final List<EventBasedTrace> elementCollection = new LinkedList<EventBasedTrace>();
 
-	private final List<IPipe> tcpRelayPipes = new ArrayList<IPipe>();
+	private final List<IMonitorablePipe> tcpRelayPipes = new ArrayList<IMonitorablePipe>();
 	private final int numWorkerThreads;
 
 	private final ConcurrentHashMapWithDefault<Long, EventBasedTrace> traceId2trace;
@@ -183,7 +183,7 @@ public class TcpTraceReductionAnalysisWithThreadsConfiguration extends AnalysisC
 
 		// connect stages
 		final IPipe pipe = interThreadPipeFactory.create(tcpPipeline.getLastStage().getNewOutputPort(), relay.getInputPort(), TCP_RELAY_MAX_SIZE);
-		this.tcpRelayPipes.add(pipe);
+		this.tcpRelayPipes.add((IMonitorablePipe) pipe);
 
 		intraThreadPipeFactory.create(relay.getOutputPort(), recordCounter.getInputPort());
 		intraThreadPipeFactory.create(recordCounter.getOutputPort(), traceMetadataCounter.getInputPort());
@@ -241,9 +241,8 @@ public class TcpTraceReductionAnalysisWithThreadsConfiguration extends AnalysisC
 
 	public int getMaxNumWaits() {
 		int maxNumWaits = 0;
-		for (IPipe pipe : this.tcpRelayPipes) {
-			SpScPipe interThreadPipe = (SpScPipe) pipe;
-			maxNumWaits = Math.max(maxNumWaits, interThreadPipe.getNumWaits());
+		for (IMonitorablePipe pipe : this.tcpRelayPipes) {
+			maxNumWaits = Math.max(maxNumWaits, pipe.getNumWaits());
 		}
 		return maxNumWaits;
 	}

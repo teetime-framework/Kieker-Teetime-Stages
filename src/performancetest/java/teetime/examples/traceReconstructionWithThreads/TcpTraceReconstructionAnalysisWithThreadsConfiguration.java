@@ -25,11 +25,11 @@ import teetime.framework.AbstractStage;
 import teetime.framework.AnalysisConfiguration;
 import teetime.framework.Pipeline;
 import teetime.framework.Stage;
+import teetime.framework.pipe.IMonitorablePipe;
 import teetime.framework.pipe.IPipe;
 import teetime.framework.pipe.IPipeFactory;
 import teetime.framework.pipe.PipeFactoryRegistry.PipeOrdering;
 import teetime.framework.pipe.PipeFactoryRegistry.ThreadCommunication;
-import teetime.framework.pipe.SpScPipe;
 import teetime.stage.Clock;
 import teetime.stage.Counter;
 import teetime.stage.ElementDelayMeasuringStage;
@@ -70,7 +70,7 @@ public class TcpTraceReconstructionAnalysisWithThreadsConfiguration extends Anal
 	private final StageFactory<Counter<EventBasedTrace>> traceCounterFactory;
 	private final StageFactory<ElementThroughputMeasuringStage<EventBasedTrace>> traceThroughputFilterFactory;
 
-	private final List<IPipe> tcpRelayPipes = new LinkedList<IPipe>();
+	private final List<IMonitorablePipe> tcpRelayPipes = new LinkedList<IMonitorablePipe>();
 	private final IPipeFactory intraThreadPipeFactory;
 	private final IPipeFactory interThreadPipeFactory;
 
@@ -183,7 +183,7 @@ public class TcpTraceReconstructionAnalysisWithThreadsConfiguration extends Anal
 
 		// connect stages
 		IPipe tcpRelayPipe = interThreadPipeFactory.create(tcpReaderPipeline.getNewOutputPort(), relay.getInputPort(), TCP_RELAY_MAX_SIZE);
-		this.tcpRelayPipes.add(tcpRelayPipe);
+		this.tcpRelayPipes.add((IMonitorablePipe) tcpRelayPipe);
 		// SysOutFilter<EventBasedTrace> sysout = new SysOutFilter<EventBasedTrace>(tcpRelayPipe);
 
 		interThreadPipeFactory.create(clockStage.getNewOutputPort(), recordThroughputFilter.getTriggerInputPort(), 10);
@@ -256,9 +256,8 @@ public class TcpTraceReconstructionAnalysisWithThreadsConfiguration extends Anal
 
 	public int getMaxNumWaits() {
 		int maxNumWaits = 0;
-		for (IPipe pipe : this.tcpRelayPipes) {
-			SpScPipe interThreadPipe = (SpScPipe) pipe;
-			maxNumWaits = Math.max(maxNumWaits, interThreadPipe.getNumWaits());
+		for (IMonitorablePipe pipe : this.tcpRelayPipes) {
+			maxNumWaits = Math.max(maxNumWaits, pipe.getNumWaits());
 		}
 		return maxNumWaits;
 	}
