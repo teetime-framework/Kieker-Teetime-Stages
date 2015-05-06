@@ -19,11 +19,8 @@ import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 
-import teetime.framework.Stage;
 import teetime.framework.AnalysisConfiguration;
-import teetime.framework.pipe.IPipeFactory;
-import teetime.framework.pipe.PipeFactoryRegistry.PipeOrdering;
-import teetime.framework.pipe.PipeFactoryRegistry.ThreadCommunication;
+import teetime.framework.Stage;
 import teetime.stage.CollectorSink;
 import teetime.stage.InitialElementProducer;
 import teetime.stage.className.ClassNameRegistryRepository;
@@ -39,10 +36,8 @@ import kieker.common.record.IMonitoringRecord;
 public class RecordReaderConfiguration extends AnalysisConfiguration {
 
 	private final List<IMonitoringRecord> elementCollection = new LinkedList<IMonitoringRecord>();
-	private final IPipeFactory intraThreadPipeFactory;
 
 	public RecordReaderConfiguration() {
-		intraThreadPipeFactory = PIPE_FACTORY_REGISTRY.getPipeFactory(ThreadCommunication.INTRA, PipeOrdering.ARBITRARY, false);
 		this.buildConfiguration();
 	}
 
@@ -60,8 +55,8 @@ public class RecordReaderConfiguration extends AnalysisConfiguration {
 		CollectorSink<IMonitoringRecord> collector = new CollectorSink<IMonitoringRecord>(this.elementCollection);
 
 		// connect stages
-		intraThreadPipeFactory.create(initialElementProducer.getOutputPort(), dir2RecordsFilter.getInputPort());
-		intraThreadPipeFactory.create(dir2RecordsFilter.getOutputPort(), collector.getInputPort());
+		connectIntraThreads(initialElementProducer.getOutputPort(), dir2RecordsFilter.getInputPort());
+		connectIntraThreads(dir2RecordsFilter.getOutputPort(), collector.getInputPort());
 
 		return initialElementProducer;
 	}
