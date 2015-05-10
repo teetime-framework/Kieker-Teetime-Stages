@@ -53,7 +53,7 @@ public class Dir2RecordsFilterTest {
 	}
 
 	@Test
-	public void noExceptionThrown() {
+	public void shouldNotThrowAnyException() {
 		new Analysis<TestConfiguration>(new TestConfiguration()).executeBlocking();
 	}
 }

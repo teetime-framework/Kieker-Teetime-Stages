@@ -17,30 +17,32 @@ package teetime.stage.io.filesystem.format.binary;
 
 import java.io.File;
 
-import teetime.framework.AbstractStage;
+import teetime.framework.AbstractCompositeStage;
 import teetime.framework.InputPort;
 import teetime.framework.OutputPort;
+import teetime.framework.Stage;
 import teetime.stage.className.ClassNameRegistryCreationFilter;
 import teetime.stage.className.ClassNameRegistryRepository;
 import teetime.stage.io.filesystem.format.binary.file.BinaryFile2RecordFilter;
 
 import kieker.common.record.IMonitoringRecord;
 
-public class DirWithBin2RecordFilter extends AbstractStage {
+public class DirWithBin2RecordFilter extends AbstractCompositeStage {
 
-	private ClassNameRegistryRepository classNameRegistryRepository;
 	private final ClassNameRegistryCreationFilter classNameRegistryCreationFilter;
 	private final BinaryFile2RecordFilter binaryFile2RecordFilter;
+
+	private ClassNameRegistryRepository classNameRegistryRepository;
+
+	public DirWithBin2RecordFilter() {
+		this(null);
+	}
 
 	public DirWithBin2RecordFilter(final ClassNameRegistryRepository classNameRegistryRepository) {
 		this.classNameRegistryRepository = classNameRegistryRepository;
 
 		classNameRegistryCreationFilter = new ClassNameRegistryCreationFilter(classNameRegistryRepository);
 		binaryFile2RecordFilter = new BinaryFile2RecordFilter(classNameRegistryRepository);
-	}
-
-	public DirWithBin2RecordFilter() {
-		this(null);
 	}
 
 	public ClassNameRegistryRepository getClassNameRegistryRepository() {
@@ -51,6 +53,11 @@ public class DirWithBin2RecordFilter extends AbstractStage {
 		this.classNameRegistryRepository = classNameRegistryRepository;
 	}
 
+	@Override
+	protected Stage getFirstStage() {
+		return classNameRegistryCreationFilter;
+	}
+
 	public InputPort<File> getInputPort() {
 		return this.classNameRegistryCreationFilter.getInputPort();
 	}
@@ -59,8 +66,4 @@ public class DirWithBin2RecordFilter extends AbstractStage {
 		return this.binaryFile2RecordFilter.getOutputPort();
 	}
 
-	@Override
-	public void executeStage() {
-		classNameRegistryCreationFilter.executeStage();
-	}
 }
