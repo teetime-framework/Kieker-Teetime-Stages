@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 Christian Wulf, Nelson Tavares de Sousa (http://teetime.sourceforge.net)
+ * Copyright (C) 2015 TeeTime (http://teetime.sourceforge.net)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,11 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package teetime.stage.opad.filter;
 
 import teetime.framework.AbstractConsumerStage;
 import teetime.framework.OutputPort;
 
+import kieker.tools.opad.record.ExtendedStorableDetectionResult;
 import kieker.tools.opad.record.StorableDetectionResult;
 
 /**
@@ -30,22 +32,15 @@ import kieker.tools.opad.record.StorableDetectionResult;
  * @since 1.10
  *
  */
-public class AnomalyDetectionFilter extends AbstractConsumerStage<StorableDetectionResult> {
+public class StorableDetectionResultExtender extends AbstractConsumerStage<StorableDetectionResult> {
 
-	/** The output port delivering the abnormal score if it exceeds or equals the threshold. */
-	private final OutputPort<StorableDetectionResult> outputPortAnomal = this.createOutputPort();
-
-	/** The output port delivering the normal score if it exceeds or equals the threshold. */
-	private final OutputPort<StorableDetectionResult> outputPortNomal = this.createOutputPort();
+	/** The output port delivering the normal score if it remains below the threshold. */
+	private final OutputPort<StorableDetectionResult> outputPort = this.createOutputPort();
 
 	private final double threshold;
 
-	public OutputPort<StorableDetectionResult> getOutputPortAbnormal() {
-		return outputPortAnomal;
-	}
-
-	public OutputPort<StorableDetectionResult> getOutputPortRegular() {
-		return outputPortNomal;
+	public OutputPort<StorableDetectionResult> getOutputPort() {
+		return outputPort;
 	}
 
 	public double getThreshold() {
@@ -53,21 +48,22 @@ public class AnomalyDetectionFilter extends AbstractConsumerStage<StorableDetect
 	}
 
 	/** @param threshold */
-	public AnomalyDetectionFilter(final double threshold) {
+	public StorableDetectionResultExtender(final double threshold) {
 		super();
 		this.threshold = threshold;
 	}
 
 	@Override
 	protected void execute(final StorableDetectionResult element) {
+		final ExtendedStorableDetectionResult extAnomalyScore =
+				new ExtendedStorableDetectionResult(
+						element.getApplicationName(),
+						element.getValue(),
+						element.getTimestamp(),
+						element.getForecast(),
+						element.getScore(),
+						this.threshold);
 
-		if (element.getValue() >= threshold) {
-			this.outputPortAnomal.send(element);
-		} else {
-			this.outputPortNomal.send(element);
-
-		}
-
+		outputPort.send(extAnomalyScore);
 	}
-
 }
