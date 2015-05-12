@@ -16,19 +16,15 @@
 
 package teetime.stage.logReplayer.filter;
 
-import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
 import static org.junit.Assert.assertThat;
 import static teetime.framework.test.StageTester.test;
 
-import java.util.Collection;
 import java.util.LinkedList;
 
 import org.junit.Before;
 import org.junit.Test;
-
-import teetime.util.Pair;
 
 import kieker.common.configuration.Configuration;
 import kieker.common.record.IMonitoringRecord;
@@ -40,8 +36,6 @@ import kieker.tools.opad.record.NamedDoubleRecord;
  * @since 1.6
  */
 public class MonitoringRecordLoggerFilterTest {
-
-	public Collection<Pair<Thread, Throwable>> exceptions;
 
 	private MonitoringRecordLoggerFilter filter;
 	private IMonitoringRecord input1;
@@ -72,11 +66,10 @@ public class MonitoringRecordLoggerFilterTest {
 
 	@Test
 	public void theOutputPortShouldForwardFourElements() {
-		exceptions = test(filter)
+		test(filter)
 				.and().send(inputElements).to(filter.getInputPort())
 				.and().receive(resultsOutputPort).from(filter.getOutputPort())
 				.start();
-		assertThat(this.exceptions, is(empty()));
 		assertThat(resultsOutputPort, contains(input1, input2, input3, input4));
 		assertThat(filter.getMonitoringController().isMonitoringTerminated(), is(true));
 	}
