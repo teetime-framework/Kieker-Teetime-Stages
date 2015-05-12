@@ -45,8 +45,8 @@ public class AnomalyDetectionFilterTest {
 	private StorableDetectionResult input3;
 	private StorableDetectionResult input4;
 	private List<StorableDetectionResult> inputElements;
-	private List<StorableDetectionResult> resultsPortAnormal;
-	private List<StorableDetectionResult> resultsPortNormal;
+	private List<StorableDetectionResult> resultsPortAbnormal;
+	private List<StorableDetectionResult> resultsPortRegular;
 
 	@Before
 	public void initializeAnomalyDetectionFilterAndInputs() {
@@ -56,37 +56,37 @@ public class AnomalyDetectionFilterTest {
 		input3 = new StorableDetectionResult("Test3", 6, 1, 1, 1);
 		input4 = new StorableDetectionResult("Test4", 7, 1, 1, 1);
 		inputElements = Arrays.asList(input1, input2, input3, input4);
-		resultsPortAnormal = new ArrayList<StorableDetectionResult>();
-		resultsPortNormal = new ArrayList<StorableDetectionResult>();
+		resultsPortAbnormal = new ArrayList<StorableDetectionResult>();
+		resultsPortRegular = new ArrayList<StorableDetectionResult>();
 	}
 
 	@Test
 	public void theOutputPortNormalShouldForwardElements() {
 		test(adf).and().send(input1, input2).to(adf.getInputPort())
-				.and().receive(resultsPortNormal).from(adf.getOutputPortNormal())
-				.and().receive(resultsPortAnormal).from(adf.getOutputPortAnormal())
+				.and().receive(resultsPortRegular).from(adf.getOutputPortRegular())
+				.and().receive(resultsPortAbnormal).from(adf.getOutputPortAbnormal())
 				.start();
-		assertThat(resultsPortNormal, contains(input1, input2));
-		assertThat(resultsPortAnormal, is(empty()));
+		assertThat(resultsPortRegular, contains(input1, input2));
+		assertThat(resultsPortAbnormal, is(empty()));
 	}
 
 	@Test
 	public void theOutputPortAnnormalShouldForwardElements() {
 		test(adf).and().send(input3, input4).to(adf.getInputPort())
-				.and().receive(resultsPortNormal).from(adf.getOutputPortNormal())
-				.and().receive(resultsPortAnormal).from(adf.getOutputPortAnormal())
+				.and().receive(resultsPortRegular).from(adf.getOutputPortRegular())
+				.and().receive(resultsPortAbnormal).from(adf.getOutputPortAbnormal())
 				.start();
-		assertThat(resultsPortNormal, is(empty()));
-		assertThat(resultsPortAnormal, contains(input3, input4));
+		assertThat(resultsPortRegular, is(empty()));
+		assertThat(resultsPortAbnormal, contains(input3, input4));
 	}
 
 	@Test
 	public void bothOutputPortsShouldForwardElements() {
 		test(adf).and().send(inputElements).to(adf.getInputPort())
-				.and().receive(resultsPortNormal).from(adf.getOutputPortNormal())
-				.and().receive(resultsPortAnormal).from(adf.getOutputPortAnormal())
+				.and().receive(resultsPortRegular).from(adf.getOutputPortRegular())
+				.and().receive(resultsPortAbnormal).from(adf.getOutputPortAbnormal())
 				.start();
-		assertThat(resultsPortNormal, contains(input1, input2));
-		assertThat(resultsPortAnormal, contains(input3, input4));
+		assertThat(resultsPortRegular, contains(input1, input2));
+		assertThat(resultsPortAbnormal, contains(input3, input4));
 	}
 }

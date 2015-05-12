@@ -40,11 +40,11 @@ public class AnomalyDetectionFilter extends AbstractConsumerStage<StorableDetect
 
 	private final double threshold;
 
-	public OutputPort<StorableDetectionResult> getOutputPortAnormal() {
+	public OutputPort<StorableDetectionResult> getOutputPortAbnormal() {
 		return outputPortAnomal;
 	}
 
-	public OutputPort<StorableDetectionResult> getOutputPortNormal() {
+	public OutputPort<StorableDetectionResult> getOutputPortRegular() {
 		return outputPortNomal;
 	}
 
