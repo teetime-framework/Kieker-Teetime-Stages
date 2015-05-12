@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 TeeTime (http://teetime.sourceforge.net)
+ * Copyright (C) 2015 Christian Wulf, Nelson Tavares de Sousa (http://teetime.sourceforge.net)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,14 +38,15 @@ import kieker.tools.opad.record.StorableDetectionResult;
  */
 public class AnomalyDetectionFilterTest {
 
+	Collection<Pair<Thread, Throwable>> exceptions;
 	private AnomalyDetectionFilter adf;
 	private StorableDetectionResult input1;
 	private StorableDetectionResult input2;
 	private StorableDetectionResult input3;
 	private StorableDetectionResult input4;
 	private List<StorableDetectionResult> inputElements;
-	private List<StorableDetectionResult> resultsNormalPort;
-	private List<StorableDetectionResult> resultsAnnormalPort;
+	private List<StorableDetectionResult> resultsPortAbnormal;
+	private List<StorableDetectionResult> resultsPortRegular;
 
 	@Before
 	public void initializeAnomalyDetectionFilterAndInputs() {
@@ -55,45 +56,37 @@ public class AnomalyDetectionFilterTest {
 		input3 = new StorableDetectionResult("Test3", 6, 1, 1, 1);
 		input4 = new StorableDetectionResult("Test4", 7, 1, 1, 1);
 		inputElements = Arrays.asList(input1, input2, input3, input4);
-
-		resultsNormalPort = new ArrayList<StorableDetectionResult>();
-		resultsAnnormalPort = new ArrayList<StorableDetectionResult>();
+		resultsPortAbnormal = new ArrayList<StorableDetectionResult>();
+		resultsPortRegular = new ArrayList<StorableDetectionResult>();
 	}
 
 	@Test
 	public void theOutputPortNormalShouldForwardElements() {
-
-		Collection<Pair<Thread, Throwable>> exceptions;
-		exceptions = test(adf).and().send(input1, input2).to(adf.getInputPort())
-				.and().receive(resultsNormalPort).from(adf.getOutputPortNormal())
-				.and().receive(resultsAnnormalPort).from(adf.getOutputPortAnnormal())
+		test(adf).and().send(input1, input2).to(adf.getInputPort())
+				.and().receive(resultsPortRegular).from(adf.getOutputPortRegular())
+				.and().receive(resultsPortAbnormal).from(adf.getOutputPortAbnormal())
 				.start();
-		assertThat(exceptions, is(empty()));
-		assertThat(resultsNormalPort, contains(input1, input2));
-		assertThat(resultsAnnormalPort, is(empty()));
+		assertThat(resultsPortRegular, contains(input1, input2));
+		assertThat(resultsPortAbnormal, is(empty()));
 	}
 
 	@Test
 	public void theOutputPortAnnormalShouldForwardElements() {
-		Collection<Pair<Thread, Throwable>> exceptions;
-		exceptions = test(adf).and().send(input3, input4).to(adf.getInputPort())
-				.and().receive(resultsNormalPort).from(adf.getOutputPortNormal())
-				.and().receive(resultsAnnormalPort).from(adf.getOutputPortAnnormal())
+		test(adf).and().send(input3, input4).to(adf.getInputPort())
+				.and().receive(resultsPortRegular).from(adf.getOutputPortRegular())
+				.and().receive(resultsPortAbnormal).from(adf.getOutputPortAbnormal())
 				.start();
-		assertThat(exceptions, is(empty()));
-		assertThat(resultsNormalPort, is(empty()));
-		assertThat(resultsAnnormalPort, contains(input3, input4));
+		assertThat(resultsPortRegular, is(empty()));
+		assertThat(resultsPortAbnormal, contains(input3, input4));
 	}
 
 	@Test
 	public void bothOutputPortsShouldForwardElements() {
-		Collection<Pair<Thread, Throwable>> exceptions;
-		exceptions = test(adf).and().send(inputElements).to(adf.getInputPort())
-				.and().receive(resultsNormalPort).from(adf.getOutputPortNormal())
-				.and().receive(resultsAnnormalPort).from(adf.getOutputPortAnnormal())
+		test(adf).and().send(inputElements).to(adf.getInputPort())
+				.and().receive(resultsPortRegular).from(adf.getOutputPortRegular())
+				.and().receive(resultsPortAbnormal).from(adf.getOutputPortAbnormal())
 				.start();
-		assertThat(exceptions, is(empty()));
-		assertThat(resultsNormalPort, contains(input1, input2));
-		assertThat(resultsAnnormalPort, contains(input3, input4));
+		assertThat(resultsPortRegular, contains(input1, input2));
+		assertThat(resultsPortAbnormal, contains(input3, input4));
 	}
 }
