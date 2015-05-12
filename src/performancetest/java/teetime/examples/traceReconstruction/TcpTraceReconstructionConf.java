@@ -1,3 +1,18 @@
+/**
+ * Copyright (C) 2015 Christian Wulf, Nelson Tavares de Sousa (http://teetime.sourceforge.net)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package teetime.examples.traceReconstruction;
 
 import java.util.List;
@@ -5,9 +20,6 @@ import java.util.List;
 import teetime.framework.AnalysisConfiguration;
 import teetime.framework.Pipeline;
 import teetime.framework.Stage;
-import teetime.framework.pipe.IPipeFactory;
-import teetime.framework.pipe.PipeFactoryRegistry.PipeOrdering;
-import teetime.framework.pipe.PipeFactoryRegistry.ThreadCommunication;
 import teetime.stage.Clock;
 import teetime.stage.Counter;
 import teetime.stage.ElementThroughputMeasuringStage;
@@ -35,12 +47,7 @@ public class TcpTraceReconstructionConf extends AnalysisConfiguration {
 	private ElementThroughputMeasuringStage<IFlowRecord> recordThroughputFilter;
 	private ElementThroughputMeasuringStage<EventBasedTrace> traceThroughputFilter;
 
-	private final IPipeFactory intraThreadPipeFactory;
-	private final IPipeFactory interThreadPipeFactory;
-
 	public TcpTraceReconstructionConf() {
-		intraThreadPipeFactory = PIPE_FACTORY_REGISTRY.getPipeFactory(ThreadCommunication.INTRA, PipeOrdering.ARBITRARY, false);
-		interThreadPipeFactory = PIPE_FACTORY_REGISTRY.getPipeFactory(ThreadCommunication.INTER, PipeOrdering.QUEUE_BASED, false);
 		this.traceId2trace = new ConcurrentHashMapWithDefault<Long, EventBasedTrace>(EventBasedTraceFactory.INSTANCE);
 		init();
 	}
@@ -61,7 +68,7 @@ public class TcpTraceReconstructionConf extends AnalysisConfiguration {
 		clock.setIntervalDelayInMs(intervalDelayInMs);
 		Distributor<Long> distributor = new Distributor<Long>();
 
-		intraThreadPipeFactory.create(clock.getOutputPort(), distributor.getInputPort());
+		connectIntraThreads(clock.getOutputPort(), distributor.getInputPort());
 
 		return new Pipeline<Distributor<Long>>(clock, distributor);
 	}
@@ -79,18 +86,18 @@ public class TcpTraceReconstructionConf extends AnalysisConfiguration {
 		Sink<EventBasedTrace> endStage = new Sink<EventBasedTrace>();
 
 		// connect stages
-		interThreadPipeFactory.create(tcpReader.getOutputPort(), this.recordCounter.getInputPort(), TCP_RELAY_MAX_SIZE);
-		intraThreadPipeFactory.create(this.recordCounter.getOutputPort(), instanceOfFilter.getInputPort());
-		// intraThreadPipeFactory.create(instanceOfFilter.getOutputPort(), this.recordThroughputFilter.getInputPort());
-		// intraThreadPipeFactory.create(this.recordThroughputFilter.getOutputPort(), traceReconstructionFilter.getInputPort());
-		intraThreadPipeFactory.create(instanceOfFilter.getMatchedOutputPort(), traceReconstructionFilter.getInputPort());
-		intraThreadPipeFactory.create(traceReconstructionFilter.getTraceValidOutputPort(), this.traceThroughputFilter.getInputPort());
-		intraThreadPipeFactory.create(this.traceThroughputFilter.getOutputPort(), this.traceCounter.getInputPort());
-		// intraThreadPipeFactory.create(traceReconstructionFilter.getTraceValidOutputPort(), this.traceCounter.getInputPort());
-		intraThreadPipeFactory.create(this.traceCounter.getOutputPort(), endStage.getInputPort());
+		connectBoundedInterThreads(tcpReader.getOutputPort(), this.recordCounter.getInputPort(), TCP_RELAY_MAX_SIZE);
+		connectIntraThreads(this.recordCounter.getOutputPort(), instanceOfFilter.getInputPort());
+		// connectIntraThreads(instanceOfFilter.getOutputPort(), this.recordThroughputFilter.getInputPort());
+		// connectIntraThreads(this.recordThroughputFilter.getOutputPort(), traceReconstructionFilter.getInputPort());
+		connectIntraThreads(instanceOfFilter.getMatchedOutputPort(), traceReconstructionFilter.getInputPort());
+		connectIntraThreads(traceReconstructionFilter.getTraceValidOutputPort(), this.traceThroughputFilter.getInputPort());
+		connectIntraThreads(this.traceThroughputFilter.getOutputPort(), this.traceCounter.getInputPort());
+		// connectIntraThreads(traceReconstructionFilter.getTraceValidOutputPort(), this.traceCounter.getInputPort());
+		connectIntraThreads(this.traceCounter.getOutputPort(), endStage.getInputPort());
 
-		interThreadPipeFactory.create(clockStage.getNewOutputPort(), this.recordThroughputFilter.getTriggerInputPort(), 10);
-		interThreadPipeFactory.create(clock2Stage.getNewOutputPort(), this.traceThroughputFilter.getTriggerInputPort(), 10);
+		connectBoundedInterThreads(clockStage.getNewOutputPort(), this.recordThroughputFilter.getTriggerInputPort(), 10);
+		connectBoundedInterThreads(clock2Stage.getNewOutputPort(), this.traceThroughputFilter.getTriggerInputPort(), 10);
 
 		return tcpReader;
 	}

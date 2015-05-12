@@ -56,11 +56,10 @@ public class StorableDetectionResultExtenderTest {
 
 	@Test
 	public void theOutputPortShouldConvertElements() {
-		exceptions = test(sDRExtender)
+		test(sDRExtender)
 				.and().send(input).to(sDRExtender.getInputPort())
 				.and().receive(results).from(sDRExtender.getOutputPort())
 				.start();
-		assertThat(exceptions, is(empty()));
 		assertThat(results, is(not(empty())));
 		assertThat(results, contains(output));
 	}

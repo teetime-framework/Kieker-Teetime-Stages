@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2015 TeeTime (http://teetime.sourceforge.net)
+ * Copyright (C) 2015 Christian Wulf, Nelson Tavares de Sousa (http://teetime.sourceforge.net)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package teetime.stage.opad.filter;
 
 import teetime.framework.AbstractConsumerStage;
@@ -41,11 +40,11 @@ public class AnomalyDetectionFilter extends AbstractConsumerStage<StorableDetect
 
 	private final double threshold;
 
-	public OutputPort<StorableDetectionResult> getOutputPortAnomal() {
+	public OutputPort<StorableDetectionResult> getOutputPortAnormal() {
 		return outputPortAnomal;
 	}
 
-	public OutputPort<StorableDetectionResult> getOutputPortNomal() {
+	public OutputPort<StorableDetectionResult> getOutputPortNormal() {
 		return outputPortNomal;
 	}
 
