@@ -22,22 +22,17 @@ import static org.junit.Assert.assertThat;
 import static teetime.framework.test.StageTester.test;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
 
-import teetime.util.Pair;
-
 import kieker.common.record.controlflow.OperationExecutionRecord;
 import kieker.tools.opad.record.NamedDoubleRecord;
 
 /** @author Arne Jan Salveter */
 public class RecordConverterTest {
-
-	public Collection<Pair<Thread, Throwable>> exceptions;
 
 	private RecordConverter recordConverter;
 	private OperationExecutionRecord input1;
@@ -74,31 +69,28 @@ public class RecordConverterTest {
 
 	@Test
 	public void theOutputPortNdrShouldForwardConvertedElement() {
-		exceptions = test(recordConverter)
+		test(recordConverter)
 				.and().send(input1).to(recordConverter.getInputPort())
 				.and().receive(resultsNdrOutputport).from(recordConverter.getOutputPort())
 				.start();
-		assertThat(this.exceptions, is(empty()));
 		assertThat(resultsNdrOutputport, contains(output1));
 	}
 
 	@Test
 	public void theOutputPortNdrShouldForwardZeroElements() {
-		exceptions = test(recordConverter)
+		test(recordConverter)
 				.and().send(input4).to(recordConverter.getInputPort())
 				.and().receive(resultsNdrOutputport).from(recordConverter.getOutputPort())
 				.start();
-		assertThat(this.exceptions, is(empty()));
 		assertThat(this.resultsNdrOutputport, is(empty()));
 	}
 
 	@Test
 	public void theOutputPortNdrShouldForwardThreeConvertedElements() {
-		exceptions = test(recordConverter)
+		test(recordConverter)
 				.and().send(inputElements).to(recordConverter.getInputPort())
 				.and().receive(resultsNdrOutputport).from(recordConverter.getOutputPort())
 				.start();
-		assertThat(this.exceptions, is(empty()));
 		assertThat(this.resultsNdrOutputport, contains(output1, output2, output3));
 	}
 }
