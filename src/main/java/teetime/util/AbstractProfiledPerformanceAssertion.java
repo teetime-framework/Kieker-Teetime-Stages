@@ -13,18 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package teetime.stage.trace.traceReconstruction;
+package teetime.util;
 
-import teetime.util.ValueFactory;
+public abstract class AbstractProfiledPerformanceAssertion {
 
-public final class EventBasedTraceFactory implements ValueFactory<EventBasedTrace> {
+	public abstract String getCorrespondingPerformanceProfile();
 
-	public final static EventBasedTraceFactory INSTANCE = new EventBasedTraceFactory();
-
-	private EventBasedTraceFactory() {}
-
-	@Override
-	public EventBasedTrace create() {
-		return new EventBasedTrace();
-	}
+	public abstract void check();
 }

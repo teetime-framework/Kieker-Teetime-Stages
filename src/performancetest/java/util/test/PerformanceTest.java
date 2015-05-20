@@ -26,12 +26,12 @@ import org.junit.rules.TestRule;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 
+import teetime.util.MeasurementRepository;
+import teetime.util.PerformanceCheckProfileRepository;
+import teetime.util.PerformanceResult;
+import teetime.util.StatisticsUtil;
 import teetime.util.StopWatch;
 import teetime.util.TimestampObject;
-import teetime.util.test.eval.PerformanceResult;
-import teetime.util.test.eval.StatisticsUtil;
-import teetime.util.test.framework.MeasurementRepository;
-import teetime.util.test.framework.PerformanceCheckProfileRepository;
 
 public abstract class PerformanceTest {
 

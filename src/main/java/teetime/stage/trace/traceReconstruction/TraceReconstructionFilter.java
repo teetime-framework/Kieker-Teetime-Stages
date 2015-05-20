@@ -19,9 +19,9 @@ import java.util.concurrent.TimeUnit;
 
 import teetime.framework.AbstractConsumerStage;
 import teetime.framework.OutputPort;
+import teetime.util.ConcurrentHashMapWithDefault;
 import teetime.util.ISendTraceBuffer;
 import teetime.util.TraceReconstructor;
-import teetime.util.concurrent.hashmap.ConcurrentHashMapWithDefault;
 
 import kieker.common.record.flow.IFlowRecord;
 

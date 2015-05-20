@@ -13,18 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package teetime.stage.trace.traceReconstruction;
+package teetime.util;
 
-import teetime.util.ValueFactory;
+import java.util.HashMap;
+import java.util.Map;
 
-public final class EventBasedTraceFactory implements ValueFactory<EventBasedTrace> {
+public class MeasurementRepository {
 
-	public final static EventBasedTraceFactory INSTANCE = new EventBasedTraceFactory();
+	public final Map<String, PerformanceResult> performanceResults = new HashMap<String, PerformanceResult>();
 
-	private EventBasedTraceFactory() {}
+	public MeasurementRepository() {}
 
-	@Override
-	public EventBasedTrace create() {
-		return new EventBasedTrace();
+	public static final String buildTestMethodIdentifier(final Class<?> testClass, final String methodName) {
+		return testClass.getName() + "(" + methodName + ")";
 	}
 }

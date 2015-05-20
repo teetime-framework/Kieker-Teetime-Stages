@@ -45,7 +45,7 @@ import teetime.stage.trace.traceReconstruction.TraceReconstructionFilter;
 import teetime.stage.trace.traceReduction.EventBasedTraceComperator;
 import teetime.stage.trace.traceReduction.TraceAggregationBuffer;
 import teetime.stage.trace.traceReduction.TraceReductionFilter;
-import teetime.util.concurrent.hashmap.ConcurrentHashMapWithDefault;
+import teetime.util.ConcurrentHashMapWithDefault;
 
 import kieker.common.record.IMonitoringRecord;
 import kieker.common.record.flow.IFlowRecord;

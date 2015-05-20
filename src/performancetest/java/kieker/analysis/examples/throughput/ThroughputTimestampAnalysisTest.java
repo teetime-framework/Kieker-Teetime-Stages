@@ -21,9 +21,9 @@ import java.util.concurrent.Callable;
 
 import org.junit.Test;
 
+import teetime.util.StatisticsUtil;
 import teetime.util.StopWatch;
 import teetime.util.TimestampObject;
-import teetime.util.test.eval.StatisticsUtil;
 import util.test.PerformanceTest;
 
 import kieker.analysis.examples.ThroughputTimestampAnalysis;

@@ -16,7 +16,6 @@
 package teetime.util;
 
 import teetime.stage.trace.traceReconstruction.EventBasedTrace;
-import teetime.util.concurrent.hashmap.ConcurrentHashMapWithDefault;
 
 import kieker.common.record.flow.IFlowRecord;
 import kieker.common.record.flow.trace.AbstractTraceEvent;

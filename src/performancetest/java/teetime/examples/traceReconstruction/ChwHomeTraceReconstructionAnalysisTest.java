@@ -33,8 +33,8 @@ import org.junit.Test;
 
 import teetime.framework.Analysis;
 import teetime.stage.trace.traceReconstruction.EventBasedTrace;
+import teetime.util.StatisticsUtil;
 import teetime.util.StopWatch;
-import teetime.util.test.eval.StatisticsUtil;
 
 /**
  * @author Christian Wulf

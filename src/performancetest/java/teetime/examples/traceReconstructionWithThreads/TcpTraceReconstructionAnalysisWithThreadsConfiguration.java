@@ -40,7 +40,7 @@ import teetime.stage.io.network.TcpReaderStage;
 import teetime.stage.trace.traceReconstruction.EventBasedTrace;
 import teetime.stage.trace.traceReconstruction.EventBasedTraceFactory;
 import teetime.stage.trace.traceReconstruction.TraceReconstructionFilter;
-import teetime.util.concurrent.hashmap.ConcurrentHashMapWithDefault;
+import teetime.util.ConcurrentHashMapWithDefault;
 
 import kieker.common.record.IMonitoringRecord;
 import kieker.common.record.flow.IFlowRecord;

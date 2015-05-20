@@ -34,8 +34,8 @@ import org.junit.runners.MethodSorters;
 
 import teetime.framework.Analysis;
 import teetime.util.ListUtil;
+import teetime.util.StatisticsUtil;
 import teetime.util.StopWatch;
-import teetime.util.test.eval.StatisticsUtil;
 
 /**
  * @author Christian Wulf
