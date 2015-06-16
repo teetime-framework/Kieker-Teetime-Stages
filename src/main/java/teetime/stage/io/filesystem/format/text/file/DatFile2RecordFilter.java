@@ -21,10 +21,6 @@ import teetime.framework.AbstractCompositeStage;
 import teetime.framework.InputPort;
 import teetime.framework.OutputPort;
 import teetime.framework.Stage;
-import teetime.framework.pipe.IPipeFactory;
-import teetime.framework.pipe.PipeFactoryRegistry;
-import teetime.framework.pipe.PipeFactoryRegistry.PipeOrdering;
-import teetime.framework.pipe.PipeFactoryRegistry.ThreadCommunication;
 import teetime.stage.className.ClassNameRegistryRepository;
 import teetime.stage.io.File2TextLinesFilter;
 
@@ -37,8 +33,6 @@ import kieker.common.record.IMonitoringRecord;
  */
 public class DatFile2RecordFilter extends AbstractCompositeStage {
 
-	private final PipeFactoryRegistry pipeFactoryRegistry = PipeFactoryRegistry.INSTANCE;
-
 	private final File2TextLinesFilter file2TextLinesFilter;
 	private final TextLine2RecordFilter textLine2RecordFilter;
 
@@ -46,8 +40,7 @@ public class DatFile2RecordFilter extends AbstractCompositeStage {
 		file2TextLinesFilter = new File2TextLinesFilter();
 		textLine2RecordFilter = new TextLine2RecordFilter(classNameRegistryRepository);
 
-		IPipeFactory pipeFactory = pipeFactoryRegistry.getPipeFactory(ThreadCommunication.INTRA, PipeOrdering.ARBITRARY, false);
-		pipeFactory.create(file2TextLinesFilter.getOutputPort(), textLine2RecordFilter.getInputPort());
+		connectPorts(file2TextLinesFilter.getOutputPort(), textLine2RecordFilter.getInputPort());
 	}
 
 	@Override

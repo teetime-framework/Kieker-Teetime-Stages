@@ -21,10 +21,6 @@ import teetime.framework.AbstractCompositeStage;
 import teetime.framework.InputPort;
 import teetime.framework.OutputPort;
 import teetime.framework.Stage;
-import teetime.framework.pipe.IPipeFactory;
-import teetime.framework.pipe.PipeFactoryRegistry;
-import teetime.framework.pipe.PipeFactoryRegistry.PipeOrdering;
-import teetime.framework.pipe.PipeFactoryRegistry.ThreadCommunication;
 import teetime.stage.FileExtensionSwitch;
 import teetime.stage.basic.merger.Merger;
 import teetime.stage.className.ClassNameRegistryCreationFilter;
@@ -43,8 +39,6 @@ import kieker.common.util.filesystem.FSUtil;
  * @since 1.0
  */
 public final class Dir2RecordsFilter extends AbstractCompositeStage {
-
-	private final PipeFactoryRegistry pipeFactoryRegistry = PipeFactoryRegistry.INSTANCE;
 
 	private final ClassNameRegistryCreationFilter classNameRegistryCreationFilter;
 	private final Merger<IMonitoringRecord> recordMerger;
@@ -71,26 +65,24 @@ public final class Dir2RecordsFilter extends AbstractCompositeStage {
 		final DatFile2RecordFilter datFile2RecordFilter = new DatFile2RecordFilter(this.classNameRegistryRepository);
 		final BinaryFile2RecordFilter binaryFile2RecordFilter = new BinaryFile2RecordFilter(this.classNameRegistryRepository);
 
-		final Merger<IMonitoringRecord> recordMerger = new Merger<IMonitoringRecord>();
+		recordMerger = new Merger<IMonitoringRecord>();
 
 		// store ports due to readability reasons
 		final OutputPort<File> normalFileOutputPort = fileExtensionSwitch.addFileExtension(FSUtil.NORMAL_FILE_EXTENSION);
 		final OutputPort<File> binFileOutputPort = fileExtensionSwitch.addFileExtension(BinaryCompressionMethod.NONE.getFileExtension());
 
 		// connect ports by pipes
-		IPipeFactory pipeFactory = pipeFactoryRegistry.getPipeFactory(ThreadCommunication.INTRA, PipeOrdering.ARBITRARY, false);
-		pipeFactory.create(classNameRegistryCreationFilter.getOutputPort(), directory2FilesFilter.getInputPort());
-		pipeFactory.create(directory2FilesFilter.getOutputPort(), fileExtensionSwitch.getInputPort());
+		connectPorts(classNameRegistryCreationFilter.getOutputPort(), directory2FilesFilter.getInputPort());
+		connectPorts(directory2FilesFilter.getOutputPort(), fileExtensionSwitch.getInputPort());
 
-		pipeFactory.create(normalFileOutputPort, datFile2RecordFilter.getInputPort());
-		pipeFactory.create(binFileOutputPort, binaryFile2RecordFilter.getInputPort());
+		connectPorts(normalFileOutputPort, datFile2RecordFilter.getInputPort());
+		connectPorts(binFileOutputPort, binaryFile2RecordFilter.getInputPort());
 
-		pipeFactory.create(datFile2RecordFilter.getOutputPort(), recordMerger.getNewInputPort());
-		pipeFactory.create(binaryFile2RecordFilter.getOutputPort(), recordMerger.getNewInputPort());
+		connectPorts(datFile2RecordFilter.getOutputPort(), recordMerger.getNewInputPort());
+		connectPorts(binaryFile2RecordFilter.getOutputPort(), recordMerger.getNewInputPort());
 
 		// prepare pipeline
 		this.classNameRegistryCreationFilter = classNameRegistryCreationFilter;
-		this.recordMerger = recordMerger;
 	}
 
 	@Override

@@ -38,7 +38,7 @@ public class Dir2RecordsFilterTest {
 			final ReadingComposite reader = new ReadingComposite(new File("."));
 			final Printer<IMonitoringRecord> printer = new Printer<IMonitoringRecord>();
 
-			super.connectIntraThreads(reader.getOutputPort(), printer.getInputPort());
+			connectPorts(reader.getOutputPort(), printer.getInputPort());
 			super.addThreadableStage(reader);
 		}
 	}
