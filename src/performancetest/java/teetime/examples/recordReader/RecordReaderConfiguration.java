@@ -19,7 +19,7 @@ import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 
-import teetime.framework.AnalysisConfiguration;
+import teetime.framework.Configuration;
 import teetime.framework.Stage;
 import teetime.stage.CollectorSink;
 import teetime.stage.InitialElementProducer;
@@ -33,7 +33,7 @@ import kieker.common.record.IMonitoringRecord;
  *
  * @since 1.0
  */
-public class RecordReaderConfiguration extends AnalysisConfiguration {
+public class RecordReaderConfiguration extends Configuration {
 
 	private final List<IMonitoringRecord> elementCollection = new LinkedList<IMonitoringRecord>();
 
@@ -51,12 +51,12 @@ public class RecordReaderConfiguration extends AnalysisConfiguration {
 		File logDir = new File("src/test/data/bookstore-logs");
 		// create stages
 		InitialElementProducer<File> initialElementProducer = new InitialElementProducer<File>(logDir);
-		Dir2RecordsFilter dir2RecordsFilter = new Dir2RecordsFilter(classNameRegistryRepository);
+		Dir2RecordsFilter dir2RecordsFilter = new Dir2RecordsFilter(classNameRegistryRepository, getContext());
 		CollectorSink<IMonitoringRecord> collector = new CollectorSink<IMonitoringRecord>(this.elementCollection);
 
 		// connect stages
-		connectIntraThreads(initialElementProducer.getOutputPort(), dir2RecordsFilter.getInputPort());
-		connectIntraThreads(dir2RecordsFilter.getOutputPort(), collector.getInputPort());
+		connectPorts(initialElementProducer.getOutputPort(), dir2RecordsFilter.getInputPort());
+		connectPorts(dir2RecordsFilter.getOutputPort(), collector.getInputPort());
 
 		return initialElementProducer;
 	}

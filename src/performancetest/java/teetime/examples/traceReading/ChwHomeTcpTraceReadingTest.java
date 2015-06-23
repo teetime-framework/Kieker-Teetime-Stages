@@ -32,7 +32,7 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
-import teetime.framework.Analysis;
+import teetime.framework.Execution;
 import teetime.util.ListUtil;
 import teetime.util.StatisticsUtil;
 import teetime.util.StopWatch;
@@ -66,12 +66,12 @@ public class ChwHomeTcpTraceReadingTest {
 	public void performAnalysis() {
 		final TcpTraceLoggingExtAnalysisConfiguration configuration = new TcpTraceLoggingExtAnalysisConfiguration();
 
-		final Analysis<TcpTraceLoggingExtAnalysisConfiguration> analysis;
-		analysis = new Analysis<TcpTraceLoggingExtAnalysisConfiguration>(configuration);
+		final Execution<TcpTraceLoggingExtAnalysisConfiguration> execution;
+		execution = new Execution<TcpTraceLoggingExtAnalysisConfiguration>(configuration);
 
 		this.stopWatch.start();
 		try {
-			analysis.executeBlocking();
+			execution.executeBlocking();
 		} finally {
 			this.stopWatch.end();
 		}

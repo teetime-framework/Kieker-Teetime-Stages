@@ -29,7 +29,7 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
-import teetime.util.Pair;
+import teetime.util.ThreadThrowableContainer;
 
 import kieker.tools.opad.record.ExtendedStorableDetectionResult;
 import kieker.tools.opad.record.StorableDetectionResult;
@@ -39,7 +39,7 @@ import kieker.tools.opad.record.StorableDetectionResult;
  */
 public class StorableDetectionResultExtenderTest {
 
-	Collection<Pair<Thread, Throwable>> exceptions;
+	Collection<ThreadThrowableContainer> exceptions;
 	private StorableDetectionResultExtender sDRExtender;
 	private StorableDetectionResult input;
 	private StorableDetectionResult output;

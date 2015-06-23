@@ -17,7 +17,7 @@ package teetime.examples.traceReading;
 
 import java.util.List;
 
-import teetime.framework.AnalysisConfiguration;
+import teetime.framework.Configuration;
 import teetime.framework.Pipeline;
 import teetime.framework.Stage;
 import teetime.stage.Clock;
@@ -29,7 +29,7 @@ import teetime.stage.io.network.TcpReaderStage;
 
 import kieker.common.record.IMonitoringRecord;
 
-public class TcpTraceLoggingExtAnalysisConfiguration extends AnalysisConfiguration {
+public class TcpTraceLoggingExtAnalysisConfiguration extends Configuration {
 
 	private Counter<IMonitoringRecord> recordCounter;
 	private ElementThroughputMeasuringStage<IMonitoringRecord> recordThroughputStage;
@@ -40,7 +40,7 @@ public class TcpTraceLoggingExtAnalysisConfiguration extends AnalysisConfigurati
 
 	private void init() {
 		final Pipeline<Distributor<Long>> clockPipeline = this.buildClockPipeline(1000);
-		addThreadableStage(clockPipeline);
+		addThreadableStage(clockPipeline.getFirstStage());
 		final Stage tcpPipeline = this.buildTcpPipeline(clockPipeline.getLastStage());
 		addThreadableStage(tcpPipeline);
 	}
@@ -51,9 +51,9 @@ public class TcpTraceLoggingExtAnalysisConfiguration extends AnalysisConfigurati
 		clockStage.setIntervalDelayInMs(intervalDelayInMs);
 		Distributor<Long> distributor = new Distributor<Long>();
 
-		connectIntraThreads(clockStage.getOutputPort(), distributor.getInputPort());
+		connectPorts(clockStage.getOutputPort(), distributor.getInputPort());
 
-		return new Pipeline<Distributor<Long>>(clockStage, distributor);
+		return new Pipeline<Distributor<Long>>(clockStage, distributor, getContext());
 	}
 
 	private Stage buildTcpPipeline(final Distributor<Long> previousClockStage) {
@@ -62,12 +62,12 @@ public class TcpTraceLoggingExtAnalysisConfiguration extends AnalysisConfigurati
 		this.recordThroughputStage = new ElementThroughputMeasuringStage<IMonitoringRecord>();
 		Sink<IMonitoringRecord> endStage = new Sink<IMonitoringRecord>();
 
-		connectIntraThreads(tcpReader.getOutputPort(), this.recordCounter.getInputPort());
-		connectIntraThreads(this.recordCounter.getOutputPort(), this.recordThroughputStage.getInputPort());
-		connectIntraThreads(this.recordThroughputStage.getOutputPort(), endStage.getInputPort());
+		connectPorts(tcpReader.getOutputPort(), this.recordCounter.getInputPort());
+		connectPorts(this.recordCounter.getOutputPort(), this.recordThroughputStage.getInputPort());
+		connectPorts(this.recordThroughputStage.getOutputPort(), endStage.getInputPort());
 		// intraThreadPipeFactory.create(this.recordCounter.getOutputPort(), endStage.getInputPort());
 
-		connectBoundedInterThreads(previousClockStage.getNewOutputPort(), this.recordThroughputStage.getTriggerInputPort(), 10);
+		connectPorts(previousClockStage.getNewOutputPort(), this.recordThroughputStage.getTriggerInputPort(), 10);
 
 		return tcpReader;
 	}

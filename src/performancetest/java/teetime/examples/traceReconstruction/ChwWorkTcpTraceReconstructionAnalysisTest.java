@@ -24,7 +24,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import teetime.framework.Analysis;
+import teetime.framework.Execution;
 import teetime.util.StatisticsUtil;
 import teetime.util.StopWatch;
 
@@ -56,7 +56,7 @@ public class ChwWorkTcpTraceReconstructionAnalysisTest {
 	public void performAnalysis() {
 		final TcpTraceReconstructionConf configuration = new TcpTraceReconstructionConf();
 
-		Analysis<TcpTraceReconstructionConf> analysis = new Analysis<TcpTraceReconstructionConf>(configuration);
+		Execution<TcpTraceReconstructionConf> analysis = new Execution<TcpTraceReconstructionConf>(configuration);
 
 		this.stopWatch.start();
 		try {

@@ -20,8 +20,9 @@ import java.io.File;
 import org.junit.Test;
 
 import teetime.framework.AbstractCompositeStage;
-import teetime.framework.Analysis;
-import teetime.framework.AnalysisConfiguration;
+import teetime.framework.Configuration;
+import teetime.framework.ConfigurationContext;
+import teetime.framework.Execution;
 import teetime.framework.OutputPort;
 import teetime.framework.Stage;
 import teetime.stage.InitialElementProducer;
@@ -32,14 +33,13 @@ import kieker.common.record.IMonitoringRecord;
 
 public class Dir2RecordsFilterTest {
 
-	class TestConfiguration extends AnalysisConfiguration {
+	class TestConfiguration extends Configuration {
 
 		public TestConfiguration() {
-			final ReadingComposite reader = new ReadingComposite(new File("."));
+			final ReadingComposite reader = new ReadingComposite(new File("."), getContext());
 			final Printer<IMonitoringRecord> printer = new Printer<IMonitoringRecord>();
 
 			connectPorts(reader.getOutputPort(), printer.getInputPort());
-			super.addThreadableStage(reader);
 		}
 	}
 
@@ -49,19 +49,20 @@ public class Dir2RecordsFilterTest {
 		private final InitialElementProducer<File> producer;
 		private final Dir2RecordsFilter reader;
 
-		public ReadingComposite(final File importDirectory) {
+		public ReadingComposite(final File importDirectory, final ConfigurationContext context) {
+			super(context);
 			this.producer = new InitialElementProducer<File>(importDirectory);
-			this.reader = new Dir2RecordsFilter(new ClassNameRegistryRepository());
+			this.reader = new Dir2RecordsFilter(new ClassNameRegistryRepository(), context);
 
-			super.connectPorts(this.producer.getOutputPort(), this.reader.getInputPort());
+			connectPorts(this.producer.getOutputPort(), this.reader.getInputPort());
+			addThreadableStage(producer);
 		}
 
 		public OutputPort<IMonitoringRecord> getOutputPort() {
 			return this.reader.getOutputPort();
 		}
 
-		@Override
-		protected Stage getFirstStage() {
+		public Stage getFirstStage() {
 			return this.producer;
 		}
 
@@ -69,6 +70,6 @@ public class Dir2RecordsFilterTest {
 
 	@Test
 	public void shouldNotThrowAnyException() {
-		new Analysis<TestConfiguration>(new TestConfiguration()).executeBlocking();
+		new Execution<TestConfiguration>(new TestConfiguration()).executeBlocking();
 	}
 }

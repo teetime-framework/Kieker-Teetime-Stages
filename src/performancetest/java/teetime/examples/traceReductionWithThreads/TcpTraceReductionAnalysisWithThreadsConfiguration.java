@@ -24,11 +24,10 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import teetime.framework.AbstractStage;
-import teetime.framework.AnalysisConfiguration;
+import teetime.framework.Configuration;
 import teetime.framework.Pipeline;
 import teetime.framework.Stage;
 import teetime.framework.pipe.IMonitorablePipe;
-import teetime.framework.pipe.IPipe;
 import teetime.stage.Clock;
 import teetime.stage.Counter;
 import teetime.stage.ElementDelayMeasuringStage;
@@ -51,7 +50,7 @@ import kieker.common.record.IMonitoringRecord;
 import kieker.common.record.flow.IFlowRecord;
 import kieker.common.record.flow.trace.TraceMetadata;
 
-public class TcpTraceReductionAnalysisWithThreadsConfiguration extends AnalysisConfiguration {
+public class TcpTraceReductionAnalysisWithThreadsConfiguration extends Configuration {
 
 	private static final int NUM_VIRTUAL_CORES = Runtime.getRuntime().availableProcessors();
 	private static final int MIO = 1000000;
@@ -89,13 +88,13 @@ public class TcpTraceReductionAnalysisWithThreadsConfiguration extends AnalysisC
 
 	private void init() {
 		final Pipeline<Distributor<IMonitoringRecord>> tcpPipeline = this.buildTcpPipeline();
-		addThreadableStage(tcpPipeline);
+		addThreadableStage(tcpPipeline.getFirstStage());
 
 		final Pipeline<Distributor<Long>> clockStage = this.buildClockPipeline(1000);
-		addThreadableStage(clockStage);
+		addThreadableStage(clockStage.getFirstStage());
 
 		final Pipeline<Distributor<Long>> clock2Stage = this.buildClockPipeline(5000);
-		addThreadableStage(clock2Stage);
+		addThreadableStage(clock2Stage.getFirstStage());
 
 		for (int i = 0; i < this.numWorkerThreads; i++) {
 			final Stage pipeline = this.buildPipeline(tcpPipeline, clockStage, clock2Stage);
@@ -107,9 +106,9 @@ public class TcpTraceReductionAnalysisWithThreadsConfiguration extends AnalysisC
 		final TcpReaderStage tcpReader = new TcpReaderStage();
 		final Distributor<IMonitoringRecord> distributor = new Distributor<IMonitoringRecord>();
 
-		connectIntraThreads(tcpReader.getOutputPort(), distributor.getInputPort());
+		connectPorts(tcpReader.getOutputPort(), distributor.getInputPort());
 
-		return new Pipeline<Distributor<IMonitoringRecord>>(tcpReader, distributor);
+		return new Pipeline<Distributor<IMonitoringRecord>>(tcpReader, distributor, getContext());
 	}
 
 	private Pipeline<Distributor<Long>> buildClockPipeline(final long intervalDelayInMs) {
@@ -118,9 +117,9 @@ public class TcpTraceReductionAnalysisWithThreadsConfiguration extends AnalysisC
 		clock.setIntervalDelayInMs(intervalDelayInMs);
 		final Distributor<Long> distributor = new Distributor<Long>();
 
-		connectIntraThreads(clock.getOutputPort(), distributor.getInputPort());
+		connectPorts(clock.getOutputPort(), distributor.getInputPort());
 
-		return new Pipeline<Distributor<Long>>(clock, distributor);
+		return new Pipeline<Distributor<Long>>(clock, distributor, getContext());
 	}
 
 	private static class StageFactory<T extends AbstractStage> {
@@ -175,23 +174,23 @@ public class TcpTraceReductionAnalysisWithThreadsConfiguration extends AnalysisC
 		Sink<TraceAggregationBuffer> endStage = new Sink<TraceAggregationBuffer>();
 
 		// connect stages
-		final IPipe pipe = connectBoundedInterThreads(tcpPipeline.getLastStage().getNewOutputPort(), relay.getInputPort(), TCP_RELAY_MAX_SIZE);
-		this.tcpRelayPipes.add((IMonitorablePipe) pipe);
+		/* TODO: final IPipe pipe = */connectPorts(tcpPipeline.getLastStage().getNewOutputPort(), relay.getInputPort(), TCP_RELAY_MAX_SIZE);
+		// this.tcpRelayPipes.add((IMonitorablePipe) pipe);
 
-		connectIntraThreads(relay.getOutputPort(), recordCounter.getInputPort());
-		connectIntraThreads(recordCounter.getOutputPort(), traceMetadataCounter.getInputPort());
-		connectIntraThreads(traceMetadataCounter.getOutputPort(), instanceOfFilter.getInputPort());
-		connectIntraThreads(instanceOfFilter.getMatchedOutputPort(), traceReconstructionFilter.getInputPort());
-		connectIntraThreads(traceReconstructionFilter.getTraceValidOutputPort(), traceReductionFilter.getInputPort());
-		connectIntraThreads(traceReductionFilter.getOutputPort(), traceCounter.getInputPort());
-		connectIntraThreads(traceCounter.getOutputPort(), traceThroughputFilter.getInputPort());
-		connectIntraThreads(traceThroughputFilter.getOutputPort(), endStage.getInputPort());
+		connectPorts(relay.getOutputPort(), recordCounter.getInputPort());
+		connectPorts(recordCounter.getOutputPort(), traceMetadataCounter.getInputPort());
+		connectPorts(traceMetadataCounter.getOutputPort(), instanceOfFilter.getInputPort());
+		connectPorts(instanceOfFilter.getMatchedOutputPort(), traceReconstructionFilter.getInputPort());
+		connectPorts(traceReconstructionFilter.getTraceValidOutputPort(), traceReductionFilter.getInputPort());
+		connectPorts(traceReductionFilter.getOutputPort(), traceCounter.getInputPort());
+		connectPorts(traceCounter.getOutputPort(), traceThroughputFilter.getInputPort());
+		connectPorts(traceThroughputFilter.getOutputPort(), endStage.getInputPort());
 
 		// connectIntraThreads(traceReconstructionFilter.getOutputPort(), traceThroughputFilter.getInputPort());
 		// connectIntraThreads(traceThroughputFilter.getOutputPort(), endStage.getInputPort());
 
-		connectBoundedInterThreads(clock2Stage.getLastStage().getNewOutputPort(), traceReductionFilter.getTriggerInputPort(), 10);
-		connectBoundedInterThreads(clockStage.getLastStage().getNewOutputPort(), traceThroughputFilter.getTriggerInputPort(), 10);
+		connectPorts(clock2Stage.getLastStage().getNewOutputPort(), traceReductionFilter.getTriggerInputPort(), 10);
+		connectPorts(clockStage.getLastStage().getNewOutputPort(), traceThroughputFilter.getTriggerInputPort(), 10);
 
 		return relay;
 	}

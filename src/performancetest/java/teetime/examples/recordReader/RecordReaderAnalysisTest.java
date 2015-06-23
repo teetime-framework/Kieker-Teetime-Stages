@@ -23,7 +23,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import teetime.framework.Analysis;
+import teetime.framework.Execution;
 import teetime.util.StopWatch;
 
 import kieker.common.record.IMonitoringRecord;
@@ -54,7 +54,7 @@ public class RecordReaderAnalysisTest {
 	public void performAnalysis() {
 		final RecordReaderConfiguration configuration = new RecordReaderConfiguration();
 
-		Analysis analysis = new Analysis(configuration);
+		Execution analysis = new Execution(configuration);
 
 		this.stopWatch.start();
 		analysis.executeBlocking();

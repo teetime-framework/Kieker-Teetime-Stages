@@ -29,7 +29,7 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
-import teetime.util.Pair;
+import teetime.util.ThreadThrowableContainer;
 
 import kieker.tools.opad.record.StorableDetectionResult;
 
@@ -38,7 +38,7 @@ import kieker.tools.opad.record.StorableDetectionResult;
  */
 public class AnomalyDetectionFilterTest {
 
-	Collection<Pair<Thread, Throwable>> exceptions;
+	Collection<ThreadThrowableContainer> exceptions;
 	private AnomalyDetectionFilter adf;
 	private StorableDetectionResult input1;
 	private StorableDetectionResult input2;

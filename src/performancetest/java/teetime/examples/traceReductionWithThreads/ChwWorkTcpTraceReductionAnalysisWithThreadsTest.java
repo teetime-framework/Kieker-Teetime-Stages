@@ -29,7 +29,7 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
-import teetime.framework.Analysis;
+import teetime.framework.Execution;
 import teetime.util.ListUtil;
 import teetime.util.StatisticsUtil;
 import teetime.util.StopWatch;
@@ -102,8 +102,8 @@ public class ChwWorkTcpTraceReductionAnalysisWithThreadsTest {
 	void performAnalysis(final int numWorkerThreads) {
 		final TcpTraceReductionAnalysisWithThreadsConfiguration configuration = new TcpTraceReductionAnalysisWithThreadsConfiguration(numWorkerThreads);
 
-		Analysis<TcpTraceReductionAnalysisWithThreadsConfiguration> analysis;
-		analysis = new Analysis<TcpTraceReductionAnalysisWithThreadsConfiguration>(configuration);
+		Execution<TcpTraceReductionAnalysisWithThreadsConfiguration> analysis;
+		analysis = new Execution<TcpTraceReductionAnalysisWithThreadsConfiguration>(configuration);
 
 		this.stopWatch.start();
 		try {

@@ -18,6 +18,7 @@ package teetime.stage.io.filesystem;
 import java.io.File;
 
 import teetime.framework.AbstractCompositeStage;
+import teetime.framework.ConfigurationContext;
 import teetime.framework.InputPort;
 import teetime.framework.OutputPort;
 import teetime.framework.Stage;
@@ -48,11 +49,12 @@ public final class Dir2RecordsFilter extends AbstractCompositeStage {
 	/**
 	 * Default constructor using a new instance of {@link ClassNameRegistryRepository}
 	 */
-	public Dir2RecordsFilter() {
-		this(new ClassNameRegistryRepository());
+	public Dir2RecordsFilter(final ConfigurationContext context) {
+		this(new ClassNameRegistryRepository(), context);
 	}
 
-	public Dir2RecordsFilter(final ClassNameRegistryRepository classNameRegistryRepository) {
+	public Dir2RecordsFilter(final ClassNameRegistryRepository classNameRegistryRepository, final ConfigurationContext context) {
+		super(context);
 		this.classNameRegistryRepository = classNameRegistryRepository;
 
 		// FIXME does not yet work with more than one thread due to classNameRegistryRepository: classNameRegistryRepository is set after the ctor
@@ -62,7 +64,7 @@ public final class Dir2RecordsFilter extends AbstractCompositeStage {
 
 		final FileExtensionSwitch fileExtensionSwitch = new FileExtensionSwitch();
 
-		final DatFile2RecordFilter datFile2RecordFilter = new DatFile2RecordFilter(this.classNameRegistryRepository);
+		final DatFile2RecordFilter datFile2RecordFilter = new DatFile2RecordFilter(this.classNameRegistryRepository, context);
 		final BinaryFile2RecordFilter binaryFile2RecordFilter = new BinaryFile2RecordFilter(this.classNameRegistryRepository);
 
 		recordMerger = new Merger<IMonitoringRecord>();
@@ -85,8 +87,7 @@ public final class Dir2RecordsFilter extends AbstractCompositeStage {
 		this.classNameRegistryCreationFilter = classNameRegistryCreationFilter;
 	}
 
-	@Override
-	protected Stage getFirstStage() {
+	public Stage getFirstStage() {
 		return classNameRegistryCreationFilter;
 	}
 

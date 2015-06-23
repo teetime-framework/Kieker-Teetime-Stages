@@ -17,7 +17,7 @@ package teetime.examples.traceReconstruction;
 
 import java.util.List;
 
-import teetime.framework.AnalysisConfiguration;
+import teetime.framework.Configuration;
 import teetime.framework.Pipeline;
 import teetime.framework.Stage;
 import teetime.stage.Clock;
@@ -35,7 +35,7 @@ import teetime.util.ConcurrentHashMapWithDefault;
 import kieker.common.record.IMonitoringRecord;
 import kieker.common.record.flow.IFlowRecord;
 
-public class TcpTraceReconstructionConf extends AnalysisConfiguration {
+public class TcpTraceReconstructionConf extends Configuration {
 
 	private static final int MIO = 1000000;
 	private static final int TCP_RELAY_MAX_SIZE = 2 * MIO;
@@ -54,10 +54,10 @@ public class TcpTraceReconstructionConf extends AnalysisConfiguration {
 
 	private void init() {
 		Pipeline<Distributor<Long>> clockStage = this.buildClockPipeline(1000);
-		addThreadableStage(clockStage);
+		addThreadableStage(clockStage.getFirstStage());
 
 		Pipeline<Distributor<Long>> clock2Stage = this.buildClockPipeline(2000);
-		addThreadableStage(clock2Stage);
+		addThreadableStage(clock2Stage.getFirstStage());
 
 		Stage pipeline = this.buildPipeline(clockStage.getLastStage(), clock2Stage.getLastStage());
 		addThreadableStage(pipeline);
@@ -68,9 +68,9 @@ public class TcpTraceReconstructionConf extends AnalysisConfiguration {
 		clock.setIntervalDelayInMs(intervalDelayInMs);
 		Distributor<Long> distributor = new Distributor<Long>();
 
-		connectIntraThreads(clock.getOutputPort(), distributor.getInputPort());
+		connectPorts(clock.getOutputPort(), distributor.getInputPort());
 
-		return new Pipeline<Distributor<Long>>(clock, distributor);
+		return new Pipeline<Distributor<Long>>(clock, distributor, getContext());
 	}
 
 	private Stage buildPipeline(final Distributor<Long> clockStage, final Distributor<Long> clock2Stage) {
@@ -86,18 +86,18 @@ public class TcpTraceReconstructionConf extends AnalysisConfiguration {
 		Sink<EventBasedTrace> endStage = new Sink<EventBasedTrace>();
 
 		// connect stages
-		connectBoundedInterThreads(tcpReader.getOutputPort(), this.recordCounter.getInputPort(), TCP_RELAY_MAX_SIZE);
-		connectIntraThreads(this.recordCounter.getOutputPort(), instanceOfFilter.getInputPort());
+		connectPorts(tcpReader.getOutputPort(), this.recordCounter.getInputPort(), TCP_RELAY_MAX_SIZE);
+		connectPorts(this.recordCounter.getOutputPort(), instanceOfFilter.getInputPort());
 		// connectIntraThreads(instanceOfFilter.getOutputPort(), this.recordThroughputFilter.getInputPort());
 		// connectIntraThreads(this.recordThroughputFilter.getOutputPort(), traceReconstructionFilter.getInputPort());
-		connectIntraThreads(instanceOfFilter.getMatchedOutputPort(), traceReconstructionFilter.getInputPort());
-		connectIntraThreads(traceReconstructionFilter.getTraceValidOutputPort(), this.traceThroughputFilter.getInputPort());
-		connectIntraThreads(this.traceThroughputFilter.getOutputPort(), this.traceCounter.getInputPort());
+		connectPorts(instanceOfFilter.getMatchedOutputPort(), traceReconstructionFilter.getInputPort());
+		connectPorts(traceReconstructionFilter.getTraceValidOutputPort(), this.traceThroughputFilter.getInputPort());
+		connectPorts(this.traceThroughputFilter.getOutputPort(), this.traceCounter.getInputPort());
 		// connectIntraThreads(traceReconstructionFilter.getTraceValidOutputPort(), this.traceCounter.getInputPort());
-		connectIntraThreads(this.traceCounter.getOutputPort(), endStage.getInputPort());
+		connectPorts(this.traceCounter.getOutputPort(), endStage.getInputPort());
 
-		connectBoundedInterThreads(clockStage.getNewOutputPort(), this.recordThroughputFilter.getTriggerInputPort(), 10);
-		connectBoundedInterThreads(clock2Stage.getNewOutputPort(), this.traceThroughputFilter.getTriggerInputPort(), 10);
+		connectPorts(clockStage.getNewOutputPort(), this.recordThroughputFilter.getTriggerInputPort(), 10);
+		connectPorts(clock2Stage.getNewOutputPort(), this.traceThroughputFilter.getTriggerInputPort(), 10);
 
 		return tcpReader;
 	}

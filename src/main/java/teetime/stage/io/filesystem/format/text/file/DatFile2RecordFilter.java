@@ -18,6 +18,7 @@ package teetime.stage.io.filesystem.format.text.file;
 import java.io.File;
 
 import teetime.framework.AbstractCompositeStage;
+import teetime.framework.ConfigurationContext;
 import teetime.framework.InputPort;
 import teetime.framework.OutputPort;
 import teetime.framework.Stage;
@@ -36,15 +37,15 @@ public class DatFile2RecordFilter extends AbstractCompositeStage {
 	private final File2TextLinesFilter file2TextLinesFilter;
 	private final TextLine2RecordFilter textLine2RecordFilter;
 
-	public DatFile2RecordFilter(final ClassNameRegistryRepository classNameRegistryRepository) {
+	public DatFile2RecordFilter(final ClassNameRegistryRepository classNameRegistryRepository, final ConfigurationContext context) {
+		super(context);
 		file2TextLinesFilter = new File2TextLinesFilter();
 		textLine2RecordFilter = new TextLine2RecordFilter(classNameRegistryRepository);
 
 		connectPorts(file2TextLinesFilter.getOutputPort(), textLine2RecordFilter.getInputPort());
 	}
 
-	@Override
-	protected Stage getFirstStage() {
+	public Stage getFirstStage() {
 		return file2TextLinesFilter;
 	}
 

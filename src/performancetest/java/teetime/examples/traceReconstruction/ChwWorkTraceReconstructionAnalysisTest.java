@@ -30,7 +30,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import teetime.framework.Analysis;
+import teetime.framework.Execution;
 import teetime.stage.trace.traceReconstruction.EventBasedTrace;
 import teetime.util.StatisticsUtil;
 import teetime.util.StopWatch;
@@ -58,7 +58,7 @@ class ChwWorkTraceReconstructionAnalysisTest {
 	@Test
 	public void performAnalysisWithEprintsLogs() {
 		final TraceReconstructionConf configuration = new TraceReconstructionConf(new File("src/test/data/Eprints-logs"));
-		final Analysis<TraceReconstructionConf> analysis = new Analysis<TraceReconstructionConf>(configuration);
+		final Execution<TraceReconstructionConf> analysis = new Execution<TraceReconstructionConf>(configuration);
 
 		this.stopWatch.start();
 		try {
@@ -84,7 +84,7 @@ class ChwWorkTraceReconstructionAnalysisTest {
 	@Test
 	public void performAnalysisWithKiekerLogs() {
 		final TraceReconstructionConf configuration = new TraceReconstructionConf(new File("src/test/data/kieker-logs"));
-		final Analysis<TraceReconstructionConf> analysis = new Analysis<TraceReconstructionConf>(configuration);
+		final Execution<TraceReconstructionConf> analysis = new Execution<TraceReconstructionConf>(configuration);
 
 		this.stopWatch.start();
 		try {
@@ -112,7 +112,7 @@ class ChwWorkTraceReconstructionAnalysisTest {
 	@Test
 	public void performAnalysisWithKieker2Logs() {
 		final TraceReconstructionConf configuration = new TraceReconstructionConf(new File("src/test/data/kieker2-logs"));
-		final Analysis<TraceReconstructionConf> analysis = new Analysis<TraceReconstructionConf>(configuration);
+		final Execution<TraceReconstructionConf> analysis = new Execution<TraceReconstructionConf>(configuration);
 
 		this.stopWatch.start();
 		try {

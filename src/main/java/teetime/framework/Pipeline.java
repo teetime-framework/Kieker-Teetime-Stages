@@ -31,14 +31,13 @@ public final class Pipeline<L extends Stage> extends AbstractCompositeStage {
 	private final Stage firstStage;
 	private final List<L> lastStages = new LinkedList<L>();
 
-	public Pipeline(final Stage firstStage, final L lastStage) {
-		super();
+	public Pipeline(final Stage firstStage, final L lastStage, final ConfigurationContext context) {
+		super(context);
 		this.firstStage = firstStage;
 		this.lastStages.add(lastStage);
 	}
 
-	@Override
-	protected Stage getFirstStage() {
+	public Stage getFirstStage() {
 		return firstStage;
 	}
 
