@@ -43,7 +43,6 @@ public class Dir2RecordsFilterTest {
 		}
 	}
 
-	@SuppressWarnings("deprecation")
 	class ReadingComposite extends AbstractCompositeStage {
 
 		private final InitialElementProducer<File> producer;

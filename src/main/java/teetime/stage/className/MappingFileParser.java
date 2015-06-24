@@ -48,6 +48,12 @@ public class MappingFileParser {
 		this.logger = logger;
 	}
 
+	/**
+	 * Closes the stream after reading.
+	 * 
+	 * @param inputStream
+	 * @return
+	 */
 	public ClassNameRegistry parseFromStream(final InputStream inputStream) {
 		final ClassNameRegistry classNameRegistry = new ClassNameRegistry();
 
