@@ -31,8 +31,7 @@ public final class Pipeline<L extends Stage> extends AbstractCompositeStage {
 	private final Stage firstStage;
 	private final List<L> lastStages = new LinkedList<L>();
 
-	public Pipeline(final Stage firstStage, final L lastStage, final ConfigurationContext context) {
-		super(context);
+	public Pipeline(final Stage firstStage, final L lastStage) {
 		this.firstStage = firstStage;
 		this.lastStages.add(lastStage);
 	}

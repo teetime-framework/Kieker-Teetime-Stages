@@ -53,7 +53,7 @@ public class TcpTraceLoggingExtAnalysisConfiguration extends Configuration {
 
 		connectPorts(clockStage.getOutputPort(), distributor.getInputPort());
 
-		return new Pipeline<Distributor<Long>>(clockStage, distributor, getContext());
+		return new Pipeline<Distributor<Long>>(clockStage, distributor);
 	}
 
 	private Stage buildTcpPipeline(final Distributor<Long> previousClockStage) {

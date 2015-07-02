@@ -70,7 +70,7 @@ public class TcpTraceReconstructionConf extends Configuration {
 
 		connectPorts(clock.getOutputPort(), distributor.getInputPort());
 
-		return new Pipeline<Distributor<Long>>(clock, distributor, getContext());
+		return new Pipeline<Distributor<Long>>(clock, distributor);
 	}
 
 	private Stage buildPipeline(final Distributor<Long> clockStage, final Distributor<Long> clock2Stage) {

@@ -112,7 +112,7 @@ public class TcpTraceReconstructionAnalysisWithThreadsConfiguration extends Conf
 
 		connectPorts(tcpReader.getOutputPort(), distributor.getInputPort());
 
-		return new Pipeline<Distributor<IMonitoringRecord>>(tcpReader, distributor, getContext());
+		return new Pipeline<Distributor<IMonitoringRecord>>(tcpReader, distributor);
 	}
 
 	private Pipeline<Distributor<Long>> buildClockPipeline(final long intervalDelayInMs) {
@@ -123,7 +123,7 @@ public class TcpTraceReconstructionAnalysisWithThreadsConfiguration extends Conf
 
 		connectPorts(clock.getOutputPort(), distributor.getInputPort());
 
-		return new Pipeline<Distributor<Long>>(clock, distributor, getContext());
+		return new Pipeline<Distributor<Long>>(clock, distributor);
 	}
 
 	private static class StageFactory<T extends AbstractStage> {
