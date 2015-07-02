@@ -21,7 +21,6 @@ import org.junit.Test;
 
 import teetime.framework.AbstractCompositeStage;
 import teetime.framework.Configuration;
-import teetime.framework.ConfigurationContext;
 import teetime.framework.Execution;
 import teetime.framework.OutputPort;
 import teetime.framework.Stage;
@@ -36,7 +35,7 @@ public class Dir2RecordsFilterTest {
 	class TestConfiguration extends Configuration {
 
 		public TestConfiguration() {
-			final ReadingComposite reader = new ReadingComposite(new File("."), getContext());
+			final ReadingComposite reader = new ReadingComposite(new File("."));
 			final Printer<IMonitoringRecord> printer = new Printer<IMonitoringRecord>();
 
 			connectPorts(reader.getOutputPort(), printer.getInputPort());
@@ -48,10 +47,9 @@ public class Dir2RecordsFilterTest {
 		private final InitialElementProducer<File> producer;
 		private final Dir2RecordsFilter reader;
 
-		public ReadingComposite(final File importDirectory, final ConfigurationContext context) {
-			super(context);
+		public ReadingComposite(final File importDirectory) {
 			this.producer = new InitialElementProducer<File>(importDirectory);
-			this.reader = new Dir2RecordsFilter(new ClassNameRegistryRepository(), context);
+			this.reader = new Dir2RecordsFilter(new ClassNameRegistryRepository());
 
 			connectPorts(this.producer.getOutputPort(), this.reader.getInputPort());
 			addThreadableStage(producer);

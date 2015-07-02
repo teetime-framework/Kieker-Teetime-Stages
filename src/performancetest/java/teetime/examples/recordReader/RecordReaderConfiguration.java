@@ -51,7 +51,7 @@ public class RecordReaderConfiguration extends Configuration {
 		File logDir = new File("src/test/data/bookstore-logs");
 		// create stages
 		InitialElementProducer<File> initialElementProducer = new InitialElementProducer<File>(logDir);
-		Dir2RecordsFilter dir2RecordsFilter = new Dir2RecordsFilter(classNameRegistryRepository, getContext());
+		Dir2RecordsFilter dir2RecordsFilter = new Dir2RecordsFilter(classNameRegistryRepository);
 		CollectorSink<IMonitoringRecord> collector = new CollectorSink<IMonitoringRecord>(this.elementCollection);
 
 		// connect stages

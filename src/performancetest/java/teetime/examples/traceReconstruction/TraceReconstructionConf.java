@@ -80,7 +80,7 @@ public class TraceReconstructionConf extends Configuration {
 
 		// create stages
 		InitialElementProducer<File> initialElementProducer = new InitialElementProducer<File>(this.inputDir);
-		final Dir2RecordsFilter dir2RecordsFilter = new Dir2RecordsFilter(this.classNameRegistryRepository, getContext());
+		final Dir2RecordsFilter dir2RecordsFilter = new Dir2RecordsFilter(this.classNameRegistryRepository);
 		this.recordCounter = new Counter<IMonitoringRecord>();
 		final Cache<IMonitoringRecord> cache = new Cache<IMonitoringRecord>();
 
