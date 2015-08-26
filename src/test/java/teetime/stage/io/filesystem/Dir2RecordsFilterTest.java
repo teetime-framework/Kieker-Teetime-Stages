@@ -52,7 +52,7 @@ public class Dir2RecordsFilterTest {
 			this.reader = new Dir2RecordsFilter(new ClassNameRegistryRepository());
 
 			connectPorts(this.producer.getOutputPort(), this.reader.getInputPort());
-			addThreadableStage(producer);
+			declareActive(producer);
 		}
 
 		public OutputPort<IMonitoringRecord> getOutputPort() {

@@ -43,7 +43,7 @@ public class RecordReaderConfiguration extends Configuration {
 
 	private void buildConfiguration() {
 		final Stage producerPipeline = this.buildProducerPipeline();
-		addThreadableStage(producerPipeline);
+		declareActive(producerPipeline);
 	}
 
 	private Stage buildProducerPipeline() {

@@ -40,9 +40,9 @@ public class TcpTraceLoggingExtAnalysisConfiguration extends Configuration {
 
 	private void init() {
 		final Pipeline<Distributor<Long>> clockPipeline = this.buildClockPipeline(1000);
-		addThreadableStage(clockPipeline.getFirstStage());
+		declareActive(clockPipeline.getFirstStage());
 		final Stage tcpPipeline = this.buildTcpPipeline(clockPipeline.getLastStage());
-		addThreadableStage(tcpPipeline);
+		declareActive(tcpPipeline);
 	}
 
 	private Pipeline<Distributor<Long>> buildClockPipeline(final long intervalDelayInMs) {

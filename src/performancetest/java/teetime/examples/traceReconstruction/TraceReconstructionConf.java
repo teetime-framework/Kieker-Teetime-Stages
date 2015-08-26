@@ -62,10 +62,10 @@ public class TraceReconstructionConf extends Configuration {
 
 	private void init() {
 		Clock clockStage = this.buildClockPipeline();
-		addThreadableStage(clockStage);
+		declareActive(clockStage);
 
 		Stage pipeline = this.buildPipeline(clockStage);
-		addThreadableStage(pipeline);
+		declareActive(pipeline);
 	}
 
 	private Clock buildClockPipeline() {
@@ -105,7 +105,7 @@ public class TraceReconstructionConf extends Configuration {
 		connectPorts(stringBufferFilter.getOutputPort(), instanceOfFilter.getInputPort());
 		connectPorts(instanceOfFilter.getMatchedOutputPort(), this.throughputFilter.getInputPort());
 		connectPorts(this.throughputFilter.getOutputPort(), traceReconstructionFilter.getInputPort());
-		// connectIntraThreads(instanceOfFilter.getOutputPort(), traceReconstructionFilter.getInputPort());
+		// connectPorts(instanceOfFilter.getOutputPort(), traceReconstructionFilter.getInputPort());
 		connectPorts(traceReconstructionFilter.getTraceValidOutputPort(), merger.getNewInputPort());
 		connectPorts(traceReconstructionFilter.getTraceInvalidOutputPort(), merger.getNewInputPort());
 		connectPorts(merger.getOutputPort(), this.traceCounter.getInputPort());

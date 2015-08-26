@@ -92,17 +92,17 @@ public class TcpTraceReconstructionAnalysisWithThreadsConfiguration extends Conf
 
 	private void init() {
 		Pipeline<Distributor<IMonitoringRecord>> tcpPipeline = this.buildTcpPipeline();
-		addThreadableStage(tcpPipeline.getFirstStage());
+		declareActive(tcpPipeline.getFirstStage());
 
 		Pipeline<Distributor<Long>> clockStage = this.buildClockPipeline(1000);
-		addThreadableStage(clockStage.getFirstStage());
+		declareActive(clockStage.getFirstStage());
 
 		Pipeline<Distributor<Long>> clock2Stage = this.buildClockPipeline(2000);
-		addThreadableStage(clock2Stage.getFirstStage());
+		declareActive(clock2Stage.getFirstStage());
 
 		for (int i = 0; i < this.numWorkerThreads; i++) {
 			Stage pipeline = this.buildPipeline(tcpPipeline.getLastStage(), clockStage.getLastStage(), clock2Stage.getLastStage());
-			addThreadableStage(pipeline);
+			declareActive(pipeline);
 		}
 	}
 
@@ -187,8 +187,8 @@ public class TcpTraceReconstructionAnalysisWithThreadsConfiguration extends Conf
 		connectPorts(traceMetadataCounter.getOutputPort(), instanceOfFilter.getInputPort());
 		connectPorts(instanceOfFilter.getMatchedOutputPort(), traceReconstructionFilter.getInputPort());
 		connectPorts(traceReconstructionFilter.getTraceValidOutputPort(), traceCounter.getInputPort());
-		// connectIntraThreads(traceReconstructionFilter.getOutputPort(), traceThroughputFilter.getInputPort());
-		// connectIntraThreads(traceThroughputFilter.getOutputPort(), traceCounter.getInputPort());
+		// connectPorts(traceReconstructionFilter.getOutputPort(), traceThroughputFilter.getInputPort());
+		// connectPorts(traceThroughputFilter.getOutputPort(), traceCounter.getInputPort());
 		connectPorts(traceCounter.getOutputPort(), endStage.getInputPort());
 
 		return relay;

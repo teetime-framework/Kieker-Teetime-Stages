@@ -54,13 +54,13 @@ public class TcpTraceReconstructionConf extends Configuration {
 
 	private void init() {
 		Pipeline<Distributor<Long>> clockStage = this.buildClockPipeline(1000);
-		addThreadableStage(clockStage.getFirstStage());
+		declareActive(clockStage.getFirstStage());
 
 		Pipeline<Distributor<Long>> clock2Stage = this.buildClockPipeline(2000);
-		addThreadableStage(clock2Stage.getFirstStage());
+		declareActive(clock2Stage.getFirstStage());
 
 		Stage pipeline = this.buildPipeline(clockStage.getLastStage(), clock2Stage.getLastStage());
-		addThreadableStage(pipeline);
+		declareActive(pipeline);
 	}
 
 	private Pipeline<Distributor<Long>> buildClockPipeline(final long intervalDelayInMs) {
@@ -88,12 +88,12 @@ public class TcpTraceReconstructionConf extends Configuration {
 		// connect stages
 		connectPorts(tcpReader.getOutputPort(), this.recordCounter.getInputPort(), TCP_RELAY_MAX_SIZE);
 		connectPorts(this.recordCounter.getOutputPort(), instanceOfFilter.getInputPort());
-		// connectIntraThreads(instanceOfFilter.getOutputPort(), this.recordThroughputFilter.getInputPort());
-		// connectIntraThreads(this.recordThroughputFilter.getOutputPort(), traceReconstructionFilter.getInputPort());
+		// connectPorts(instanceOfFilter.getOutputPort(), this.recordThroughputFilter.getInputPort());
+		// connectPorts(this.recordThroughputFilter.getOutputPort(), traceReconstructionFilter.getInputPort());
 		connectPorts(instanceOfFilter.getMatchedOutputPort(), traceReconstructionFilter.getInputPort());
 		connectPorts(traceReconstructionFilter.getTraceValidOutputPort(), this.traceThroughputFilter.getInputPort());
 		connectPorts(this.traceThroughputFilter.getOutputPort(), this.traceCounter.getInputPort());
-		// connectIntraThreads(traceReconstructionFilter.getTraceValidOutputPort(), this.traceCounter.getInputPort());
+		// connectPorts(traceReconstructionFilter.getTraceValidOutputPort(), this.traceCounter.getInputPort());
 		connectPorts(this.traceCounter.getOutputPort(), endStage.getInputPort());
 
 		connectPorts(clockStage.getNewOutputPort(), this.recordThroughputFilter.getTriggerInputPort(), 10);
