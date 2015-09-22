@@ -19,16 +19,16 @@ import java.io.File;
 
 import org.junit.Test;
 
+import kieker.common.record.IMonitoringRecord;
+
 import teetime.framework.AbstractCompositeStage;
+import teetime.framework.AbstractStage;
 import teetime.framework.Configuration;
 import teetime.framework.Execution;
 import teetime.framework.OutputPort;
-import teetime.framework.Stage;
 import teetime.stage.InitialElementProducer;
 import teetime.stage.className.ClassNameRegistryRepository;
 import teetime.stage.io.Printer;
-
-import kieker.common.record.IMonitoringRecord;
 
 public class Dir2RecordsFilterTest {
 
@@ -52,14 +52,13 @@ public class Dir2RecordsFilterTest {
 			this.reader = new Dir2RecordsFilter(new ClassNameRegistryRepository());
 
 			connectPorts(this.producer.getOutputPort(), this.reader.getInputPort());
-			declareActive(producer);
 		}
 
 		public OutputPort<IMonitoringRecord> getOutputPort() {
 			return this.reader.getOutputPort();
 		}
 
-		public Stage getFirstStage() {
+		public AbstractStage getFirstStage() {
 			return this.producer;
 		}
 

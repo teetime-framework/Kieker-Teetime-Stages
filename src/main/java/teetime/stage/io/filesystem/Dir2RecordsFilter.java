@@ -20,7 +20,7 @@ import java.io.File;
 import teetime.framework.AbstractCompositeStage;
 import teetime.framework.InputPort;
 import teetime.framework.OutputPort;
-import teetime.framework.Stage;
+import teetime.framework.AbstractStage;
 import teetime.stage.FileExtensionSwitch;
 import teetime.stage.basic.merger.Merger;
 import teetime.stage.className.ClassNameRegistryCreationFilter;
@@ -85,7 +85,7 @@ public final class Dir2RecordsFilter extends AbstractCompositeStage {
 		this.classNameRegistryCreationFilter = classNameRegistryCreationFilter;
 	}
 
-	public Stage getFirstStage() {
+	public AbstractStage getFirstStage() {
 		return classNameRegistryCreationFilter;
 	}
 

@@ -21,10 +21,13 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import kieker.common.record.IMonitoringRecord;
+import kieker.common.record.flow.IFlowRecord;
+import kieker.common.record.flow.trace.TraceMetadata;
+
 import teetime.framework.AbstractStage;
 import teetime.framework.Configuration;
 import teetime.framework.Pipeline;
-import teetime.framework.Stage;
 import teetime.framework.pipe.IMonitorablePipe;
 import teetime.stage.Clock;
 import teetime.stage.Counter;
@@ -40,10 +43,6 @@ import teetime.stage.trace.traceReconstruction.EventBasedTrace;
 import teetime.stage.trace.traceReconstruction.EventBasedTraceFactory;
 import teetime.stage.trace.traceReconstruction.TraceReconstructionFilter;
 import teetime.util.ConcurrentHashMapWithDefault;
-
-import kieker.common.record.IMonitoringRecord;
-import kieker.common.record.flow.IFlowRecord;
-import kieker.common.record.flow.trace.TraceMetadata;
 
 public class TcpTraceReconstructionAnalysisWithThreadsConfiguration extends Configuration {
 
@@ -92,17 +91,12 @@ public class TcpTraceReconstructionAnalysisWithThreadsConfiguration extends Conf
 
 	private void init() {
 		Pipeline<Distributor<IMonitoringRecord>> tcpPipeline = this.buildTcpPipeline();
-		declareActive(tcpPipeline.getFirstStage());
-
 		Pipeline<Distributor<Long>> clockStage = this.buildClockPipeline(1000);
-		declareActive(clockStage.getFirstStage());
-
 		Pipeline<Distributor<Long>> clock2Stage = this.buildClockPipeline(2000);
-		declareActive(clock2Stage.getFirstStage());
 
 		for (int i = 0; i < this.numWorkerThreads; i++) {
-			Stage pipeline = this.buildPipeline(tcpPipeline.getLastStage(), clockStage.getLastStage(), clock2Stage.getLastStage());
-			declareActive(pipeline);
+			AbstractStage pipeline = this.buildPipeline(tcpPipeline.getLastStage(), clockStage.getLastStage(), clock2Stage.getLastStage());
+			pipeline.declareActive();
 		}
 	}
 
@@ -156,7 +150,7 @@ public class TcpTraceReconstructionAnalysisWithThreadsConfiguration extends Conf
 		}
 	}
 
-	private Stage buildPipeline(final Distributor<IMonitoringRecord> tcpReaderPipeline, final Distributor<Long> clockStage,
+	private AbstractStage buildPipeline(final Distributor<IMonitoringRecord> tcpReaderPipeline, final Distributor<Long> clockStage,
 			final Distributor<Long> clock2Stage) {
 		// create stages
 		Relay<IMonitoringRecord> relay = new Relay<IMonitoringRecord>();
@@ -190,6 +184,9 @@ public class TcpTraceReconstructionAnalysisWithThreadsConfiguration extends Conf
 		// connectPorts(traceReconstructionFilter.getOutputPort(), traceThroughputFilter.getInputPort());
 		// connectPorts(traceThroughputFilter.getOutputPort(), traceCounter.getInputPort());
 		connectPorts(traceCounter.getOutputPort(), endStage.getInputPort());
+
+		recordThroughputFilter.declareActive();
+		traceThroughputFilter.declareActive();
 
 		return relay;
 	}

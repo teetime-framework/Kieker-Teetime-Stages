@@ -17,9 +17,12 @@ package teetime.examples.traceReconstruction;
 
 import java.util.List;
 
+import kieker.common.record.IMonitoringRecord;
+import kieker.common.record.flow.IFlowRecord;
+
+import teetime.framework.AbstractStage;
 import teetime.framework.Configuration;
 import teetime.framework.Pipeline;
-import teetime.framework.Stage;
 import teetime.stage.Clock;
 import teetime.stage.Counter;
 import teetime.stage.ElementThroughputMeasuringStage;
@@ -31,9 +34,6 @@ import teetime.stage.trace.traceReconstruction.EventBasedTrace;
 import teetime.stage.trace.traceReconstruction.EventBasedTraceFactory;
 import teetime.stage.trace.traceReconstruction.TraceReconstructionFilter;
 import teetime.util.ConcurrentHashMapWithDefault;
-
-import kieker.common.record.IMonitoringRecord;
-import kieker.common.record.flow.IFlowRecord;
 
 public class TcpTraceReconstructionConf extends Configuration {
 
@@ -54,13 +54,8 @@ public class TcpTraceReconstructionConf extends Configuration {
 
 	private void init() {
 		Pipeline<Distributor<Long>> clockStage = this.buildClockPipeline(1000);
-		declareActive(clockStage.getFirstStage());
-
 		Pipeline<Distributor<Long>> clock2Stage = this.buildClockPipeline(2000);
-		declareActive(clock2Stage.getFirstStage());
-
-		Stage pipeline = this.buildPipeline(clockStage.getLastStage(), clock2Stage.getLastStage());
-		declareActive(pipeline);
+		this.buildPipeline(clockStage.getLastStage(), clock2Stage.getLastStage());
 	}
 
 	private Pipeline<Distributor<Long>> buildClockPipeline(final long intervalDelayInMs) {
@@ -73,7 +68,7 @@ public class TcpTraceReconstructionConf extends Configuration {
 		return new Pipeline<Distributor<Long>>(clock, distributor);
 	}
 
-	private Stage buildPipeline(final Distributor<Long> clockStage, final Distributor<Long> clock2Stage) {
+	private AbstractStage buildPipeline(final Distributor<Long> clockStage, final Distributor<Long> clock2Stage) {
 		// create stages
 		TcpReaderStage tcpReader = new TcpReaderStage();
 		this.recordCounter = new Counter<IMonitoringRecord>();

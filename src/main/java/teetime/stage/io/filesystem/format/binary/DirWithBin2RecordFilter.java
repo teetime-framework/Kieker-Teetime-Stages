@@ -20,7 +20,7 @@ import java.io.File;
 import teetime.framework.AbstractCompositeStage;
 import teetime.framework.InputPort;
 import teetime.framework.OutputPort;
-import teetime.framework.Stage;
+import teetime.framework.AbstractStage;
 import teetime.stage.className.ClassNameRegistryCreationFilter;
 import teetime.stage.className.ClassNameRegistryRepository;
 import teetime.stage.io.filesystem.format.binary.file.BinaryFile2RecordFilter;
@@ -53,7 +53,7 @@ public class DirWithBin2RecordFilter extends AbstractCompositeStage {
 		this.classNameRegistryRepository = classNameRegistryRepository;
 	}
 
-	protected Stage getFirstStage() {
+	protected AbstractStage getFirstStage() {
 		return classNameRegistryCreationFilter;
 	}
 

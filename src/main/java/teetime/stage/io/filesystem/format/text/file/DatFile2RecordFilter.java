@@ -20,7 +20,7 @@ import java.io.File;
 import teetime.framework.AbstractCompositeStage;
 import teetime.framework.InputPort;
 import teetime.framework.OutputPort;
-import teetime.framework.Stage;
+import teetime.framework.AbstractStage;
 import teetime.stage.className.ClassNameRegistryRepository;
 import teetime.stage.io.File2TextLinesFilter;
 
@@ -43,7 +43,7 @@ public class DatFile2RecordFilter extends AbstractCompositeStage {
 		connectPorts(file2TextLinesFilter.getOutputPort(), textLine2RecordFilter.getInputPort());
 	}
 
-	public Stage getFirstStage() {
+	public AbstractStage getFirstStage() {
 		return file2TextLinesFilter;
 	}
 

@@ -19,8 +19,11 @@ import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 
+import kieker.common.record.IMonitoringRecord;
+import kieker.common.record.flow.IFlowRecord;
+
+import teetime.framework.AbstractStage;
 import teetime.framework.Configuration;
-import teetime.framework.Stage;
 import teetime.stage.Cache;
 import teetime.stage.Clock;
 import teetime.stage.CollectorSink;
@@ -38,9 +41,6 @@ import teetime.stage.trace.traceReconstruction.EventBasedTrace;
 import teetime.stage.trace.traceReconstruction.EventBasedTraceFactory;
 import teetime.stage.trace.traceReconstruction.TraceReconstructionFilter;
 import teetime.util.ConcurrentHashMapWithDefault;
-
-import kieker.common.record.IMonitoringRecord;
-import kieker.common.record.flow.IFlowRecord;
 
 public class TraceReconstructionConf extends Configuration {
 
@@ -62,10 +62,7 @@ public class TraceReconstructionConf extends Configuration {
 
 	private void init() {
 		Clock clockStage = this.buildClockPipeline();
-		declareActive(clockStage);
-
-		Stage pipeline = this.buildPipeline(clockStage);
-		declareActive(pipeline);
+		this.buildPipeline(clockStage);
 	}
 
 	private Clock buildClockPipeline() {
@@ -75,7 +72,7 @@ public class TraceReconstructionConf extends Configuration {
 		return clock;
 	}
 
-	private Stage buildPipeline(final Clock clockStage) {
+	private AbstractStage buildPipeline(final Clock clockStage) {
 		this.classNameRegistryRepository = new ClassNameRegistryRepository();
 
 		// create stages

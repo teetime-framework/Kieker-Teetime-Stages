@@ -19,14 +19,14 @@ import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 
+import kieker.common.record.IMonitoringRecord;
+
+import teetime.framework.AbstractStage;
 import teetime.framework.Configuration;
-import teetime.framework.Stage;
 import teetime.stage.CollectorSink;
 import teetime.stage.InitialElementProducer;
 import teetime.stage.className.ClassNameRegistryRepository;
 import teetime.stage.io.filesystem.Dir2RecordsFilter;
-
-import kieker.common.record.IMonitoringRecord;
 
 /**
  * @author Christian Wulf
@@ -41,12 +41,7 @@ public class RecordReaderConfiguration extends Configuration {
 		this.buildConfiguration();
 	}
 
-	private void buildConfiguration() {
-		final Stage producerPipeline = this.buildProducerPipeline();
-		declareActive(producerPipeline);
-	}
-
-	private Stage buildProducerPipeline() {
+	private AbstractStage buildConfiguration() {
 		ClassNameRegistryRepository classNameRegistryRepository = new ClassNameRegistryRepository();
 		File logDir = new File("src/test/data/bookstore-logs");
 		// create stages

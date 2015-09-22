@@ -23,10 +23,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import kieker.common.record.IMonitoringRecord;
+import kieker.common.record.flow.IFlowRecord;
+import kieker.common.record.flow.trace.TraceMetadata;
+
 import teetime.framework.AbstractStage;
 import teetime.framework.Configuration;
 import teetime.framework.Pipeline;
-import teetime.framework.Stage;
 import teetime.framework.pipe.IMonitorablePipe;
 import teetime.stage.Clock;
 import teetime.stage.Counter;
@@ -45,10 +48,6 @@ import teetime.stage.trace.traceReduction.EventBasedTraceComperator;
 import teetime.stage.trace.traceReduction.TraceAggregationBuffer;
 import teetime.stage.trace.traceReduction.TraceReductionFilter;
 import teetime.util.ConcurrentHashMapWithDefault;
-
-import kieker.common.record.IMonitoringRecord;
-import kieker.common.record.flow.IFlowRecord;
-import kieker.common.record.flow.trace.TraceMetadata;
 
 public class TcpTraceReductionAnalysisWithThreadsConfiguration extends Configuration {
 
@@ -88,17 +87,11 @@ public class TcpTraceReductionAnalysisWithThreadsConfiguration extends Configura
 
 	private void init() {
 		final Pipeline<Distributor<IMonitoringRecord>> tcpPipeline = this.buildTcpPipeline();
-		declareActive(tcpPipeline.getFirstStage());
-
 		final Pipeline<Distributor<Long>> clockStage = this.buildClockPipeline(1000);
-		declareActive(clockStage.getFirstStage());
-
 		final Pipeline<Distributor<Long>> clock2Stage = this.buildClockPipeline(5000);
-		declareActive(clock2Stage.getFirstStage());
-
 		for (int i = 0; i < this.numWorkerThreads; i++) {
-			final Stage pipeline = this.buildPipeline(tcpPipeline, clockStage, clock2Stage);
-			declareActive(pipeline);
+			final AbstractStage pipeline = this.buildPipeline(tcpPipeline, clockStage, clock2Stage);
+			pipeline.declareActive();
 		}
 	}
 
@@ -158,7 +151,7 @@ public class TcpTraceReductionAnalysisWithThreadsConfiguration extends Configura
 	private final StageFactory<Counter<TraceAggregationBuffer>> traceCounterFactory;
 	private final StageFactory<ElementThroughputMeasuringStage<TraceAggregationBuffer>> traceThroughputFilterFactory;
 
-	private Stage buildPipeline(final Pipeline<Distributor<IMonitoringRecord>> tcpPipeline, final Pipeline<Distributor<Long>> clockStage,
+	private AbstractStage buildPipeline(final Pipeline<Distributor<IMonitoringRecord>> tcpPipeline, final Pipeline<Distributor<Long>> clockStage,
 			final Pipeline<Distributor<Long>> clock2Stage) {
 		// create stages
 		Relay<IMonitoringRecord> relay = new Relay<IMonitoringRecord>();
@@ -191,6 +184,9 @@ public class TcpTraceReductionAnalysisWithThreadsConfiguration extends Configura
 
 		connectPorts(clock2Stage.getLastStage().getNewOutputPort(), traceReductionFilter.getTriggerInputPort(), 10);
 		connectPorts(clockStage.getLastStage().getNewOutputPort(), traceThroughputFilter.getTriggerInputPort(), 10);
+
+		traceReductionFilter.declareActive();
+		traceThroughputFilter.declareActive();
 
 		return relay;
 	}

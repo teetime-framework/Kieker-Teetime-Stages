@@ -26,17 +26,17 @@ import java.util.List;
  *            the type of the last stage in this pipeline
  */
 // TODO Consider to move it in the framework
-public final class Pipeline<L extends Stage> extends AbstractCompositeStage {
+public final class Pipeline<L extends AbstractStage> extends AbstractCompositeStage {
 
-	private final Stage firstStage;
+	private final AbstractStage firstStage;
 	private final List<L> lastStages = new LinkedList<L>();
 
-	public Pipeline(final Stage firstStage, final L lastStage) {
+	public Pipeline(final AbstractStage firstStage, final L lastStage) {
 		this.firstStage = firstStage;
 		this.lastStages.add(lastStage);
 	}
 
-	public Stage getFirstStage() {
+	public AbstractStage getFirstStage() {
 		return firstStage;
 	}
 

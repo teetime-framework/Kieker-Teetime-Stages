@@ -17,17 +17,17 @@ package teetime.examples.traceReading;
 
 import java.util.List;
 
+import kieker.common.record.IMonitoringRecord;
+
+import teetime.framework.AbstractStage;
 import teetime.framework.Configuration;
 import teetime.framework.Pipeline;
-import teetime.framework.Stage;
 import teetime.stage.Clock;
 import teetime.stage.Counter;
 import teetime.stage.ElementThroughputMeasuringStage;
 import teetime.stage.basic.Sink;
 import teetime.stage.basic.distributor.Distributor;
 import teetime.stage.io.network.TcpReaderStage;
-
-import kieker.common.record.IMonitoringRecord;
 
 public class TcpTraceLoggingExtAnalysisConfiguration extends Configuration {
 
@@ -40,9 +40,7 @@ public class TcpTraceLoggingExtAnalysisConfiguration extends Configuration {
 
 	private void init() {
 		final Pipeline<Distributor<Long>> clockPipeline = this.buildClockPipeline(1000);
-		declareActive(clockPipeline.getFirstStage());
-		final Stage tcpPipeline = this.buildTcpPipeline(clockPipeline.getLastStage());
-		declareActive(tcpPipeline);
+		this.buildTcpPipeline(clockPipeline.getLastStage());
 	}
 
 	private Pipeline<Distributor<Long>> buildClockPipeline(final long intervalDelayInMs) {
@@ -56,7 +54,7 @@ public class TcpTraceLoggingExtAnalysisConfiguration extends Configuration {
 		return new Pipeline<Distributor<Long>>(clockStage, distributor);
 	}
 
-	private Stage buildTcpPipeline(final Distributor<Long> previousClockStage) {
+	private AbstractStage buildTcpPipeline(final Distributor<Long> previousClockStage) {
 		TcpReaderStage tcpReader = new TcpReaderStage();
 		this.recordCounter = new Counter<IMonitoringRecord>();
 		this.recordThroughputStage = new ElementThroughputMeasuringStage<IMonitoringRecord>();
@@ -68,6 +66,8 @@ public class TcpTraceLoggingExtAnalysisConfiguration extends Configuration {
 		// intraThreadPipeFactory.create(this.recordCounter.getOutputPort(), endStage.getInputPort());
 
 		connectPorts(previousClockStage.getNewOutputPort(), this.recordThroughputStage.getTriggerInputPort(), 10);
+
+		recordThroughputStage.declareActive();
 
 		return tcpReader;
 	}
