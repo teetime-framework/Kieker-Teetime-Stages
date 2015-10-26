@@ -8,6 +8,9 @@
 	<packaging>jar</packaging>
 
 	<name>TeeTime-Stages</name>
+	<inceptionYear>2015</inceptionYear>
+	<url>http://teetime-framework.github.io</url>
+	<description>Kieker specific stages for the TeeTime framework</description>
 
 	<licenses>
 		<license>
@@ -358,7 +361,4 @@
 		</profile>
 	</profiles>
 
-	<inceptionYear>2015</inceptionYear>
-	<url>http://teetime.sourceforge.org</url>
-	<description>Kieker specific stages for the TeeTime framework</description>
 </project>
