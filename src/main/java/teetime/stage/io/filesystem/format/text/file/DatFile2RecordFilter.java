@@ -17,7 +17,7 @@ package teetime.stage.io.filesystem.format.text.file;
 
 import java.io.File;
 
-import teetime.framework.AbstractCompositeStage;
+import teetime.framework.CompositeStage;
 import teetime.framework.InputPort;
 import teetime.framework.OutputPort;
 import teetime.framework.AbstractStage;
@@ -31,7 +31,7 @@ import kieker.common.record.IMonitoringRecord;
  *
  * @since 1.10
  */
-public class DatFile2RecordFilter extends AbstractCompositeStage {
+public class DatFile2RecordFilter extends CompositeStage {
 
 	private final File2TextLinesFilter file2TextLinesFilter;
 	private final TextLine2RecordFilter textLine2RecordFilter;

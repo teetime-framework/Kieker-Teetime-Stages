@@ -17,7 +17,7 @@ package teetime.stage.io.filesystem;
 
 import java.io.File;
 
-import teetime.framework.AbstractCompositeStage;
+import teetime.framework.CompositeStage;
 import teetime.framework.InputPort;
 import teetime.framework.OutputPort;
 import teetime.framework.AbstractStage;
@@ -38,7 +38,7 @@ import kieker.common.util.filesystem.FSUtil;
  *
  * @since 1.0
  */
-public final class Dir2RecordsFilter extends AbstractCompositeStage {
+public final class Dir2RecordsFilter extends CompositeStage {
 
 	private final ClassNameRegistryCreationFilter classNameRegistryCreationFilter;
 	private final Merger<IMonitoringRecord> recordMerger;

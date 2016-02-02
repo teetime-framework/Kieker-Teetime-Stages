@@ -21,7 +21,7 @@ import org.junit.Test;
 
 import kieker.common.record.IMonitoringRecord;
 
-import teetime.framework.AbstractCompositeStage;
+import teetime.framework.CompositeStage;
 import teetime.framework.AbstractStage;
 import teetime.framework.Configuration;
 import teetime.framework.Execution;
@@ -42,7 +42,7 @@ public class Dir2RecordsFilterTest {
 		}
 	}
 
-	class ReadingComposite extends AbstractCompositeStage {
+	class ReadingComposite extends CompositeStage {
 
 		private final InitialElementProducer<File> producer;
 		private final Dir2RecordsFilter reader;

@@ -17,7 +17,7 @@ package teetime.stage.io.filesystem.format.binary;
 
 import java.io.File;
 
-import teetime.framework.AbstractCompositeStage;
+import teetime.framework.CompositeStage;
 import teetime.framework.InputPort;
 import teetime.framework.OutputPort;
 import teetime.framework.AbstractStage;
@@ -27,7 +27,7 @@ import teetime.stage.io.filesystem.format.binary.file.BinaryFile2RecordFilter;
 
 import kieker.common.record.IMonitoringRecord;
 
-public class DirWithBin2RecordFilter extends AbstractCompositeStage {
+public class DirWithBin2RecordFilter extends CompositeStage {
 
 	private final ClassNameRegistryCreationFilter classNameRegistryCreationFilter;
 	private final BinaryFile2RecordFilter binaryFile2RecordFilter;
