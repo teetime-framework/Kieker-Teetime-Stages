@@ -22,7 +22,7 @@ import teetime.framework.AbstractConsumerStage;
 import teetime.framework.OutputPort;
 import teetime.stage.className.ClassNameRegistryRepository;
 import teetime.stage.util.MappingException;
-import teetime.stage.util.TextLine;
+import teetime.stage.util.TextLineContainer;
 
 import kieker.common.exception.IllegalRecordFormatException;
 import kieker.common.exception.MonitoringRecordException;
@@ -34,7 +34,7 @@ import kieker.common.record.IMonitoringRecord;
  *
  * @since 1.10
  */
-public class TextLine2RecordFilter extends AbstractConsumerStage<TextLine> {
+public class TextLine2RecordFilter extends AbstractConsumerStage<TextLineContainer> {
 
 	private final OutputPort<IMonitoringRecord> outputPort = this.createOutputPort();
 
@@ -77,7 +77,7 @@ public class TextLine2RecordFilter extends AbstractConsumerStage<TextLine> {
 	}
 
 	@Override
-	protected void execute(final TextLine textLine) {
+	protected void execute(final TextLineContainer textLine) {
 		try {
 			final IMonitoringRecord record = this.recordFromTextLineCreator.createRecordFromLine(textLine.getTextFile(), textLine.getTextLine());
 			outputPort.send(record);
