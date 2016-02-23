@@ -76,12 +76,12 @@
 		<dependency>
 			<groupId>net.kieker-monitoring</groupId>
 			<artifactId>kieker</artifactId>
-			<version>1.11</version>
+			<version>1.12</version>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>4.11</version>
+			<version>4.12</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -93,18 +93,18 @@
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
-			<version>1.7.7</version>
+			<version>1.7.16</version>
 		</dependency>
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
-			<version>1.1.2</version>
+			<version>1.1.5</version>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
-			<version>18.0</version>
+			<version>19.0</version>
 		</dependency>
 	</dependencies>
 
@@ -122,7 +122,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.1</version>
+				<version>3.5.1</version>
 
 				<configuration>
 					<source>${java.version}</source>
@@ -134,7 +134,7 @@
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>versions-maven-plugin</artifactId>
-				<version>2.1</version>
+				<version>2.2</version>
 			</plugin>
 
 			<!-- goals to build a jar with binaries: jar:jar, jar:test-jar -->
@@ -170,7 +170,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
-				<version>2.2.1</version>
+				<version>2.4</version>
 				<executions>
 					<execution>
 						<id>attach-sources</id>
@@ -184,7 +184,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>2.9.1</version>
+				<version>2.10.3</version>
 				<configuration>
 					<failOnError>false</failOnError>
 				</configuration>
@@ -201,7 +201,7 @@
 			<plugin>
 				<groupId>org.sonatype.plugins</groupId>
 				<artifactId>nexus-staging-maven-plugin</artifactId>
-				<version>1.6.3</version>
+				<version>1.6.6</version>
 				<extensions>true</extensions>
 				<configuration>
 					<serverId>teetime-deployment</serverId>
@@ -238,7 +238,7 @@
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>findbugs-maven-plugin</artifactId>
-				<version>3.0.0</version>
+				<version>3.0.3</version>
 				<configuration>
 					<effort>Max</effort>
 					<threshold>Low</threshold>
@@ -260,7 +260,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-pmd-plugin</artifactId>
-				<version>3.2</version>
+				<version>3.6</version>
 				<configuration>
 					<rulesets>
 						<ruleset>${project.basedir}/conf/quality-config/pmd-ruleset.xml</ruleset>
@@ -285,7 +285,7 @@
 			<plugin>
 				<groupId>com.mycila</groupId>
 				<artifactId>license-maven-plugin</artifactId>
-				<version>2.7</version>
+				<version>2.11</version>
 				<configuration>
 					<header>com/mycila/maven/plugin/license/templates/APACHE-2.txt</header>
 					<properties>
@@ -318,7 +318,7 @@
 					<plugin>
 						<groupId>org.codehaus.mojo</groupId>
 						<artifactId>build-helper-maven-plugin</artifactId>
-						<version>1.9.1</version>
+						<version>1.10</version>
 						<executions>
 							<execution>
 								<id>add-test-source</id>
@@ -352,7 +352,7 @@
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-gpg-plugin</artifactId>
-						<version>1.5</version>
+						<version>1.6</version>
 						<executions>
 							<execution>
 								<id>sign-artifacts</id>
