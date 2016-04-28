@@ -85,7 +85,7 @@ public final class TcpReaderStage extends AbstractProducerStage<IMonitoringRecor
 	@Override
 	protected void execute() {
 		tcpMonitoringRecordReader.run();
-		terminate();
+		terminateStage();
 	}
 
 	@Override

@@ -102,7 +102,7 @@ public class KiekerRecordTcpReader extends AbstractProducerStage<IMonitoringReco
 				}
 			}
 
-			this.terminate();
+			this.terminateStage();
 		}
 	}
 
