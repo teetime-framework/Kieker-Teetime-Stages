@@ -17,16 +17,16 @@ package teetime.stage.io.filesystem.format.text.file;
 
 import java.io.File;
 
-import teetime.stage.className.ClassNameRegistry;
-import teetime.stage.className.ClassNameRegistryRepository;
-import teetime.stage.util.MappingException;
-
 import kieker.common.exception.IllegalRecordFormatException;
 import kieker.common.exception.MonitoringRecordException;
 import kieker.common.exception.UnknownRecordTypeException;
 import kieker.common.record.AbstractMonitoringRecord;
 import kieker.common.record.IMonitoringRecord;
 import kieker.common.record.controlflow.OperationExecutionRecord;
+
+import teetime.stage.className.ClassNameRegistry;
+import teetime.stage.className.ClassNameRegistryRepository;
+import teetime.stage.util.MappingException;
 
 /**
  * @author Christian Wulf
@@ -51,7 +51,7 @@ public class RecordFromTextLineCreator {
 	public IMonitoringRecord createRecordFromLine(final File textFile, final String line) throws MonitoringRecordException, IllegalRecordFormatException,
 			MappingException,
 			UnknownRecordTypeException {
-		final String[] recordFields = line.split(CSV_SEPARATOR_CHARACTER);
+		final String[] recordFields = line.split(CSV_SEPARATOR_CHARACTER, -1);
 
 		if (recordFields.length < 2) {
 			throw ILLEGAL_RECORD_FORMAT_EXCEPTION;
