@@ -29,7 +29,7 @@ public class SingleSocketRecordReader extends AbstractTcpReader {
 	public SingleSocketRecordReader(final int port, final int bufferCapacity, final Logger logger, final IRecordReceivedListener listener) {
 		super(port, bufferCapacity, logger);
 		this.listener = listener;
-		this.stringRegistryWrapper = new StringRegistryWrapper<String>(readerRegistry);
+		this.stringRegistryWrapper = new GetValueAdapter<String>(this.readerRegistry);
 	}
 
 	@Override
@@ -41,15 +41,15 @@ public class SingleSocketRecordReader extends AbstractTcpReader {
 		final int clazzId = buffer.getInt();
 
 		if (clazzId == -1) {
-			return registerRegistryEntry(clazzId, buffer);
+			return this.registerRegistryEntry(clazzId, buffer);
 		} else {
-			return deserializeRecord(clazzId, buffer);
+			return this.deserializeRecord(clazzId, buffer);
 		}
 	}
 
 	private boolean registerRegistryEntry(final int clazzId, final ByteBuffer buffer) {
 		// identify string identifier and string length
-		if (buffer.remaining() < INT_BYTES + INT_BYTES) {
+		if (buffer.remaining() < (INT_BYTES + INT_BYTES)) {
 			return false;
 		}
 
@@ -60,15 +60,11 @@ public class SingleSocketRecordReader extends AbstractTcpReader {
 			return false;
 		}
 
-		// old code
-		// final byte[] strBytes = new byte[stringLength];
-		// buffer.get(strBytes);
-		// String string = new String(strBytes, ENCODING);
+		final byte[] strBytes = new byte[stringLength];
+		buffer.get(strBytes);
+		final String string = new String(strBytes, ENCODING);
 
-		// new code by chw (since 14.07.2016)
-		String string = new String(buffer.array(), buffer.position(), stringLength, ENCODING);
-
-		readerRegistry.register(id, string);
+		this.readerRegistry.register(id, string);
 		return true;
 	}
 
@@ -91,7 +87,7 @@ public class SingleSocketRecordReader extends AbstractTcpReader {
 			final IMonitoringRecord record = recordFactory.create(buffer, this.stringRegistryWrapper);
 			record.setLoggingTimestamp(loggingTimestamp);
 
-			listener.onRecordReceived(record);
+			this.listener.onRecordReceived(record);
 		} catch (final RecordInstantiationException ex) {
 			super.logger.error("Failed to create: " + recordClassName, ex);
 		}

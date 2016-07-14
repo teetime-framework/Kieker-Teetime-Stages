@@ -3,11 +3,16 @@ package teetime.stage.io.network.util;
 import kieker.common.util.registry.IMonitoringRecordReceiver;
 import kieker.common.util.registry.IRegistry;
 
-public class StringRegistryWrapper<E> implements IRegistry<E> {
+/**
+ * @author Christian Wulf
+ *
+ * @since 1.13
+ */
+public class GetValueAdapter<E> implements IRegistry<E> {
 
 	private final ReaderRegistry<E> readerRegistry;
 
-	public StringRegistryWrapper(final ReaderRegistry<E> readerRegistry) {
+	public GetValueAdapter(final ReaderRegistry<E> readerRegistry) {
 		this.readerRegistry = readerRegistry;
 	}
 
@@ -18,7 +23,7 @@ public class StringRegistryWrapper<E> implements IRegistry<E> {
 
 	@Override
 	public E get(final int key) {
-		return readerRegistry.get(key);
+		return this.readerRegistry.get(key);
 	}
 
 	@Override
